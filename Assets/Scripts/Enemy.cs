@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
 using static UnityEngine.InputSystem.OnScreen.OnScreenStick;
@@ -12,6 +13,11 @@ public class Enemy : MonoBehaviour
     private DamageHandler damageHandler;
 
     private IEnemyBehaviour currentBehaviour;
+
+
+    //for raycaaast
+    public float groundCheckDistance = 10f;
+    public LayerMask groundLayer;
     public void Initialize(string name, int maxHealth, float physicalResistance, float magicResistance, IEnemyBehaviour behaviour)
     {
         Name = name;
@@ -32,7 +38,6 @@ public class Enemy : MonoBehaviour
         {
             Transform player = FindPlayerTransform();
             currentBehaviour.UpdateBehaviour(this, player);
-            Debug.Log($"aaa");
         }
     }
 
@@ -44,22 +49,86 @@ public class Enemy : MonoBehaviour
 
     private Transform FindPlayerTransform()
     {
-        Debug.Log("вот координаты я нашел");
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         return player?.transform;
     }
     public void Attack(Transform target)
     {
-        Debug.Log($"{Name} атакует {target.name}!");
+        Debug.Log($"{Name} атакует {target.name}");
     }
 
-    public void MoveTowards(Vector3 position)
+    public void MoveTowards(Transform target, float speed)
     {
-        Debug.Log($"{Name} идёт к цели!");
+        if (target == null)
+        {
+            Debug.LogWarning("no target err");
+            return;
+        }
+
+        transform.position = Vector3.MoveTowards(transform.position, target.position, speed * Time.deltaTime);
+
+        Vector3 direction = (target.position - transform.position).normalized;
+        if (direction != Vector3.zero)
+        {
+            Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
+        }
     }
 
-    public void MoveAwayFrom(Vector3 position)
+    public void MoveAwayFrom(Transform target, float speed, float safeDistance)
     {
-        Debug.Log($"{Name} отступает!");
+        if (target == null)
+        {
+            Debug.LogWarning("no target err");
+            return;
+        }
+
+
+        float distanceToTarget = Vector3.Distance(transform.position, target.position);
+
+
+        if (distanceToTarget < safeDistance)
+        {
+
+            Vector3 direction = (transform.position - target.position).normalized;
+
+            //if (!IsGroundAhead(direction))
+            //{
+            //    Debug.Log($"{Name} не может отступить — обрыв!");
+            //    return;
+            //}
+
+            transform.position += direction * speed * Time.deltaTime;
+
+            if (direction != Vector3.zero)
+            {
+                Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
+                transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
+            }
+
+            Debug.Log($"{Name} отступает от {target.name}");
+        }
+        else
+        {
+            Debug.Log($"{Name} на безопасном расстоянии от {target.name}");
+        }
     }
+
+    //public bool IsGroundAhead(Vector3? checkDirection = null)
+    //{
+    //    Vector3 rayStart = transform.position + Vector3.up * 1.5f;
+    //    Vector3 direction = checkDirection ?? transform.forward;
+
+    //    RaycastHit hit;
+    //    if (Physics.Raycast(rayStart + direction * 0.5f, Vector3.down, out hit, groundCheckDistance, groundLayer))
+    //    {
+    //        Debug.Log($"Земля найдена! Объект: {hit.collider.gameObject.name}");
+    //        Debug.DrawRay(rayStart + direction * 0.5f, Vector3.down * groundCheckDistance, Color.green);
+    //        return true;
+    //    }
+
+    //    Debug.Log("Земля НЕ найдена!");
+    //    Debug.DrawRay(rayStart + direction * 0.5f, Vector3.down * groundCheckDistance, Color.red);
+    //    return false;
+    //}
 }

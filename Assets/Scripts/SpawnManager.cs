@@ -53,8 +53,8 @@ public class SpawnManager : MonoBehaviour
         {
             case EnemyBehaviourType.Melee:
                 return new MeleeBehavior();
-            //case EnemyBehaviourType.Ranged:
-            //    return new RangedBehaviour();
+            case EnemyBehaviourType.Ranged:
+                return new RangedBehaviour();
             default:
                 return new MeleeBehavior();
         }

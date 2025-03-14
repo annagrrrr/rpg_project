@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 8462021967233737965}
   - component: {fileID: 6064980626370682277}
   - component: {fileID: 8084242818614899045}
-  - component: {fileID: 7219491449371897455}
   m_Layer: 0
   m_Name: MageBody
   m_TagString: Untagged
@@ -65,7 +64,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 9bba42969cf917e4691219bd4df5e424, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -87,29 +86,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!136 &7219491449371897455
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 571311767441130634}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5000001
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
 --- !u!1 &4903974240507830707
 GameObject:
   m_ObjectHideFlags: 0
@@ -122,6 +98,8 @@ GameObject:
   - component: {fileID: 5630845270863370430}
   - component: {fileID: 6170778551103354148}
   - component: {fileID: 1039827185072879115}
+  - component: {fileID: 7468888018010229616}
+  - component: {fileID: 5868913704835731751}
   m_Layer: 0
   m_Name: Mage
   m_TagString: Untagged
@@ -157,6 +135,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d929a53305bcbb4c8a4d7045090549b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  groundCheckDistance: 1
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!114 &6170778551103354148
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -181,3 +163,51 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2193484159ae0744e86a32852ced8d31, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!65 &7468888018010229616
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4903974240507830707}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 2.13, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!54 &5868913704835731751
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4903974240507830707}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 32
+  m_CollisionDetection: 0

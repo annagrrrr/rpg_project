@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class MeleeBehavior : IEnemyBehaviour
 {
-    public float attackRange = 10f;
+    public float attackRange = 3f;
 
     public void UpdateBehaviour(Enemy enemy, Transform player)
     {
@@ -14,7 +14,7 @@ public class MeleeBehavior : IEnemyBehaviour
         }
         else
         {
-            enemy.MoveTowards(player.position);
+            enemy.MoveTowards(player.transform, 5f);
         }
     }
 }
