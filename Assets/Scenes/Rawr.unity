@@ -385,6 +385,37 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 268bbd229edfdba45a4d45903e472716, type: 3}
+--- !u!1 &1263518118
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1263518119}
+  m_Layer: 0
+  m_Name: point2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1263518119
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1263518118}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2.19, y: 1.51, z: -19.5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1767314528
 GameObject:
   m_ObjectHideFlags: 0
@@ -420,8 +451,16 @@ MonoBehaviour:
     maxHealth: 100
     physicalResistance: 0
     magicResistance: 0.5
+    behaviourType: 0
+  - enemyPrefab: {fileID: 4903974240507830707, guid: b9cba9c28f2dafd48aa6483f1a11459a, type: 3}
+    name: Mage
+    maxHealth: 207
+    physicalResistance: 0.29
+    magicResistance: 0.16
+    behaviourType: 0
   spawnPoints:
   - {fileID: 387323780}
+  - {fileID: 1263518119}
 --- !u!4 &1767314530
 Transform:
   m_ObjectHideFlags: 0
@@ -556,3 +595,4 @@ SceneRoots:
   - {fileID: 720928970}
   - {fileID: 1767314530}
   - {fileID: 387323780}
+  - {fileID: 1263518119}
