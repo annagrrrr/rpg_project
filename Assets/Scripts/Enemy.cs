@@ -22,8 +22,8 @@ public class Enemy : MonoBehaviour
 
         damageHandler = new DamageHandler();
 
-        Health.onDamageTaken += (damage) => Debug.Log($"{Name} получил {damage} урона!");
-        Health.onDeath += () => Debug.Log($"{Name} погиб!");
+        //Health.onDamageTaken += (damage) => Debug.Log($"{Name} получил {damage} урона!");
+        //Health.onDeath += () => Debug.Log($"{Name} погиб!");
     }
 
     private void Update()
@@ -32,7 +32,7 @@ public class Enemy : MonoBehaviour
         {
             Transform player = FindPlayerTransform();
             currentBehaviour.UpdateBehaviour(this, player);
-            Debug.Log($"aaa");
+            //Debug.Log($"aaa");
         }
     }
 
@@ -44,22 +44,22 @@ public class Enemy : MonoBehaviour
 
     private Transform FindPlayerTransform()
     {
-        Debug.Log("вот координаты я нашел");
+        //Debug.Log("вот координаты я нашел");
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         return player?.transform;
     }
     public void Attack(Transform target)
     {
-        Debug.Log($"{Name} атакует {target.name}!");
+        //Debug.Log($"{Name} атакует {target.name}!");
     }
 
     public void MoveTowards(Vector3 position)
     {
-        Debug.Log($"{Name} идёт к цели!");
+        //Debug.Log($"{Name} идёт к цели!");
     }
 
     public void MoveAwayFrom(Vector3 position)
     {
-        Debug.Log($"{Name} отступает!");
+        //Debug.Log($"{Name} отступает!");
     }
 }

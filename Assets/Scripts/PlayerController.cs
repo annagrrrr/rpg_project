@@ -16,6 +16,8 @@ public class PlayerController : MonoBehaviour
     public float jumpForce = 5f;
     public LayerMask groundLayer;
     private Collider capsuleCollider;
+    private IAttack meleeAttack;
+    private IAttack magicAttack;
 
     private void Start()
     {
@@ -24,8 +26,9 @@ public class PlayerController : MonoBehaviour
         damageHandler = GetComponent<DamageHandler>();
         movementController = GetComponent<MovementController>();
         rb = GetComponent<Rigidbody>();
+        meleeAttack = new MeleeAttack();
+        magicAttack = new MagicAttack();
 
-        
         rb.useGravity = true;
 
         Collider capsuleCollider = GetComponent<Collider>();
@@ -46,6 +49,8 @@ public class PlayerController : MonoBehaviour
         
         Move();
         Jump();
+        HandleAttack();
+        
     }
 
     
@@ -74,6 +79,19 @@ public class PlayerController : MonoBehaviour
         }
 
 
+    }
+    private void HandleAttack()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            meleeAttack.ExecuteAttack(transform);
+            Debug.Log("melee");
+        }
+        else if (Input.GetMouseButtonDown(1)) 
+        {
+            magicAttack.ExecuteAttack(transform);
+            Debug.Log("range");
+        }
     }
 
     public void ReceiveDamage(int amount, DamageType type, float physicalResistance, float magicResistance)
