@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
 using static UnityEngine.InputSystem.OnScreen.OnScreenStick;
@@ -7,6 +8,7 @@ public class Enemy : MonoBehaviour
 {
     public string Name { get; private set; }
     public HealthManager Health { get; private set; }
+
     public float PhysicalResistance { get; private set; }
     public float MagicResistance { get; private set; }
 
@@ -14,10 +16,9 @@ public class Enemy : MonoBehaviour
 
     private IEnemyBehaviour currentBehaviour;
 
-
-    //for raycaaast
-    public float groundCheckDistance = 10f;
-    public LayerMask groundLayer;
+    //стан поведение
+    private bool isStunned = false;
+    private float stunDuration = 0f;
     public void Initialize(string name, int maxHealth, float physicalResistance, float magicResistance, IEnemyBehaviour behaviour)
     {
         Name = name;
@@ -34,6 +35,11 @@ public class Enemy : MonoBehaviour
 
     private void Update()
     {
+        if (isStunned)
+        {
+            return;
+        }
+
         if (currentBehaviour != null)
         {
             Transform player = FindPlayerTransform();
@@ -43,6 +49,7 @@ public class Enemy : MonoBehaviour
 
     public void TakeDamage(int baseDamage, DamageType damageType)
     {
+        ApplyStun(0.5f);
         int finalDamage = damageHandler.CalculateDamage(baseDamage, damageType, PhysicalResistance, MagicResistance);
         Health.TakeDamage(finalDamage);
     }
@@ -92,12 +99,6 @@ public class Enemy : MonoBehaviour
 
             Vector3 direction = (transform.position - target.position).normalized;
 
-            //if (!IsGroundAhead(direction))
-            //{
-            //    Debug.Log($"{Name} не может отступить — обрыв!");
-            //    return;
-            //}
-
             transform.position += direction * speed * Time.deltaTime;
 
             if (direction != Vector3.zero)
@@ -113,22 +114,24 @@ public class Enemy : MonoBehaviour
             Debug.Log($"{Name} на безопасном расстоянии от {target.name}");
         }
     }
+    public void ApplyStun(float duration)
+    {
+        if (!isStunned)
+        {
+            StartCoroutine(StunCoroutine(duration));
+        }
+    }
+    private IEnumerator StunCoroutine(float duration)
+    {
+        isStunned = true;
+        stunDuration = duration;
 
-    //public bool IsGroundAhead(Vector3? checkDirection = null)
-    //{
-    //    Vector3 rayStart = transform.position + Vector3.up * 1.5f;
-    //    Vector3 direction = checkDirection ?? transform.forward;
+        Debug.Log($"{Name} в стане на {duration} секунд!");
 
-    //    RaycastHit hit;
-    //    if (Physics.Raycast(rayStart + direction * 0.5f, Vector3.down, out hit, groundCheckDistance, groundLayer))
-    //    {
-    //        Debug.Log($"Земля найдена! Объект: {hit.collider.gameObject.name}");
-    //        Debug.DrawRay(rayStart + direction * 0.5f, Vector3.down * groundCheckDistance, Color.green);
-    //        return true;
-    //    }
+        yield return new WaitForSeconds(duration);
 
-    //    Debug.Log("Земля НЕ найдена!");
-    //    Debug.DrawRay(rayStart + direction * 0.5f, Vector3.down * groundCheckDistance, Color.red);
-    //    return false;
-    //}
+        isStunned = false;
+        Debug.Log($"{Name} вышел из стана.");
+    }
+
 }

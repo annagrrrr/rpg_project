@@ -25,7 +25,6 @@ public class SpawnManager : MonoBehaviour
     }
     private void SpawnEnemies()
     {
-        Debug.Log("efregreg");
         if (spawnPoints.Count == 0 || enemySpawns.Count == 0) return;
 
         for (int i = 0; i < spawnPoints.Count; i++)
