@@ -49,9 +49,16 @@ public class Enemy : MonoBehaviour
 
     public void TakeDamage(int baseDamage, DamageType damageType)
     {
+        if (Health.currentHealth <= 0) return;
+
         ApplyStun(0.5f);
         int finalDamage = damageHandler.CalculateDamage(baseDamage, damageType, PhysicalResistance, MagicResistance);
         Health.TakeDamage(finalDamage);
+
+        if (Health.currentHealth <= 0)
+        {
+            Die();
+        }
     }
 
     private Transform FindPlayerTransform()
@@ -113,6 +120,26 @@ public class Enemy : MonoBehaviour
         {
             Debug.Log($"{Name} на безопасном расстоянии от {target.name}");
         }
+    }
+
+    private void Die()
+    {
+        Debug.Log($"{Name} погиб!");
+
+        Collider collider = GetComponent<Collider>();
+        if (collider) collider.enabled = false;
+
+        currentBehaviour = null;
+
+        StopAllCoroutines();
+
+        //Animator animator = GetComponent<Animator>(); для аниматора, может кода-нибудь в будущем..
+        //if (animator)
+        //{
+        //    animator.SetTrigger("Die");
+        //}
+
+        Destroy(gameObject, 3f);
     }
     public void ApplyStun(float duration)
     {
