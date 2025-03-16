@@ -5,7 +5,7 @@ public class MagicAttack : IAttack
     private int damage = 15;
     private float attackRange = 10f;
 
-    public void ExecuteAttack(Transform attackerTransform)
+    public void ExecuteAttack(Transform attackerTransform, int damage)
     {
         Vector3 attackStart = attackerTransform.position + Vector3.up * 0.5f;
         Vector3 direction = attackerTransform.TransformDirection(Vector3.forward);

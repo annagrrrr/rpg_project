@@ -4,14 +4,21 @@ public class Weapon : MonoBehaviour
 {
     public int damage;
     public DamageType damageType;
-
-    private Collider weaponCollider;
+    public IAttack attackType;
     private GameObject owner;
-
     private void Awake()
     {
-        weaponCollider = GetComponent<Collider>();
-        weaponCollider.enabled = false;
+        if (attackType == null)
+        {
+            if (damageType == DamageType.PHYSICAL)
+            {
+                attackType = new MeleeAttack();
+            }
+            else if (damageType == DamageType.MAGICAL)
+            {
+                attackType = new MagicAttack();
+            }
+        }
     }
 
     public void SetOwner(GameObject weaponOwner)
@@ -19,44 +26,15 @@ public class Weapon : MonoBehaviour
         owner = weaponOwner;
     }
 
-    private void OnTriggerEnter(Collider other)
+    public void PerformAttack()
     {
-        if (other.gameObject == owner) return;
-
-        bool ownerIsEnemy = owner.GetComponent<Enemy>() != null;
-        bool ownerIsPlayer = owner.GetComponent<PlayerController>() != null;
-
-        bool targetIsEnemy = other.GetComponent<Enemy>() != null;
-        bool targetIsPlayer = other.GetComponent<PlayerController>() != null;
-
-        if (ownerIsEnemy && targetIsEnemy) return;
-
-        if (targetIsEnemy)
+        if (attackType != null)
         {
-            other.GetComponent<Enemy>().TakeDamage(damage, damageType);
+            attackType.ExecuteAttack(owner.transform, damage);
         }
-
-        if (targetIsPlayer)
+        else
         {
-            other.GetComponent<PlayerController>().ReceiveDamage(damage, damageType, 0, 0);
+            Debug.LogWarning("Оружие не имеет типа атаки!");
         }
     }
-
-    public void ActivateWeapon()
-    {
-        weaponCollider.enabled = true;
-    }
-
-    public void DeactivateWeapon()
-    {
-        weaponCollider.enabled = false;
-    }
-
-
-    //TEMP
-    public void Attack(Enemy target, int damage, DamageType type)
-    {
-        target.TakeDamage(damage, type);
-    }
-    //TEMP
 }

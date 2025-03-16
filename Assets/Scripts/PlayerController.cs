@@ -4,8 +4,10 @@ public class PlayerController : MonoBehaviour
 {
     public HealthManager healthManager; 
     public DamageHandler damageHandler; 
-    public MovementController movementController; 
-    public Weapon equippedWeapon; 
+    public MovementController movementController;
+    //public Weapon equippedWeapon; 
+    public Weapon meleeWeapon;
+    public Weapon magicWeapon;
     public int Mana { get; private set; } 
     public int PhysicalAttack { get; private set; } 
     public int MagicAttack { get; private set; } 
@@ -84,13 +86,27 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            meleeAttack.ExecuteAttack(transform);
-            Debug.Log("melee");
+            if (meleeWeapon != null)
+            {
+                meleeWeapon.attackType.ExecuteAttack(transform, meleeWeapon.damage);
+                Debug.Log("Melee Attack");
+            }
+            else
+            {
+                Debug.LogWarning("Нет ближнего оружия!");
+            }
         }
-        else if (Input.GetMouseButtonDown(1)) 
+        else if (Input.GetMouseButtonDown(1))
         {
-            magicAttack.ExecuteAttack(transform);
-            Debug.Log("range");
+            if (magicWeapon != null)
+            {
+                magicWeapon.attackType.ExecuteAttack(transform, magicWeapon.damage);
+                Debug.Log("Magic Attack");
+            }
+            else
+            {
+                Debug.LogWarning("Нет магического оружия!");
+            }
         }
     }
 
@@ -100,16 +116,35 @@ public class PlayerController : MonoBehaviour
         healthManager.TakeDamage(finalDamage);
     }
 
-    
+
     public void DealDamage(Enemy target, int damage, DamageType type)
     {
-        equippedWeapon?.Attack(target, damage, type);
+        if (type == DamageType.PHYSICAL && meleeWeapon != null)
+        {
+            meleeWeapon.PerformAttack();
+        }
+        else if (type == DamageType.MAGICAL && magicWeapon != null)
+        {
+            magicWeapon.PerformAttack();
+        }
+        else
+        {
+            Debug.LogWarning("Нет подходящего оружия для атаки!");
+        }
     }
 
-    
-    public void EquipWeapon(Weapon weapon)
+
+
+    public void EquipWeapon(Weapon weapon, bool isMelee)
     {
-        equippedWeapon = weapon;
+        if (isMelee)
+        {
+            meleeWeapon = weapon;
+        }
+        else
+        {
+            magicWeapon = weapon;
+        }
     }
     void OnCollisionEnter(Collision collision)
     {

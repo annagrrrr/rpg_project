@@ -1,5 +1,5 @@
 using UnityEngine;
 public interface IAttack
 {
-    void ExecuteAttack(Transform attackerTransform);
+    void ExecuteAttack(Transform attackerTransform, int damage);
 }

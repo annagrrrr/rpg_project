@@ -2,10 +2,10 @@ using UnityEngine;
 
 public class MeleeAttack : IAttack
 {
-    private int damage = 20;
+    //private int damage = 20;
     private float attackRange = 2f;
 
-    public void ExecuteAttack(Transform attackerTransform)
+    public void ExecuteAttack(Transform attackerTransform, int damage)
     {
         Vector3 attackStart = attackerTransform.position + Vector3.up * 0.5f; 
         Vector3 direction = attackerTransform.TransformDirection(Vector3.forward);
