@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public HealthManager healthManager; 
+    public HealthManager healthManager;  // РѕРїСЏС‚СЊ РѕС‡РµРЅСЊ РјРЅРѕРіРѕ public РїРѕР»РµР№
     public DamageHandler damageHandler; 
     public MovementController movementController;
     //public Weapon equippedWeapon; 
@@ -82,7 +82,7 @@ public class PlayerController : MonoBehaviour
 
 
     }
-    private void HandleAttack()
+    private void HandleAttack() // РџРѕС‡РµРјСѓ РєРѕРЅС‚СЂРѕР»Р»РµРі РёРіСЂРѕРєР° РѕРїРµСЂРёСЂСѓРµС‚ РєРЅРѕРїРєР°РјРё РјС‹С€Рё? РЅР°РґРѕ РІС‹РґРµР»РёС‚СЊ РѕС‚РґРµР»СЊРЅС‹Р№ СЃРµСЂРІРёСЃ РІРІРѕРґР°
     {
         if (Input.GetMouseButtonDown(0))
         {
@@ -93,7 +93,7 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning("Нет ближнего оружия!");
+                Debug.LogWarning("пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ!");
             }
         }
         else if (Input.GetMouseButtonDown(1))
@@ -105,7 +105,7 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning("Нет магического оружия!");
+                Debug.LogWarning("пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ!");
             }
         }
     }
@@ -121,7 +121,7 @@ public class PlayerController : MonoBehaviour
     {
         if (type == DamageType.PHYSICAL && meleeWeapon != null)
         {
-            meleeWeapon.PerformAttack();
+            meleeWeapon.PerformAttack(); // Р° РіРґРµ target?
         }
         else if (type == DamageType.MAGICAL && magicWeapon != null)
         {
@@ -129,7 +129,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("Нет подходящего оружия для атаки!");
+            Debug.LogWarning("пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ!");
         }
     }
 

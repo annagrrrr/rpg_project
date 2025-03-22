@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class MeleeBehavior : IEnemyBehaviour
 {
-    public float attackRange = 3f;
+    public float attackRange = 3f; // опять публичное поле, посмотрите и в остальных местах
 
     public void UpdateBehaviour(Enemy enemy, Transform player)
     {

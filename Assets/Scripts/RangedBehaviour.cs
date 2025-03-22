@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class RangedBehaviour : IEnemyBehaviour
+public class RangedBehaviour : IEnemyBehaviour // точно нужен монобех?
 {
     public float safeDistance = 10f;
 

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class DamageHandler : MonoBehaviour
+public class DamageHandler : MonoBehaviour // зачем тут монобех?
 {
     public int CalculateDamage(int baseDamage, DamageType damageType, float physicalResistance, float magicResistance)
     {

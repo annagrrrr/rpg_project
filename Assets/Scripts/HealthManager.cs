@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class HealthManager: MonoBehaviour
+public class HealthManager: MonoBehaviour // А тут зачем?
 {
     public int currentHealth { get; private set; }
     public int maxHealth { get; private set; }
@@ -22,7 +22,7 @@ public class HealthManager: MonoBehaviour
         currentHealth -= amount;
         onDamageTaken?.Invoke(currentHealth);
 
-        Console.WriteLine($"��������: {currentHealth}/{maxHealth}");
+        Console.WriteLine($"��������: {currentHealth}/{maxHealth}"); // Поправьте кодировку
 
         if (currentHealth <= 0)
         {
