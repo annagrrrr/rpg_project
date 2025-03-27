@@ -1,6 +1,4 @@
-using NUnit.Framework;
 using System.Collections.Generic;
-using Unity.Jobs;
 using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
@@ -23,6 +21,7 @@ public class SpawnManager : MonoBehaviour
     {
         SpawnEnemies();
     }
+
     private void SpawnEnemies()
     {
         if (spawnPoints.Count == 0 || enemySpawns.Count == 0) return;
@@ -30,17 +29,19 @@ public class SpawnManager : MonoBehaviour
         for (int i = 0; i < spawnPoints.Count; i++)
         {
             EnemySpawnInfo enemyInfo = enemySpawns[i % enemySpawns.Count];
-
             Transform spawnPoint = spawnPoints[i];
 
             GameObject enemyObject = Instantiate(enemyInfo.enemyPrefab, spawnPoint.position, Quaternion.identity);
 
             Enemy enemyComponent = enemyObject.GetComponent<Enemy>();
-            if (enemyComponent != null )
+            HealthBar healthBar = enemyObject.GetComponentInChildren<HealthBar>();
+
+            if (enemyComponent != null)
             {
                 IEnemyBehaviour behaviour = GetBehaviourByType(enemyInfo.behaviourType);
 
                 enemyComponent.Initialize(enemyInfo.name, enemyInfo.maxHealth, enemyInfo.physicalResistance, enemyInfo.magicResistance, behaviour);
+
                 Debug.Log($"{enemyInfo.name} заспавнился в точке {spawnPoint.position} с поведением {enemyInfo.behaviourType}");
             }
         }

@@ -8,6 +8,7 @@ public class Enemy : MonoBehaviour
 {
     public string Name { get; private set; }
     public HealthManager Health { get; private set; }
+    private HealthBar healthBar;
 
     public float PhysicalResistance { get; private set; }
     public float MagicResistance { get; private set; }
@@ -23,6 +24,9 @@ public class Enemy : MonoBehaviour
     {
         Name = name;
         Health = new HealthManager(maxHealth);
+        Health.OnHealthChanged += UpdateHealthBar;
+        healthBar = GetComponentInChildren<HealthBar>();
+        Health.TakeDamage(0);
         PhysicalResistance = physicalResistance;
         MagicResistance = magicResistance;
         currentBehaviour = behaviour;
@@ -159,6 +163,14 @@ public class Enemy : MonoBehaviour
 
         isStunned = false;
         Debug.Log($"{Name} вышел из стана.");
+    }
+
+    private void UpdateHealthBar(int currentHealth, int maxHealth)
+    {
+        if (healthBar != null)
+        {
+            healthBar.SetHealth(currentHealth, maxHealth);
+        }
     }
 
 }

@@ -2,17 +2,16 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public HealthManager healthManager; 
-    public DamageHandler damageHandler; 
+    public HealthManager healthManager;
+    public DamageHandler damageHandler;
     public MovementController movementController;
-    //public Weapon equippedWeapon; 
     public Weapon meleeWeapon;
     public Weapon magicWeapon;
-    public int Mana { get; private set; } 
-    public int PhysicalAttack { get; private set; } 
-    public int MagicAttack { get; private set; } 
+    public int Mana { get; private set; }
+    public int PhysicalAttack { get; private set; }
+    public int MagicAttack { get; private set; }
 
-    private Rigidbody rb; 
+    private Rigidbody rb;
     public float moveSpeed = 5f;
     private bool isGrounded;
     public float jumpForce = 5f;
@@ -21,20 +20,35 @@ public class PlayerController : MonoBehaviour
     private IAttack meleeAttack;
     private IAttack magicAttack;
 
+    public void Initialize(HealthManager health, DamageHandler damage)
+    {
+        healthManager = health ?? throw new System.ArgumentNullException(nameof(health), "HealthManager не инициализирован! Установите его через Initialize().");
+        damageHandler = damage ?? throw new System.ArgumentNullException(nameof(damage), "DamageHandler не найден!");
+    }
+
+
     private void Start()
     {
-        
-        healthManager = GetComponent<HealthManager>();
-        damageHandler = GetComponent<DamageHandler>();
+        if (healthManager == null)
+        {
+            Debug.LogError("HealthManager не инициализирован! Установите его через Initialize().");
+        }
         movementController = GetComponent<MovementController>();
         rb = GetComponent<Rigidbody>();
         meleeAttack = new MeleeAttack();
         magicAttack = new MagicAttack();
 
-        rb.useGravity = true;
+        if (rb != null)
+        {
+            rb.useGravity = true;
+        }
+        else
+        {
+            Debug.LogError("Rigidbody не найден! Добавьте его на объект.");
+        }
 
-        Collider capsuleCollider = GetComponent<Collider>();
-        Collider[] allColliders = GetComponentsInChildren<Collider>(); 
+        capsuleCollider = GetComponent<Collider>();
+        Collider[] allColliders = GetComponentsInChildren<Collider>();
 
         foreach (var otherCollider in allColliders)
         {
@@ -43,45 +57,37 @@ public class PlayerController : MonoBehaviour
                 Physics.IgnoreCollision(capsuleCollider, otherCollider, true);
             }
         }
-
     }
 
     private void Update()
     {
-        
         Move();
         Jump();
         HandleAttack();
-        
     }
 
-    
     private void Move()
     {
-        
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
 
-        
         Vector3 movement = new Vector3(horizontal, 0, vertical).normalized;
 
-        
-        if (movement.magnitude >= 0.1f)
+        if (movement.magnitude >= 0.1f && rb != null)
         {
-            
             Vector3 moveDirection = transform.forward * movement.z + transform.right * movement.x;
             rb.MovePosition(rb.position + moveDirection * moveSpeed * Time.deltaTime);
         }
     }
+
     private void Jump()
     {
-        if(Mathf.Abs(transform.position.y - 1f) < 0.1f && Input.GetKeyDown(KeyCode.Space))
+        if (Mathf.Abs(transform.position.y - 1f) < 0.1f && Input.GetKeyDown(KeyCode.Space) && rb != null)
         {
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }
-
-
     }
+
     private void HandleAttack()
     {
         if (Input.GetMouseButtonDown(0))
@@ -112,10 +118,16 @@ public class PlayerController : MonoBehaviour
 
     public void ReceiveDamage(int amount, DamageType type, float physicalResistance, float magicResistance)
     {
-        int finalDamage = damageHandler.CalculateDamage(amount, type, physicalResistance, magicResistance);
-        healthManager.TakeDamage(finalDamage);
+        if (healthManager != null && damageHandler != null)
+        {
+            int finalDamage = damageHandler.CalculateDamage(amount, type, physicalResistance, magicResistance);
+            healthManager.TakeDamage(finalDamage);
+        }
+        else
+        {
+            Debug.LogError("HealthManager или DamageHandler не инициализированы!");
+        }
     }
-
 
     public void DealDamage(Enemy target, int damage, DamageType type)
     {
@@ -133,8 +145,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-
-
     public void EquipWeapon(Weapon weapon, bool isMelee)
     {
         if (isMelee)
@@ -146,9 +156,9 @@ public class PlayerController : MonoBehaviour
             magicWeapon = weapon;
         }
     }
+
     void OnCollisionEnter(Collision collision)
     {
         Debug.Log($"Collision detected with: {collision.gameObject.name}");
     }
-
 }
