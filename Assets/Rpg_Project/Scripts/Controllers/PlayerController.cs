@@ -2,23 +2,23 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public HealthManager healthManager;
-    public DamageHandler damageHandler;
-    public MovementController movementController;
-    public Weapon meleeWeapon;
-    public Weapon magicWeapon;
-    public int Mana { get; private set; }
-    public int PhysicalAttack { get; private set; }
-    public int MagicAttack { get; private set; }
+    [SerializeField] private HealthManager healthManager;
+    [SerializeField] private DamageHandler damageHandler;
+    [SerializeField] private MovementController movementController;
+    [SerializeField] private PlayerInputHandler inputHandler;
+    [SerializeField] private Weapon meleeWeapon;
+    [SerializeField] private Weapon magicWeapon;
+    [SerializeField] private LayerMask groundLayer;
+
 
     private Rigidbody rb;
-    public float moveSpeed = 5f;
-    private bool isGrounded;
-    public float jumpForce = 5f;
-    public LayerMask groundLayer;
     private Collider capsuleCollider;
     private IAttack meleeAttack;
     private IAttack magicAttack;
+
+    [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private float jumpForce = 5f;
+    [SerializeField] private float rotationSpeed = 700f;
 
     public void Initialize(HealthManager health, DamageHandler damage)
     {
@@ -26,52 +26,31 @@ public class PlayerController : MonoBehaviour
         damageHandler = damage ?? throw new System.ArgumentNullException(nameof(damage), "DamageHandler не найден!");
     }
 
-
     private void Start()
     {
-        if (healthManager == null)
-        {
-            Debug.LogError("HealthManager не инициализирован! Установите его через Initialize().");
-        }
-        movementController = GetComponent<MovementController>();
         rb = GetComponent<Rigidbody>();
-        meleeAttack = new MeleeAttack();
-        magicAttack = new MagicAttack();
-
-        if (rb != null)
-        {
-            rb.useGravity = true;
-        }
-        else
-        {
-            Debug.LogError("Rigidbody не найден! Добавьте его на объект.");
-        }
+        if (rb != null) rb.useGravity = true;
+        else Debug.LogError("Rigidbody не найден! Добавьте его на объект.");
 
         capsuleCollider = GetComponent<Collider>();
-        Collider[] allColliders = GetComponentsInChildren<Collider>();
+        IgnoreSelfCollisions();
 
-        foreach (var otherCollider in allColliders)
-        {
-            if (otherCollider != capsuleCollider)
-            {
-                Physics.IgnoreCollision(capsuleCollider, otherCollider, true);
-            }
-        }
+        meleeAttack = new MeleeAttack();
+        magicAttack = new MagicAttack();
     }
 
     private void Update()
     {
         Move();
         Jump();
+        Rotate();
         HandleAttack();
     }
 
     private void Move()
     {
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
-
-        Vector3 movement = new Vector3(horizontal, 0, vertical).normalized;
+        Vector2 input = inputHandler.GetMovementInput();
+        Vector3 movement = new Vector3(input.x, 0, input.y).normalized;
 
         if (movement.magnitude >= 0.1f && rb != null)
         {
@@ -82,38 +61,49 @@ public class PlayerController : MonoBehaviour
 
     private void Jump()
     {
-        if (Mathf.Abs(transform.position.y - 1f) < 0.1f && Input.GetKeyDown(KeyCode.Space) && rb != null)
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, 1.1f, groundLayer) && inputHandler.IsJumpPressed() && rb != null)
         {
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }
     }
 
+
+    private void Rotate()
+    {
+        Vector2 mouseDelta = inputHandler.GetMouseDelta();
+        float rotationY = mouseDelta.x * rotationSpeed * Time.deltaTime;
+        transform.Rotate(0, rotationY, 0);
+    }
+
     private void HandleAttack()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (inputHandler.IsMeleeAttackPressed() && meleeWeapon != null)
         {
-            if (meleeWeapon != null)
+            meleeWeapon.attackType.ExecuteAttack(transform, meleeWeapon.damage);
+        }
+        else if (inputHandler.IsMagicAttackPressed() && magicWeapon != null)
+        {
+            magicWeapon.attackType.ExecuteAttack(transform, magicWeapon.damage);
+        }
+    }
+
+    private void IgnoreSelfCollisions()
+    {
+        Collider[] allColliders = GetComponentsInChildren<Collider>();
+        foreach (var otherCollider in allColliders)
+        {
+            if (otherCollider != capsuleCollider)
             {
-                meleeWeapon.attackType.ExecuteAttack(transform, meleeWeapon.damage);
-                Debug.Log("Melee Attack");
-            }
-            else
-            {
-                Debug.LogWarning("Нет ближнего оружия!");
+                Physics.IgnoreCollision(capsuleCollider, otherCollider, true);
             }
         }
-        else if (Input.GetMouseButtonDown(1))
-        {
-            if (magicWeapon != null)
-            {
-                magicWeapon.attackType.ExecuteAttack(transform, magicWeapon.damage);
-                Debug.Log("Magic Attack");
-            }
-            else
-            {
-                Debug.LogWarning("Нет магического оружия!");
-            }
-        }
+    }
+
+    public void EquipWeapon(Weapon weapon, bool isMelee)
+    {
+        if (isMelee) meleeWeapon = weapon;
+        else magicWeapon = weapon;
     }
 
     public void ReceiveDamage(int amount, DamageType type, float physicalResistance, float magicResistance)
@@ -143,22 +133,5 @@ public class PlayerController : MonoBehaviour
         {
             Debug.LogWarning("Нет подходящего оружия для атаки!");
         }
-    }
-
-    public void EquipWeapon(Weapon weapon, bool isMelee)
-    {
-        if (isMelee)
-        {
-            meleeWeapon = weapon;
-        }
-        else
-        {
-            magicWeapon = weapon;
-        }
-    }
-
-    void OnCollisionEnter(Collision collision)
-    {
-        Debug.Log($"Collision detected with: {collision.gameObject.name}");
     }
 }
