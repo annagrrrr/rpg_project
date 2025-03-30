@@ -134,4 +134,25 @@ public class PlayerController : MonoBehaviour
             Debug.LogWarning("Нет подходящего оружия для атаки!");
         }
     }
+
+    public bool HasMeleeWeapon()
+    {
+        return meleeWeapon != null;
+    }
+
+    public bool HasMagicWeapon()
+    {
+        return magicWeapon != null;
+    }
+
+    public Weapon GetMeleeWeapon()
+    {
+        return meleeWeapon;
+    }
+
+    public Weapon GetMagicWeapon()
+    {
+        return magicWeapon;
+    }
+
 }
