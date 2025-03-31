@@ -5,7 +5,7 @@ public class MagicAttack : IAttack
     private float attackRange = 10f;
     private int defaultDamage = 15;
 
-    public void ExecuteAttack(Transform attackerTransform, int damage)
+    public void ExecuteAttack(Transform attackerTransform, int damage = -1)
     {
         int finalDamage = (damage != -1) ? damage : defaultDamage;
 
@@ -19,14 +19,14 @@ public class MagicAttack : IAttack
         if (Physics.Raycast(attackStart, direction, out RaycastHit hit, attackRange))
         {
             Debug.Log($"Hit: {hit.collider.name}");
-
             if (hit.collider.TryGetComponent(out Enemy enemy))
             {
                 enemy.TakeDamage(finalDamage, DamageType.MAGICAL);
             }
+
             else if (hit.collider.TryGetComponent(out PlayerController player))
             {
-                player.ReceiveDamage(finalDamage, DamageType.MAGICAL, 0f, 0f);
+                player.ReceiveDamage(finalDamage);
             }
         }
         else
@@ -34,6 +34,7 @@ public class MagicAttack : IAttack
             Debug.Log("No hit detected");
         }
     }
+
     public float GetAttackRange()
     {
         return attackRange;

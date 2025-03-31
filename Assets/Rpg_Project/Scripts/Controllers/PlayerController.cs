@@ -1,9 +1,11 @@
+using System;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private HealthManager healthManager;
-    [SerializeField] private DamageHandler damageHandler;
+    private HealthManager healthManager;
+    private DamageHandler damageHandler;
+    private HealthUIUpdater healthUIUpdater;
     [SerializeField] private MovementController movementController;
     [SerializeField] private PlayerInputHandler inputHandler;
     [SerializeField] private Weapon meleeWeapon;
@@ -22,14 +24,12 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float jumpForce = 5f;
     [SerializeField] private float rotationSpeed = 700f;
 
-    public void Initialize(HealthManager health, DamageHandler damage)
+    public void Initialize(HealthManager healthManager, DamageHandler damageHandler, HealthBar healthBar)
     {
-        healthManager = health ?? throw new System.ArgumentNullException(nameof(health), "HealthManager не инициализирован! Установите его через Initialize().");
-        damageHandler = damage ?? throw new System.ArgumentNullException(nameof(damage), "DamageHandler не найден!");
-        if (healthBar != null)
-        {
-            healthManager.OnHealthChanged += healthBar.SetHealth;
-        }
+        this.healthManager = healthManager ?? throw new ArgumentNullException(nameof(healthManager));
+        this.damageHandler = damageHandler ?? throw new ArgumentNullException(nameof(damageHandler));
+        this.healthUIUpdater = new HealthUIUpdater(healthBar);
+        healthUIUpdater.Subscribe(healthManager);
     }
 
     private void Start()
@@ -51,6 +51,7 @@ public class PlayerController : MonoBehaviour
         Jump();
         Rotate();
         HandleAttack();
+        Debug.Log(healthManager.currentHealth);
     }
 
     private void Move()
@@ -112,14 +113,22 @@ public class PlayerController : MonoBehaviour
         else magicWeapon = weapon;
     }
 
-    public void ReceiveDamage(int amount, DamageType type, float physicalResistance, float magicResistance)
+    public void ReceiveDamage(int damage)
     {
         if (healthManager != null && damageHandler != null)
         {
-            int finalDamage = damageHandler.CalculateDamage(amount, type, physicalResistance, magicResistance);
-            healthManager.TakeDamage(finalDamage);
-            Debug.Log("dddd");
-            healthBar.SetHealth(healthManager.currentHealth, finalDamage);
+            healthManager.TakeDamage(damage);
+            Debug.Log($"тгрок получил {damage} урона!");
+
+            if (healthBar != null)
+            {
+                healthBar.SetHealth(healthManager.currentHealth, healthManager.maxHealth);
+            }
+
+            if (healthManager.currentHealth <= 0)
+            {
+                //умиранинг();
+            }
         }
         else
         {

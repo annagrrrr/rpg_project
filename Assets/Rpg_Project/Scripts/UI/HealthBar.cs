@@ -6,9 +6,6 @@ public class HealthBar : MonoBehaviour
 
     public void SetHealth(int currentHealth, int maxHealth)
     {
-        if (healthSlider != null)
-        {
-            healthSlider.value = (float)currentHealth / maxHealth;
-        }
+        healthSlider.value = (float)currentHealth / maxHealth;
     }
 }

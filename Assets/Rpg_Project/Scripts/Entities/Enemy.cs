@@ -32,10 +32,12 @@ public class Enemy : MonoBehaviour
     private float attackCooldown = 1.5f;
     private float nextAttackTime = 0f;
 
-    public void Initialize(string name, int maxHealth, int damage, float physicalResistance, float magicResistance, IEnemyBehaviour behaviour, IAttack attackType)
+    public void Initialize(string name, int maxHealth, int damage, float physicalResistance, float magicResistance, IEnemyBehaviour behaviour, IAttack attackType, HealthBar enemyHealthBar)
     {
         Name = name;
         Health = new HealthManager(maxHealth);
+        damageHandler = new DamageHandler();
+        healthBar = enemyHealthBar;
         Health.OnHealthChanged += UpdateHealthBar;
         healthBar = GetComponentInChildren<HealthBar>();
         Health.TakeDamage(0);
@@ -73,7 +75,6 @@ public class Enemy : MonoBehaviour
     public void TakeDamage(int baseDamage, DamageType damageType)
     {
         if (Health.currentHealth <= 0) return;
-
         ApplyStun(0.5f);
         int finalDamage = damageHandler.CalculateDamage(baseDamage, damageType, PhysicalResistance, MagicResistance);
         Health.TakeDamage(finalDamage);

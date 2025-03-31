@@ -45,7 +45,7 @@ public class SpawnManager : MonoBehaviour
             {
                 IEnemyBehaviour behaviour = GetBehaviourByType(enemyInfo.behaviourType);
 
-                enemyComponent.Initialize(enemyInfo.name, enemyInfo.maxHealth, enemyInfo.damage, enemyInfo.physicalResistance, enemyInfo.magicResistance, behaviour, attackType);
+                enemyComponent.Initialize(enemyInfo.name, enemyInfo.maxHealth, enemyInfo.damage, enemyInfo.physicalResistance, enemyInfo.magicResistance, behaviour, attackType, healthBar);
 
                 Debug.Log($"{enemyInfo.name} заспавнился в точке {spawnPoint.position} с поведением {enemyInfo.behaviourType}");
             }

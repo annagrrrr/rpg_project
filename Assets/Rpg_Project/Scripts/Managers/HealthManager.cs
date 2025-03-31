@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-
 public class HealthManager
 {
     public int currentHealth { get; private set; }
@@ -10,40 +9,18 @@ public class HealthManager
     public event Action<int> onHeal;
     public Action<int, int> OnHealthChanged;
 
-    [SerializeField] private HealthBar healthBar;
-
-    private void Start()
-    {
-        currentHealth = maxHealth;
-        if (healthBar != null)
-        {
-            healthBar.SetHealth(currentHealth, maxHealth);
-        }
-        else
-        {
-            Debug.LogError("не определен healthBar");
-        }
-    }
     public HealthManager(int maxHealth)
     {
         this.maxHealth = maxHealth;
         this.currentHealth = maxHealth;
-
-        if (healthBar != null)
-        {
-            healthBar.SetHealth(currentHealth, maxHealth);
-        }
     }
 
     public void TakeDamage(int amount)
     {
         if (amount <= 0) return;
-
-        currentHealth -= amount;
+        currentHealth = Mathf.Max(0, currentHealth - amount);
         onDamageTaken?.Invoke(currentHealth);
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
-
-        Console.WriteLine($"Здоровье: {currentHealth}/{maxHealth}");
 
         if (currentHealth <= 0)
         {
@@ -61,7 +38,6 @@ public class HealthManager
         {
             currentHealth = maxHealth;
         }
-
         onHeal?.Invoke(amount);
     }
 
@@ -69,14 +45,11 @@ public class HealthManager
     {
         maxHealth = newMaxHealth;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
-
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
-
     }
 
     public void ResetHealth()
     {
         currentHealth = maxHealth;
     }
-
 }

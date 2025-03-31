@@ -23,15 +23,27 @@ public class MeleeAttack : IAttack
         Vector3 attackEnd = attackStart + direction * attackRange;
 
         Debug.DrawLine(attackStart, attackEnd, Color.red, 1f);
-        //Debug.Log($"Melee Attack Ray: Start={attackStart}, End={attackEnd}");
 
         if (Physics.Raycast(attackStart, direction, out RaycastHit hit, attackRange))
         {
             Debug.Log($"Hit: {hit.collider.name}");
-            if (hit.collider.TryGetComponent(out Enemy enemy))
+            if (hit.collider.CompareTag("Player")) // Если попали в игрока
             {
-                int finalDamage = (damage != -1) ? damage : attackDamage;
-                enemy.TakeDamage(finalDamage, DamageType.PHYSICAL);
+                PlayerController player = hit.collider.GetComponent<PlayerController>();
+                if (player != null)
+                {
+                    int finalDamage = (damage != -1) ? damage : attackDamage;
+                    player.ReceiveDamage(finalDamage);  // Передаем урон игроку
+                }
+            }
+            else if (hit.collider.CompareTag("Enemy")) // Если попали во врага
+            {
+                Enemy enemy = hit.collider.GetComponent<Enemy>();
+                if (enemy != null)
+                {
+                    int finalDamage = (damage != -1) ? damage : attackDamage;
+                    enemy.TakeDamage(finalDamage, DamageType.PHYSICAL);  // Передаем урон врагу
+                }
             }
         }
         else
@@ -39,6 +51,7 @@ public class MeleeAttack : IAttack
             Debug.Log("No hit detected");
         }
     }
+
 
     public float GetAttackRange()
     {

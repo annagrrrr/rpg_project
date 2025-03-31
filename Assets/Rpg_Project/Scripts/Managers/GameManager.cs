@@ -3,6 +3,7 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     public static GameManager gameManager { get; private set; }
+    [SerializeField] private HealthBar playerHealthBar;
 
     public PlayerController player;
 
@@ -33,6 +34,15 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        player.Initialize(new HealthManager(100), new DamageHandler());
+        if (playerHealthBar == null)
+        {
+            return;
+        }
+
+        HealthManager playerHealth = new HealthManager(100);
+        DamageHandler playerDamageHandler = new DamageHandler();
+
+        player.Initialize(playerHealth, playerDamageHandler, playerHealthBar);
     }
+
 }
