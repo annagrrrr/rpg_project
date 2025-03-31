@@ -4,9 +4,16 @@ public class MagicAttack : IAttack
 {
     private float attackRange = 10f;
     private int defaultDamage = 15;
+    private float lastAttackTime = 0f;
+    private float attackCooldown = 1f; 
 
     public void ExecuteAttack(Transform attackerTransform, int damage = -1)
     {
+        if (Time.time - lastAttackTime < attackCooldown)
+            return;
+
+        lastAttackTime = Time.time;
+
         int finalDamage = (damage != -1) ? damage : defaultDamage;
 
         Vector3 attackStart = attackerTransform.position + Vector3.up * 0.5f;
@@ -23,10 +30,9 @@ public class MagicAttack : IAttack
             {
                 enemy.TakeDamage(finalDamage, DamageType.MAGICAL);
             }
-
             else if (hit.collider.TryGetComponent(out PlayerController player))
             {
-                player.ReceiveDamage(finalDamage);
+                player.ReceiveDamage(finalDamage); 
             }
         }
         else

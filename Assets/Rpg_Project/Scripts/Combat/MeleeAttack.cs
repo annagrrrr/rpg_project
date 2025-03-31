@@ -4,13 +4,16 @@ public class MeleeAttack : IAttack
 {
     private float attackRange;
     private int attackDamage;
-    public MeleeAttack() //для врагаа с дфеолтными параметрами
+    private float attackCooldown = 1f; // Время задержки между атаками
+    private float lastAttackTime = -1f; // Время последней атаки
+
+    public MeleeAttack() // Для врага с дефолтными параметрами
     {
         attackRange = 5f;
         attackDamage = 20;
     }
 
-    public MeleeAttack(float range, int damage) //для игрока можно задавать параметры
+    public MeleeAttack(float range, int damage) // Для игрока, можно задавать параметры
     {
         attackRange = range;
         attackDamage = damage;
@@ -18,6 +21,15 @@ public class MeleeAttack : IAttack
 
     public void ExecuteAttack(Transform attackerTransform, int damage = -1)
     {
+        if (Time.time - lastAttackTime < attackCooldown)
+        {
+            return;
+        }
+
+        lastAttackTime = Time.time;
+
+        int finalDamage = (damage != -1) ? damage : attackDamage;
+
         Vector3 attackStart = attackerTransform.position + Vector3.up * 0.5f;
         Vector3 direction = attackerTransform.TransformDirection(Vector3.forward);
         Vector3 attackEnd = attackStart + direction * attackRange;
@@ -27,23 +39,14 @@ public class MeleeAttack : IAttack
         if (Physics.Raycast(attackStart, direction, out RaycastHit hit, attackRange))
         {
             Debug.Log($"Hit: {hit.collider.name}");
-            if (hit.collider.CompareTag("Player")) // Если попали в игрока
+
+            if (hit.collider.TryGetComponent(out Enemy enemy))
             {
-                PlayerController player = hit.collider.GetComponent<PlayerController>();
-                if (player != null)
-                {
-                    int finalDamage = (damage != -1) ? damage : attackDamage;
-                    player.ReceiveDamage(finalDamage);  // Передаем урон игроку
-                }
+                enemy.TakeDamage(finalDamage, DamageType.PHYSICAL);
             }
-            else if (hit.collider.CompareTag("Enemy")) // Если попали во врага
+            else if (hit.collider.TryGetComponent(out PlayerController player))
             {
-                Enemy enemy = hit.collider.GetComponent<Enemy>();
-                if (enemy != null)
-                {
-                    int finalDamage = (damage != -1) ? damage : attackDamage;
-                    enemy.TakeDamage(finalDamage, DamageType.PHYSICAL);  // Передаем урон врагу
-                }
+                player.ReceiveDamage(finalDamage);
             }
         }
         else
@@ -51,7 +54,6 @@ public class MeleeAttack : IAttack
             Debug.Log("No hit detected");
         }
     }
-
 
     public float GetAttackRange()
     {
