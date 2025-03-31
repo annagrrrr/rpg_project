@@ -13,25 +13,44 @@ public class Enemy : MonoBehaviour
     public float PhysicalResistance { get; private set; }
     public float MagicResistance { get; private set; }
 
+    public int Damage { get; private set; }
+    public DamageType DamageType { get; private set; }
+    private IAttack AttackType;
+    private float attackRange;
+
     private DamageHandler damageHandler;
 
     private IEnemyBehaviour currentBehaviour;
 
+    private PlayerController playerController;
+
     //стан поведение
     private bool isStunned = false;
     private float stunDuration = 0f;
-    public void Initialize(string name, int maxHealth, float physicalResistance, float magicResistance, IEnemyBehaviour behaviour)
+
+    //всякое для атаки
+    private float attackCooldown = 1.5f;
+    private float nextAttackTime = 0f;
+
+    public void Initialize(string name, int maxHealth, int damage, float physicalResistance, float magicResistance, IEnemyBehaviour behaviour, IAttack attackType)
     {
         Name = name;
         Health = new HealthManager(maxHealth);
         Health.OnHealthChanged += UpdateHealthBar;
         healthBar = GetComponentInChildren<HealthBar>();
         Health.TakeDamage(0);
+        Damage = damage;
+        AttackType = attackType;
+        attackRange = attackType.GetAttackRange();
         PhysicalResistance = physicalResistance;
         MagicResistance = magicResistance;
         currentBehaviour = behaviour;
+        Debug.Log(behaviour);
+        //if (currentBehaviour == MeleeBehaviour)
 
         damageHandler = new DamageHandler();
+        
+        playerController = GameObject.FindWithTag("Player").GetComponentInChildren<PlayerController>();
 
         Health.onDamageTaken += (damage) => Debug.Log($"{Name} получил {damage} урона!");
         Health.onDeath += () => Debug.Log($"{Name} погиб!");
@@ -72,7 +91,22 @@ public class Enemy : MonoBehaviour
     }
     public void Attack(Transform target)
     {
-        Debug.Log($"{Name} атакует {target.name}");
+        if (target != null && target.CompareTag("Player"))
+        {
+            float distanceToPlayer = Vector3.Distance(transform.position, target.position);
+
+            if (distanceToPlayer <= attackRange)
+            {
+                PlayerController player = target.GetComponent<PlayerController>();
+                Debug.Log(player);
+                if (player != null)
+                {
+                    int finalDamage = damageHandler.CalculateDamage(Damage, DamageType, 0f, 0f);
+                    AttackType.ExecuteAttack(transform, finalDamage);
+                    Debug.Log($"{Name} атакует игрока за {Damage} урона!");
+                }
+            }
+        }
     }
 
     public void MoveTowards(Transform target, float speed)

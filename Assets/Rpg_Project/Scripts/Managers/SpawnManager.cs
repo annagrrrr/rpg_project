@@ -9,6 +9,7 @@ public class SpawnManager : MonoBehaviour
         public GameObject enemyPrefab;
         public string name;
         public int maxHealth;
+        public int damage;
         public float physicalResistance;
         public float magicResistance;
         public EnemyBehaviourType behaviourType;
@@ -36,11 +37,15 @@ public class SpawnManager : MonoBehaviour
             Enemy enemyComponent = enemyObject.GetComponent<Enemy>();
             HealthBar healthBar = enemyObject.GetComponentInChildren<HealthBar>();
 
+            IAttack attackType = (enemyInfo.behaviourType == EnemyBehaviourType.Melee)
+                ? new MeleeAttack()
+                : new MagicAttack();
+
             if (enemyComponent != null)
             {
                 IEnemyBehaviour behaviour = GetBehaviourByType(enemyInfo.behaviourType);
 
-                enemyComponent.Initialize(enemyInfo.name, enemyInfo.maxHealth, enemyInfo.physicalResistance, enemyInfo.magicResistance, behaviour);
+                enemyComponent.Initialize(enemyInfo.name, enemyInfo.maxHealth, enemyInfo.damage, enemyInfo.physicalResistance, enemyInfo.magicResistance, behaviour, attackType);
 
                 Debug.Log($"{enemyInfo.name} заспавнился в точке {spawnPoint.position} с поведением {enemyInfo.behaviourType}");
             }

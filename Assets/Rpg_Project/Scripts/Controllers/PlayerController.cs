@@ -10,6 +10,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Weapon magicWeapon;
     [SerializeField] private LayerMask groundLayer;
 
+    [SerializeField] private HealthBar healthBar;
+
 
     private Rigidbody rb;
     private Collider capsuleCollider;
@@ -24,6 +26,10 @@ public class PlayerController : MonoBehaviour
     {
         healthManager = health ?? throw new System.ArgumentNullException(nameof(health), "HealthManager не инициализирован! Установите его через Initialize().");
         damageHandler = damage ?? throw new System.ArgumentNullException(nameof(damage), "DamageHandler не найден!");
+        if (healthBar != null)
+        {
+            healthManager.OnHealthChanged += healthBar.SetHealth;
+        }
     }
 
     private void Start()
@@ -112,6 +118,8 @@ public class PlayerController : MonoBehaviour
         {
             int finalDamage = damageHandler.CalculateDamage(amount, type, physicalResistance, magicResistance);
             healthManager.TakeDamage(finalDamage);
+            Debug.Log("dddd");
+            healthBar.SetHealth(healthManager.currentHealth, finalDamage);
         }
         else
         {
