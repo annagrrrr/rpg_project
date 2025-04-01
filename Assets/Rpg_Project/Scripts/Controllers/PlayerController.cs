@@ -2,7 +2,6 @@ using System;
 using UnityEngine;
 using System.Collections;
 
-
 public class PlayerController : MonoBehaviour
 {
     private HealthManager healthManager;
@@ -22,11 +21,13 @@ public class PlayerController : MonoBehaviour
     private Collider capsuleCollider;
     private IAttack meleeAttack;
     private IAttack magicAttack;
-
+    private PlayerAnimator playerAnimator;
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float jumpForce = 5f;
     [SerializeField] private float rotationSpeed = 700f;
     [SerializeField] private float sprintMultiplier = 1.5f;
+
+    private bool isJumping = false;
 
     public void Initialize(HealthManager healthManager, DamageHandler damageHandler, HealthBar healthBar)
     {
@@ -38,9 +39,16 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
+        playerAnimator = GetComponent<PlayerAnimator>();
         rb = GetComponent<Rigidbody>();
-        if (rb != null) rb.useGravity = true;
-        else Debug.LogError("Rigidbody не найден! Добавьте его на объект.");
+        if (rb != null)
+        {
+            rb.useGravity = true;
+        }
+        else
+        {
+            Debug.LogError("Rigidbody РЅРµ РЅР°Р№РґРµРЅ! Р”РѕР±Р°РІСЊС‚Рµ РµРіРѕ РЅР° РѕР±СЉРµРєС‚.");
+        }
 
         capsuleCollider = GetComponent<Collider>();
         IgnoreSelfCollisions();
@@ -55,7 +63,20 @@ public class PlayerController : MonoBehaviour
         Jump();
         Rotate();
         HandleAttack();
-        //Debug.Log(healthManager.currentHealth);
+
+        if (isJumping)
+        {
+            playerAnimator.PlayJump();
+        }
+        else if (rb.linearVelocity.magnitude > 0.1f)
+        {
+            playerAnimator.SetMove(true);
+        }
+        else
+        {
+            playerAnimator.SetMove(false);
+            playerAnimator.PlayIdle();
+        }
     }
 
     private void Move()
@@ -74,7 +95,6 @@ public class PlayerController : MonoBehaviour
 
             Vector3 moveDirection = transform.forward * movement.z + transform.right * movement.x;
             rb.MovePosition(rb.position + moveDirection * currentMoveSpeed * Time.deltaTime);
-            //Debug.Log(currentMoveSpeed);
         }
     }
 
@@ -84,9 +104,13 @@ public class PlayerController : MonoBehaviour
         if (Physics.Raycast(transform.position, Vector3.down, out hit, 1.1f, groundLayer) && inputHandler.IsJumpPressed() && rb != null)
         {
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            isJumping = true;
+        }
+        else
+        {
+            isJumping = false;
         }
     }
-
 
     private void Rotate()
     {
@@ -100,12 +124,12 @@ public class PlayerController : MonoBehaviour
         if (inputHandler.IsMeleeAttackPressed() && meleeWeapon != null)
         {
             meleeWeapon.attackType.ExecuteAttack(transform, meleeWeapon.damage);
-            Debug.Log("Мelee attack pressed");
+            playerAnimator.PlayAttack();
         }
         else if (inputHandler.IsMagicAttackPressed() && magicWeapon != null)
         {
             magicWeapon.attackType.ExecuteAttack(transform, magicWeapon.damage);
-            Debug.Log("Magic attack pressed");
+            playerAnimator.PlayAttack();
         }
     }
 
@@ -132,7 +156,7 @@ public class PlayerController : MonoBehaviour
         if (healthManager != null && damageHandler != null)
         {
             healthManager.TakeDamage(damage);
-            ApplyStun(0.5f);  
+            ApplyStun(0.5f);
 
             if (healthBar != null)
             {
@@ -146,15 +170,13 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            Debug.LogError("HealthManager или DamageHandler не инициализированы!");
+            Debug.LogError("HealthManager РёР»Рё DamageHandler РЅРµ РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅС‹!");
         }
     }
 
     private void Die()
     {
-       
-        Debug.Log("Игрок умер!");
-
+        playerAnimator.PlayDie();
         this.enabled = false;
         movementController.enabled = false;
         inputHandler.enabled = false;
@@ -173,15 +195,15 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("Нет подходящего оружия для атаки!");
+            Debug.LogWarning("РќРµС‚ РїРѕРґС…РѕРґСЏС‰РµРіРѕ РѕСЂСѓР¶РёСЏ РґР»СЏ Р°С‚Р°РєРё!");
         }
     }
+
     public void ApplyStun(float duration)
     {
         if (!isStunned)
         {
             StartCoroutine(StunCoroutine(duration));
-            
         }
     }
 
@@ -190,11 +212,9 @@ public class PlayerController : MonoBehaviour
         isStunned = true;
         stunDuration = duration;
         movementController.enabled = false;
-        Debug.Log($" в стане на {duration} секунд!");
         yield return new WaitForSeconds(duration);
         isStunned = false;
         movementController.enabled = true;
-        Debug.Log($" вышел из стана.");
     }
 
     public bool HasMeleeWeapon()
@@ -216,5 +236,4 @@ public class PlayerController : MonoBehaviour
     {
         return magicWeapon;
     }
-
 }
