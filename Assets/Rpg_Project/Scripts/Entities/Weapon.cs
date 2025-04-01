@@ -6,8 +6,10 @@ public class Weapon : MonoBehaviour
     public DamageType damageType;
     public IAttack attackType;
     private GameObject owner;
+    private PlayerInputHandler inputHandler;
     private void Awake()
     {
+        inputHandler = GameObject.FindWithTag("Player").GetComponent<PlayerInputHandler>();
         if (attackType == null)
         {
             if (damageType == DamageType.PHYSICAL)
@@ -28,13 +30,30 @@ public class Weapon : MonoBehaviour
 
     public void PerformAttack()
     {
-        if (attackType != null)
+        if (inputHandler != null)
         {
-            attackType.ExecuteAttack(owner.transform, damage);
-        }
-        else
-        {
-            Debug.LogWarning("Оружие не имеет типа атаки!");
+            if (inputHandler.IsMeleeAttackPressed()) 
+            {
+                if (attackType != null && attackType is MeleeAttack)
+                {
+                    attackType.ExecuteAttack(owner.transform, damage); 
+                }
+                else
+                {
+                    Debug.LogWarning("Weapon is not melee type!");
+                }
+            }
+            else if (inputHandler.IsMagicAttackPressed()) 
+            {
+                if (attackType != null && attackType is MagicAttack)
+                {
+                    attackType.ExecuteAttack(owner.transform, damage); 
+                }
+                else
+                {
+                    Debug.LogWarning("Weapon is not magic type!");
+                }
+            }
         }
     }
 }

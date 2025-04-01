@@ -1,5 +1,7 @@
 using System;
 using UnityEngine;
+using System.Collections;
+
 
 public class PlayerController : MonoBehaviour
 {
@@ -13,7 +15,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private LayerMask groundLayer;
 
     [SerializeField] private HealthBar healthBar;
-
+    private bool isStunned = false;
+    private float stunDuration = 0f;
 
     private Rigidbody rb;
     private Collider capsuleCollider;
@@ -23,6 +26,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float jumpForce = 5f;
     [SerializeField] private float rotationSpeed = 700f;
+    [SerializeField] private float sprintMultiplier = 1.5f;
 
     public void Initialize(HealthManager healthManager, DamageHandler damageHandler, HealthBar healthBar)
     {
@@ -51,18 +55,26 @@ public class PlayerController : MonoBehaviour
         Jump();
         Rotate();
         HandleAttack();
-        Debug.Log(healthManager.currentHealth);
+        //Debug.Log(healthManager.currentHealth);
     }
 
     private void Move()
     {
+        if (isStunned) return;
         Vector2 input = inputHandler.GetMovementInput();
         Vector3 movement = new Vector3(input.x, 0, input.y).normalized;
 
         if (movement.magnitude >= 0.1f && rb != null)
         {
+            float currentMoveSpeed = moveSpeed;
+            if (Input.GetKey(KeyCode.LeftShift))
+            {
+                currentMoveSpeed *= sprintMultiplier;
+            }
+
             Vector3 moveDirection = transform.forward * movement.z + transform.right * movement.x;
-            rb.MovePosition(rb.position + moveDirection * moveSpeed * Time.deltaTime);
+            rb.MovePosition(rb.position + moveDirection * currentMoveSpeed * Time.deltaTime);
+            //Debug.Log(currentMoveSpeed);
         }
     }
 
@@ -88,10 +100,12 @@ public class PlayerController : MonoBehaviour
         if (inputHandler.IsMeleeAttackPressed() && meleeWeapon != null)
         {
             meleeWeapon.attackType.ExecuteAttack(transform, meleeWeapon.damage);
+            Debug.Log("Мelee attack pressed");
         }
         else if (inputHandler.IsMagicAttackPressed() && magicWeapon != null)
         {
             magicWeapon.attackType.ExecuteAttack(transform, magicWeapon.damage);
+            Debug.Log("Magic attack pressed");
         }
     }
 
@@ -118,7 +132,7 @@ public class PlayerController : MonoBehaviour
         if (healthManager != null && damageHandler != null)
         {
             healthManager.TakeDamage(damage);
-            Debug.Log($"тгрок получил {damage} урона!");
+            ApplyStun(0.5f);  
 
             if (healthBar != null)
             {
@@ -127,13 +141,24 @@ public class PlayerController : MonoBehaviour
 
             if (healthManager.currentHealth <= 0)
             {
-                //умиранинг();
+                Die();
             }
         }
         else
         {
             Debug.LogError("HealthManager или DamageHandler не инициализированы!");
         }
+    }
+
+    private void Die()
+    {
+       
+        Debug.Log("Игрок умер!");
+
+        this.enabled = false;
+        movementController.enabled = false;
+        inputHandler.enabled = false;
+        Destroy(gameObject, 3f);
     }
 
     public void DealDamage(Enemy target, int damage, DamageType type)
@@ -150,6 +175,26 @@ public class PlayerController : MonoBehaviour
         {
             Debug.LogWarning("Нет подходящего оружия для атаки!");
         }
+    }
+    public void ApplyStun(float duration)
+    {
+        if (!isStunned)
+        {
+            StartCoroutine(StunCoroutine(duration));
+            
+        }
+    }
+
+    private IEnumerator StunCoroutine(float duration)
+    {
+        isStunned = true;
+        stunDuration = duration;
+        movementController.enabled = false;
+        Debug.Log($" в стане на {duration} секунд!");
+        yield return new WaitForSeconds(duration);
+        isStunned = false;
+        movementController.enabled = true;
+        Debug.Log($" вышел из стана.");
     }
 
     public bool HasMeleeWeapon()

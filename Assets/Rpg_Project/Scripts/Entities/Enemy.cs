@@ -99,12 +99,12 @@ public class Enemy : MonoBehaviour
             if (distanceToPlayer <= attackRange)
             {
                 PlayerController player = target.GetComponent<PlayerController>();
-                Debug.Log(player);
+                //Debug.Log(player);
                 if (player != null)
                 {
                     int finalDamage = damageHandler.CalculateDamage(Damage, DamageType, 0f, 0f);
                     AttackType.ExecuteAttack(transform, finalDamage);
-                    Debug.Log($"{Name} атакует игрока за {Damage} урона!");
+                    //Debug.Log($"{Name} атакует игрока за {Damage} урона!");
                 }
             }
         }
