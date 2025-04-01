@@ -26,6 +26,8 @@ public class Enemy : MonoBehaviour
 
     private EnemyAnimator animator;
 
+    public bool isAttacking = false;
+
     //стан поведение
     private bool isStunned = false;
     private float stunDuration = 0f;
@@ -95,23 +97,28 @@ public class Enemy : MonoBehaviour
     }
     public void Attack(Transform target)
     {
-        if (target != null && target.CompareTag("Player"))
-        {
-            float distanceToPlayer = Vector3.Distance(transform.position, target.position);
+        if (isAttacking || target == null || !target.CompareTag("Player")) return;
 
-            if (distanceToPlayer <= attackRange)
+        float distanceToPlayer = Vector3.Distance(transform.position, target.position);
+        if (distanceToPlayer <= attackRange)
+        {
+            PlayerController player = target.GetComponent<PlayerController>();
+            if (player != null)
             {
-                PlayerController player = target.GetComponent<PlayerController>();
-                Debug.Log(player);
-                if (player != null)
-                {
-                    int finalDamage = damageHandler.CalculateDamage(Damage, DamageType, 0f, 0f);
-                    animator.Attack();
-                    AttackType.ExecuteAttack(transform, finalDamage);
-                    Debug.Log($"{Name} атакует игрока за {Damage} урона!");
-                }
+                isAttacking = true;
+                int finalDamage = damageHandler.CalculateDamage(Damage, DamageType, 0f, 0f);
+                animator.Attack();
+                AttackType.ExecuteAttack(transform, finalDamage);
+                Debug.Log($"{Name} атакует игрока за {Damage} урона!");
+                StartCoroutine(ResetAttackCooldown(1f));
             }
         }
+    }
+
+    private IEnumerator ResetAttackCooldown(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        isAttacking = false;
     }
 
     public void MoveTowards(Transform target, float speed)
@@ -136,21 +143,13 @@ public class Enemy : MonoBehaviour
 
     public void MoveAwayFrom(Transform target, float speed, float safeDistance)
     {
-        if (target == null)
-        {
-            Debug.LogWarning("no target err");
-            return;
-        }
-
-
         float distanceToTarget = Vector3.Distance(transform.position, target.position);
+        float error = 0.1f;
 
-
-        if (distanceToTarget < safeDistance)
+        if (distanceToTarget + error < safeDistance)
         {
-
+            animator.SetMove(true);
             Vector3 direction = (transform.position - target.position).normalized;
-
             transform.position += direction * speed * Time.deltaTime;
 
             if (direction != Vector3.zero)
@@ -158,14 +157,21 @@ public class Enemy : MonoBehaviour
                 Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
                 transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
             }
-
-            Debug.Log($"{Name} отступает от {target.name}");
         }
         else
         {
-            Debug.Log($"{Name} на безопасном расстоянии от {target.name}");
+            Vector3 lookDirection = (target.position - transform.position).normalized;
+            lookDirection.y = 0;
+            if (lookDirection != Vector3.zero)
+            {
+                Quaternion lookRotation = Quaternion.LookRotation(lookDirection);
+                transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
+            }
         }
     }
+
+
+
 
     private void Die()
     {

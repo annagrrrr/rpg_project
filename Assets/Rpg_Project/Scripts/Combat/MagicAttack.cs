@@ -21,7 +21,7 @@ public class MagicAttack : IAttack
         Vector3 attackEnd = attackStart + direction * attackRange;
 
         Debug.DrawLine(attackStart, attackEnd, Color.blue, 1f);
-        Debug.Log($"Magic Attack Ray: Start={attackStart}, End={attackEnd}");
+        Debug.Log($"¿“¿ ”ﬁ Magic Attack Ray: Start={attackStart}, End={attackEnd}");
 
         if (Physics.Raycast(attackStart, direction, out RaycastHit hit, attackRange))
         {
