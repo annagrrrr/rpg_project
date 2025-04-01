@@ -102,6 +102,18 @@ public class Enemy : MonoBehaviour
         float distanceToPlayer = Vector3.Distance(transform.position, target.position);
         if (distanceToPlayer <= attackRange)
         {
+            Vector3 directionToTarget = (target.position - transform.position).normalized;
+            float angle = Vector3.Angle(transform.forward, directionToTarget);
+
+            // Проверяем, смотрит ли враг на игрока
+            if (angle > 10f)
+            {
+                // Поворачиваем врага к игроку перед атакой
+                Quaternion lookRotation = Quaternion.LookRotation(new Vector3(directionToTarget.x, 0, directionToTarget.z));
+                transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
+                return; // Не атакуем, пока не повернулись
+            }
+
             PlayerController player = target.GetComponent<PlayerController>();
             if (player != null)
             {
@@ -114,6 +126,7 @@ public class Enemy : MonoBehaviour
             }
         }
     }
+
 
     private IEnumerator ResetAttackCooldown(float duration)
     {

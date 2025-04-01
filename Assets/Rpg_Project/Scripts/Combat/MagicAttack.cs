@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class MagicAttack : IAttack
 {
-    private float attackRange = 10f;
+    private float attackRange = 15f;
     private int defaultDamage = 15;
     private float lastAttackTime = 0f;
     private float attackCooldown = 1f; 
