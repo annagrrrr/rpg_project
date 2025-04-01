@@ -104,15 +104,13 @@ public class Enemy : MonoBehaviour
         {
             Vector3 directionToTarget = (target.position - transform.position).normalized;
             float angle = Vector3.Angle(transform.forward, directionToTarget);
-
-            // ѕровер€ем, смотрит ли враг на игрока
             if (angle > 10f)
             {
-                // ѕоворачиваем врага к игроку перед атакой
                 Quaternion lookRotation = Quaternion.LookRotation(new Vector3(directionToTarget.x, 0, directionToTarget.z));
                 transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
-                return; // Ќе атакуем, пока не повернулись
+                return;
             }
+            Debug.Log($"{Name} пытаетс€ атаковать!");
 
             PlayerController player = target.GetComponent<PlayerController>();
             if (player != null)

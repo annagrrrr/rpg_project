@@ -6,8 +6,6 @@ public class RangedBehaviour : IEnemyBehaviour
 
     public void UpdateBehaviour(Enemy enemy, Transform player)
     {
-        if (enemy.isAttacking) return;
-
         float distance = Vector3.Distance(enemy.transform.position, player.position);
 
         if (distance < safeDistance - 0.5f)
@@ -16,7 +14,14 @@ public class RangedBehaviour : IEnemyBehaviour
         }
         else if (distance <= safeDistance + 0.5f)
         {
-            enemy.Attack(player);
+            if (!enemy.isAttacking)
+            {
+                enemy.Attack(player);
+            }
+        }
+        else
+        {
+            enemy.isAttacking = false;
         }
     }
 }
