@@ -24,6 +24,8 @@ public class Enemy : MonoBehaviour
 
     private PlayerController playerController;
 
+    private EnemyAnimator animator;
+
     //стан поведение
     private bool isStunned = false;
     private float stunDuration = 0f;
@@ -34,6 +36,7 @@ public class Enemy : MonoBehaviour
 
     public void Initialize(string name, int maxHealth, int damage, float physicalResistance, float magicResistance, IEnemyBehaviour behaviour, IAttack attackType, HealthBar enemyHealthBar)
     {
+        Transform child = transform.Find("MeleeAttackerMesh");
         Name = name;
         Health = new HealthManager(maxHealth);
         damageHandler = new DamageHandler();
@@ -42,13 +45,13 @@ public class Enemy : MonoBehaviour
         healthBar = GetComponentInChildren<HealthBar>();
         Health.TakeDamage(0);
         Damage = damage;
+        animator = GetComponent<EnemyAnimator>();
         AttackType = attackType;
         attackRange = attackType.GetAttackRange();
         PhysicalResistance = physicalResistance;
         MagicResistance = magicResistance;
         currentBehaviour = behaviour;
         Debug.Log(behaviour);
-        //if (currentBehaviour == MeleeBehaviour)
 
         damageHandler = new DamageHandler();
         
@@ -103,6 +106,7 @@ public class Enemy : MonoBehaviour
                 if (player != null)
                 {
                     int finalDamage = damageHandler.CalculateDamage(Damage, DamageType, 0f, 0f);
+                    animator.Attack();
                     AttackType.ExecuteAttack(transform, finalDamage);
                     Debug.Log($"{Name} атакует игрока за {Damage} урона!");
                 }
@@ -115,12 +119,14 @@ public class Enemy : MonoBehaviour
         if (target == null)
         {
             Debug.LogWarning("no target err");
+            animator.SetMove(false);
             return;
         }
-
+        animator.SetMove(true);
         transform.position = Vector3.MoveTowards(transform.position, target.position, speed * Time.deltaTime);
 
         Vector3 direction = (target.position - transform.position).normalized;
+
         if (direction != Vector3.zero)
         {
             Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
@@ -163,22 +169,15 @@ public class Enemy : MonoBehaviour
 
     private void Die()
     {
+        animator.Die();
         Debug.Log($"{Name} погиб!");
-
-        Collider collider = GetComponent<Collider>();
-        if (collider) collider.enabled = false;
+        animator.Die();
 
         currentBehaviour = null;
 
         StopAllCoroutines();
 
-        //Animator animator = GetComponent<Animator>(); для аниматора, может кода-нибудь в будущем..
-        //if (animator)
-        //{
-        //    animator.SetTrigger("Die");
-        //}
-
-        Destroy(gameObject, 3f);
+        Destroy(gameObject, 6f);
     }
     public void ApplyStun(float duration)
     {
@@ -190,6 +189,7 @@ public class Enemy : MonoBehaviour
     private IEnumerator StunCoroutine(float duration)
     {
         isStunned = true;
+        animator.Stun();
         stunDuration = duration;
 
         Debug.Log($"{Name} в стане на {duration} секунд!");
