@@ -1083,20 +1083,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemySpawns:
-  - enemyPrefab: {fileID: 6079749741126325741, guid: 044f7844213639945ad58f3cd9b1b3c1, type: 3}
+  - enemyPrefab: {fileID: 6930990290297307804, guid: 1853bf0d2ca64734aaae4f0884698011, type: 3}
     name: Vampire
     maxHealth: 100
     damage: 30
     physicalResistance: 0
     magicResistance: 0.5
-    behaviourType: 0
-  - enemyPrefab: {fileID: 4903974240507830707, guid: b9cba9c28f2dafd48aa6483f1a11459a, type: 3}
+    behaviourType: 1
+  - enemyPrefab: {fileID: 6930990290297307804, guid: 1853bf0d2ca64734aaae4f0884698011, type: 3}
     name: Mage
     maxHealth: 207
     damage: 20
     physicalResistance: 0.29
     magicResistance: 0.16
-    behaviourType: 0
+    behaviourType: 1
   spawnPoints:
   - {fileID: 387323780}
   - {fileID: 1263518119}

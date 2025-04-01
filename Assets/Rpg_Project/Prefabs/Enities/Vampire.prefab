@@ -29,7 +29,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 8390202857558429584}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -97,7 +97,7 @@ GameObject:
   - component: {fileID: 8390202857558429584}
   - component: {fileID: 7862673099635049223}
   - component: {fileID: 8357434447983867237}
-  - component: {fileID: 8570258507345956518}
+  - component: {fileID: 7353250421921430998}
   m_Layer: 0
   m_Name: Vampire
   m_TagString: Untagged
@@ -159,10 +159,10 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 32
+  m_Constraints: 80
   m_CollisionDetection: 0
---- !u!65 &8570258507345956518
-BoxCollider:
+--- !u!136 &7353250421921430998
+CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -179,8 +179,10 @@ BoxCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 2.01, z: 1}
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Height: 2.16
+  m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &8673506979962857000
 PrefabInstance:
