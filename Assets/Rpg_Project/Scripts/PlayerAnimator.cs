@@ -9,7 +9,7 @@ public class PlayerAnimator : MonoBehaviour, IPlayerAnimator
     private static readonly int Attack = Animator.StringToHash("Attack");
     private static readonly int MagicAttack = Animator.StringToHash("MagicAttack");
     private static readonly int Jump = Animator.StringToHash("Jump");
-    private static readonly int Die = Animator.StringToHash("isDead");
+    private static readonly int Die = Animator.StringToHash("Die");
     private static readonly int Stun = Animator.StringToHash("Stun");
 
     private void Start()
@@ -57,6 +57,6 @@ public class PlayerAnimator : MonoBehaviour, IPlayerAnimator
 
     public void PlayDie()
     {
-        animator.SetTrigger(Die);
+        animator.CrossFade(Die, 0.1f);
     }
 }

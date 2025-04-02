@@ -32,6 +32,8 @@ public class PlayerController : MonoBehaviour
     private float currentCooldown = 0f;
 
     private bool isJumping = false;
+    private bool isDead = false;
+
 
     public void Initialize(HealthManager healthManager, DamageHandler damageHandler, HealthBar healthBar)
     {
@@ -129,7 +131,6 @@ public class PlayerController : MonoBehaviour
         else if (isJumping)
         {
             isJumping = false;
-            //playerAnimator.PlayIdle();
             if (inputHandler.GetMovementInput().magnitude > 0.1f)
             {
                 playerAnimator.SetMove(true);
@@ -183,6 +184,7 @@ public class PlayerController : MonoBehaviour
 
     public void ReceiveDamage(int damage)
     {
+        if (isDead) return;
         if (healthManager != null && damageHandler != null)
         {
             healthManager.TakeDamage(damage);
@@ -206,6 +208,8 @@ public class PlayerController : MonoBehaviour
 
     private void Die()
     {
+        if (isDead) return;
+        isDead = true;
         FindFirstObjectByType<UIManager>().ShowGameOverPanel();
         playerAnimator.PlayDie();
         this.enabled = false;
@@ -216,6 +220,7 @@ public class PlayerController : MonoBehaviour
 
     public void ApplyStun(float duration)
     {
+        if (isDead) return;
         if (!isStunned)
         {
             StartCoroutine(StunCoroutine(duration));

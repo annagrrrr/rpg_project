@@ -1810,6 +1810,17 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 3504618212883920650, guid: 7a1326abb4874ad41ac5201fe6f56460, type: 3}
   m_PrefabInstance: {fileID: 383521545}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &175273149 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4019885643318594188, guid: 266cde0041b9eaa4d918dcd12ffcb598, type: 3}
+  m_PrefabInstance: {fileID: 1605590287}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ffbee14e30b2904fb98a5ece5fbca79, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &176940854 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8734514329060444841, guid: 35cc7b1a97b35f744bdf64e19907817e, type: 3}
@@ -2715,15 +2726,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 7992452185244626047, guid: 3e705a03824696b40a12c494f04bf9b1, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2760.1042
+      value: 2742.5
       objectReference: {fileID: 0}
     - target: {fileID: 7992452185244626047, guid: 3e705a03824696b40a12c494f04bf9b1, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -5839.456
+      value: -5831.85
       objectReference: {fileID: 0}
     - target: {fileID: 7992452185244626047, guid: 3e705a03824696b40a12c494f04bf9b1, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -200.66
+      value: -289
       objectReference: {fileID: 0}
     - target: {fileID: 7992452185244626047, guid: 3e705a03824696b40a12c494f04bf9b1, type: 3}
       propertyPath: m_LocalRotation.w
@@ -7160,7 +7171,7 @@ PrefabInstance:
     - target: {fileID: 1506279249356218909, guid: fe3ff2ae7fe4cad448f572dd1e51714e, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 2003868280}
+      objectReference: {fileID: 175273149}
     - target: {fileID: 1506279249356218909, guid: fe3ff2ae7fe4cad448f572dd1e51714e, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: ExitGame
@@ -7168,7 +7179,7 @@ PrefabInstance:
     - target: {fileID: 2016551289925821355, guid: fe3ff2ae7fe4cad448f572dd1e51714e, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 2003868280}
+      objectReference: {fileID: 175273149}
     - target: {fileID: 2016551289925821355, guid: fe3ff2ae7fe4cad448f572dd1e51714e, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: RestartGame
@@ -12630,10 +12641,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 152
       objectReference: {fileID: 0}
+    - target: {fileID: 3447265877038260464, guid: cf7a2a3791873b142abace5a9c4d7359, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: -2432090755550338912, guid: 7d732e9c71b4d5b48a267d4ef6ab8159, type: 3}
     - target: {fileID: 6133656202143271587, guid: cf7a2a3791873b142abace5a9c4d7359, type: 3}
       propertyPath: weaponHoldPoint
       value: 
       objectReference: {fileID: 1604874978}
+    - target: {fileID: 6543248387439920500, guid: cf7a2a3791873b142abace5a9c4d7359, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: -2432090755550338912, guid: 7d732e9c71b4d5b48a267d4ef6ab8159, type: 3}
     - target: {fileID: 7035859982244406514, guid: cf7a2a3791873b142abace5a9c4d7359, type: 3}
       propertyPath: m_Name
       value: Sword
