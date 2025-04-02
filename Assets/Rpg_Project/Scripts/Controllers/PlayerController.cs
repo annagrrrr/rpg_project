@@ -178,6 +178,7 @@ public class PlayerController : MonoBehaviour
 
     private void Die()
     {
+        FindFirstObjectByType<UIManager>().ShowGameOverPanel();
         playerAnimator.PlayDie();
         this.enabled = false;
         movementController.enabled = false;
