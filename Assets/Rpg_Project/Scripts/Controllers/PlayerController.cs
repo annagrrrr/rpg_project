@@ -77,11 +77,15 @@ public class PlayerController : MonoBehaviour
             if (Input.GetKey(KeyCode.LeftShift))
             {
                 currentMoveSpeed *= sprintMultiplier;
+                playerAnimator.SetSprint(true);
+            }
+            else
+            {
+                playerAnimator.SetMove(true);
             }
 
             Vector3 moveDirection = transform.forward * movement.z + transform.right * movement.x;
             rb.MovePosition(rb.position + moveDirection * currentMoveSpeed * Time.deltaTime);
-            playerAnimator.SetMove(true);
         }
         else if (!isJumping)
         {
@@ -129,7 +133,7 @@ public class PlayerController : MonoBehaviour
         else if (inputHandler.IsMagicAttackPressed() && magicWeapon != null && !isStunned)
         {
             magicWeapon.attackType.ExecuteAttack(transform, magicWeapon.damage);
-            playerAnimator.PlayAttack();
+            playerAnimator.PlayMagicAttack();
         }
     }
 
