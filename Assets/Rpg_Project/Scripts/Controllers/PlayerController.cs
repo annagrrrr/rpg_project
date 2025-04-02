@@ -211,7 +211,7 @@ public class PlayerController : MonoBehaviour
         this.enabled = false;
         movementController.enabled = false;
         inputHandler.enabled = false;
-        Destroy(gameObject, 3f);
+        //Destroy(gameObject, 3f);
     }
 
     public void ApplyStun(float duration)
