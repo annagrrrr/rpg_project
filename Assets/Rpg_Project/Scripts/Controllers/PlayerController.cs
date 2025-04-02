@@ -159,6 +159,7 @@ public class PlayerController : MonoBehaviour
         {
             magicWeapon.attackType.ExecuteAttack(transform, magicWeapon.damage);
             playerAnimator.PlayMagicAttack();
+            currentCooldown = magicAttackCooldown;
         }
     }
 
