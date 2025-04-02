@@ -4,11 +4,12 @@ public class PlayerAnimator : MonoBehaviour, IPlayerAnimator
 {
     private Animator animator;
 
-    private static readonly int Move = Animator.StringToHash("Move");
-    private static readonly int Attack = Animator.StringToHash("Attack");
-    private static readonly int Jump = Animator.StringToHash("Jump");
-    private static readonly int Idle = Animator.StringToHash("Idle");
-    private static readonly int Die = Animator.StringToHash("Die");
+    private static readonly int Move = Animator.StringToHash("isMoving");
+    private static readonly int Attack = Animator.StringToHash("isAttacking");
+    private static readonly int Jump = Animator.StringToHash("isJumping");
+    //private static readonly int Idle = Animator.StringToHash("Idle");
+    private static readonly int Die = Animator.StringToHash("isDead");
+    private static readonly int Stun = Animator.StringToHash("isStunned");
 
     private void Start()
     {
@@ -17,26 +18,46 @@ public class PlayerAnimator : MonoBehaviour, IPlayerAnimator
 
     public void SetMove(bool isMoving)
     {
+        animator.SetBool(Jump, false);
+        animator.SetBool(Attack, false);
         animator.SetBool(Move, isMoving);
     }
 
     public void PlayAttack()
     {
+        animator.SetBool(Jump, false);
+        animator.SetBool(Move, false);
         animator.SetTrigger(Attack);
+    }
+    public void PlayStun(bool isStunned)
+    {
+        animator.SetBool(Jump, false);
+        animator.SetBool(Move, false);
+        animator.SetBool(Attack, false);
+        animator.SetBool(Stun, isStunned);
     }
 
     public void PlayJump()
     {
+        animator.SetBool(Move, false);
+        animator.SetBool(Attack, false);
         animator.SetTrigger(Jump);
     }
 
     public void PlayIdle()
     {
-        animator.SetTrigger(Idle);
+        animator.SetBool(Move, false);
+        animator.SetBool(Attack, false);
+        animator.SetBool(Jump, false);
+        //animator.SetTrigger(Idle);
     }
 
     public void PlayDie()
     {
-        animator.SetTrigger(Die);
+        animator.SetBool(Stun, false);
+        animator.SetBool(Move, false);
+        animator.SetBool(Jump, false);
+        animator.SetBool(Attack, false);
+        animator.SetBool(Die, true);
     }
 }

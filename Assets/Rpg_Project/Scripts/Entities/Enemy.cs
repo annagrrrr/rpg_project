@@ -209,12 +209,12 @@ public class Enemy : MonoBehaviour
         animator.Stun();
         stunDuration = duration;
 
-        Debug.Log($"{Name} � ����� �� {duration} ������!");
+        Debug.Log($"{Name} v stane na {duration} sec!");
 
         yield return new WaitForSeconds(duration);
 
         isStunned = false;
-        Debug.Log($"{Name} ����� �� �����.");
+        Debug.Log($"{Name} not v stane.");
     }
 
     private void UpdateHealthBar(int currentHealth, int maxHealth)

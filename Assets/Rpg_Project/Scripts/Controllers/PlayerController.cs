@@ -64,19 +64,15 @@ public class PlayerController : MonoBehaviour
         Rotate();
         HandleAttack();
 
-        if (isJumping)
-        {
-            playerAnimator.PlayJump();
-        }
-        else if (rb.linearVelocity.magnitude > 0.1f)
-        {
-            playerAnimator.SetMove(true);
-        }
-        else
-        {
-            playerAnimator.SetMove(false);
-            playerAnimator.PlayIdle();
-        }
+        //if (isJumping)
+        //{
+        //    playerAnimator.PlayJump();
+        //}
+        //if (rb.linearVelocity.magnitude < 0.01f)
+        //{
+        //    playerAnimator.PlayIdle();
+        //}
+
     }
 
     private void Move()
@@ -94,7 +90,12 @@ public class PlayerController : MonoBehaviour
             }
 
             Vector3 moveDirection = transform.forward * movement.z + transform.right * movement.x;
+            playerAnimator.SetMove(true);
             rb.MovePosition(rb.position + moveDirection * currentMoveSpeed * Time.deltaTime);
+        }
+        else if (!isJumping)
+        {
+            playerAnimator.PlayIdle();
         }
     }
 
@@ -104,6 +105,7 @@ public class PlayerController : MonoBehaviour
         if (Physics.Raycast(transform.position, Vector3.down, out hit, 1.1f, groundLayer) && inputHandler.IsJumpPressed() && rb != null)
         {
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            playerAnimator.PlayJump();
             isJumping = true;
         }
         else
@@ -203,17 +205,20 @@ public class PlayerController : MonoBehaviour
     {
         if (!isStunned)
         {
+            playerAnimator.PlayStun(true);
             StartCoroutine(StunCoroutine(duration));
         }
     }
 
     private IEnumerator StunCoroutine(float duration)
     {
+        Debug.Log("player stunned?!!");
         isStunned = true;
         stunDuration = duration;
         movementController.enabled = false;
         yield return new WaitForSeconds(duration);
         isStunned = false;
+        playerAnimator.PlayStun(false);
         movementController.enabled = true;
     }
 
