@@ -4,16 +4,16 @@ public class MeleeAttack : IAttack
 {
     private float attackRange;
     private int attackDamage;
-    private float attackCooldown = 1f; // Время задержки между атаками
-    private float lastAttackTime = -1f; // Время последней атаки
+    private float attackCooldown = 1f; 
+    private float lastAttackTime = -1f; 
 
-    public MeleeAttack() // Для врага с дефолтными параметрами
+    public MeleeAttack() 
     {
         attackRange = 5f;
         attackDamage = 20;
     }
 
-    public MeleeAttack(float range, int damage) // Для игрока, можно задавать параметры
+    public MeleeAttack(float range, int damage) 
     {
         attackRange = range;
         attackDamage = damage;
