@@ -1,7 +1,6 @@
 using System;
 using UnityEngine;
 using System.Collections;
-using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
@@ -29,11 +28,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float sprintMultiplier = 1.5f;
 
     private bool isJumping = false;
-
-    
-    [SerializeField] private Image magicAttackIcon;  
-    private float magicAttackCooldown = 5f;  
-    private float currentCooldown = 0f;  
 
     public void Initialize(HealthManager healthManager, DamageHandler damageHandler, HealthBar healthBar)
     {
@@ -65,36 +59,10 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        HandleMagicAttackCooldown();  
-
         Move();
         Jump();
         Rotate();
         HandleAttack();
-    }
-
-    private void HandleMagicAttackCooldown()
-    {
-        if (currentCooldown > 0)
-        {
-            currentCooldown -= Time.deltaTime;  
-            UpdateMagicAttackIconColor();  
-        }
-    }
-
-    
-    private void UpdateMagicAttackIconColor()
-    {
-        if (currentCooldown <= 0)
-        {
-            
-            magicAttackIcon.color = Color.green;
-        }
-        else
-        {
-            
-            magicAttackIcon.color = Color.red;  
-        }
     }
 
     private void Move()
@@ -112,8 +80,8 @@ public class PlayerController : MonoBehaviour
             }
 
             Vector3 moveDirection = transform.forward * movement.z + transform.right * movement.x;
-            playerAnimator.SetMove(true);
             rb.MovePosition(rb.position + moveDirection * currentMoveSpeed * Time.deltaTime);
+            playerAnimator.SetMove(true);
         }
         else if (!isJumping)
         {
@@ -123,16 +91,24 @@ public class PlayerController : MonoBehaviour
 
     private void Jump()
     {
-        RaycastHit hit;
-        if (Physics.Raycast(transform.position, Vector3.down, out hit, 1.1f, groundLayer) && inputHandler.IsJumpPressed() && rb != null)
+        if (Physics.Raycast(transform.position, Vector3.down, 1.1f, groundLayer) && inputHandler.IsJumpPressed() && rb != null)
         {
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             playerAnimator.PlayJump();
             isJumping = true;
         }
-        else
+        else if (isJumping)
         {
             isJumping = false;
+            //playerAnimator.PlayIdle();
+            if (inputHandler.GetMovementInput().magnitude > 0.1f)
+            {
+                playerAnimator.SetMove(true);
+            }
+            else
+            {
+                playerAnimator.PlayIdle();
+            }
         }
     }
 
@@ -145,18 +121,15 @@ public class PlayerController : MonoBehaviour
 
     private void HandleAttack()
     {
-        if (inputHandler.IsMeleeAttackPressed() && meleeWeapon != null)
+        if (inputHandler.IsMeleeAttackPressed() && meleeWeapon != null && !isStunned)
         {
             meleeWeapon.attackType.ExecuteAttack(transform, meleeWeapon.damage);
             playerAnimator.PlayAttack();
         }
-        else if (inputHandler.IsMagicAttackPressed() && magicWeapon != null && currentCooldown <= 0)
+        else if (inputHandler.IsMagicAttackPressed() && magicWeapon != null && !isStunned)
         {
             magicWeapon.attackType.ExecuteAttack(transform, magicWeapon.damage);
             playerAnimator.PlayAttack();
-
-            
-            currentCooldown = magicAttackCooldown;
         }
     }
 
@@ -183,7 +156,7 @@ public class PlayerController : MonoBehaviour
         if (healthManager != null && damageHandler != null)
         {
             healthManager.TakeDamage(damage);
-            ApplyStun(0.5f);
+            ApplyStun(0.3f);
 
             if (healthBar != null)
             {
@@ -211,27 +184,10 @@ public class PlayerController : MonoBehaviour
         Destroy(gameObject, 3f);
     }
 
-    public void DealDamage(Enemy target, int damage, DamageType type)
-    {
-        if (type == DamageType.PHYSICAL && meleeWeapon != null)
-        {
-            meleeWeapon.PerformAttack();
-        }
-        else if (type == DamageType.MAGICAL && magicWeapon != null)
-        {
-            magicWeapon.PerformAttack();
-        }
-        else
-        {
-            Debug.LogWarning("Нет подходящего оружия для атаки!");
-        }
-    }
-
     public void ApplyStun(float duration)
     {
         if (!isStunned)
         {
-            playerAnimator.PlayStun(true);
             StartCoroutine(StunCoroutine(duration));
         }
     }
@@ -240,12 +196,12 @@ public class PlayerController : MonoBehaviour
     {
         Debug.Log("player stunned?!!");
         isStunned = true;
-        stunDuration = duration;
+        playerAnimator.PlayStun();
         movementController.enabled = false;
         yield return new WaitForSeconds(duration);
         isStunned = false;
-        playerAnimator.PlayStun(false);
         movementController.enabled = true;
+        playerAnimator.PlayIdle();
     }
 
     public bool HasMeleeWeapon()
