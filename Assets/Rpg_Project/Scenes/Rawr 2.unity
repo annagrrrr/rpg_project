@@ -1587,11 +1587,11 @@ MonoBehaviour:
     damage: 30
     physicalResistance: 0
     magicResistance: 0.5
-    behaviourType: 0
+    behaviourType: 1
   - enemyPrefab: {fileID: 6930990290297307804, guid: 1853bf0d2ca64734aaae4f0884698011, type: 3}
     name: Mage
     maxHealth: 207
-    damage: 20
+    damage: 1
     physicalResistance: 0.29
     magicResistance: 0.16
     behaviourType: 0
