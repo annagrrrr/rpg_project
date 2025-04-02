@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
@@ -28,6 +29,11 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float sprintMultiplier = 1.5f;
 
     private bool isJumping = false;
+
+    
+    [SerializeField] private Image magicAttackIcon;  
+    private float magicAttackCooldown = 5f;  
+    private float currentCooldown = 0f;  
 
     public void Initialize(HealthManager healthManager, DamageHandler damageHandler, HealthBar healthBar)
     {
@@ -59,20 +65,36 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        HandleMagicAttackCooldown();  
+
         Move();
         Jump();
         Rotate();
         HandleAttack();
+    }
 
-        //if (isJumping)
-        //{
-        //    playerAnimator.PlayJump();
-        //}
-        //if (rb.linearVelocity.magnitude < 0.01f)
-        //{
-        //    playerAnimator.PlayIdle();
-        //}
+    private void HandleMagicAttackCooldown()
+    {
+        if (currentCooldown > 0)
+        {
+            currentCooldown -= Time.deltaTime;  
+            UpdateMagicAttackIconColor();  
+        }
+    }
 
+    
+    private void UpdateMagicAttackIconColor()
+    {
+        if (currentCooldown <= 0)
+        {
+            
+            magicAttackIcon.color = Color.green;
+        }
+        else
+        {
+            
+            magicAttackIcon.color = Color.red;  
+        }
     }
 
     private void Move()
@@ -128,10 +150,13 @@ public class PlayerController : MonoBehaviour
             meleeWeapon.attackType.ExecuteAttack(transform, meleeWeapon.damage);
             playerAnimator.PlayAttack();
         }
-        else if (inputHandler.IsMagicAttackPressed() && magicWeapon != null)
+        else if (inputHandler.IsMagicAttackPressed() && magicWeapon != null && currentCooldown <= 0)
         {
             magicWeapon.attackType.ExecuteAttack(transform, magicWeapon.damage);
             playerAnimator.PlayAttack();
+
+            
+            currentCooldown = magicAttackCooldown;
         }
     }
 

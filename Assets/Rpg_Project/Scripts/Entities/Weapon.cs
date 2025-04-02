@@ -32,22 +32,22 @@ public class Weapon : MonoBehaviour
     {
         if (inputHandler != null)
         {
-            if (inputHandler.IsMeleeAttackPressed()) 
+            if (inputHandler.IsMeleeAttackPressed())
             {
                 if (attackType != null && attackType is MeleeAttack)
                 {
-                    attackType.ExecuteAttack(owner.transform, damage); 
+                    attackType.ExecuteAttack(owner.transform, damage);
                 }
                 else
                 {
                     Debug.LogWarning("Weapon is not melee type!");
                 }
             }
-            else if (inputHandler.IsMagicAttackPressed()) 
+            else if (inputHandler.IsMagicAttackPressed())
             {
                 if (attackType != null && attackType is MagicAttack)
                 {
-                    attackType.ExecuteAttack(owner.transform, damage); 
+                    attackType.ExecuteAttack(owner.transform, damage);
                 }
                 else
                 {
