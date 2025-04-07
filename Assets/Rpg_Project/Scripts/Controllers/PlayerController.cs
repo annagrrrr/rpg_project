@@ -27,13 +27,15 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float jumpForce = 5f;
     [SerializeField] private float rotationSpeed = 700f;
     [SerializeField] private float sprintMultiplier = 1.5f;
-    [SerializeField] private Image magicAttackIcon;  
-    private float magicAttackCooldown = 5f;  
+    [SerializeField] private Image magicAttackIcon;
+    private float magicAttackCooldown = 5f;
     private float currentCooldown = 0f;
 
     private bool isJumping = false;
     private bool isDead = false;
 
+    private float walkSpeed = 1.3f;  // Скорость шагов при обычном беге
+    private float sprintSpeed = 1.7f;  // Скорость шагов при спринте
 
     public void Initialize(HealthManager healthManager, DamageHandler damageHandler, HealthBar healthBar)
     {
@@ -71,14 +73,16 @@ public class PlayerController : MonoBehaviour
         HandleAttack();
         HandleMagicAttackCooldown();
     }
+
     private void HandleMagicAttackCooldown()
     {
         if (currentCooldown > 0)
         {
-            currentCooldown -= Time.deltaTime;  
-            UpdateMagicAttackIconColor();  
+            currentCooldown -= Time.deltaTime;
+            UpdateMagicAttackIconColor();
         }
     }
+
     private void Move()
     {
         if (isStunned) return;
@@ -87,15 +91,28 @@ public class PlayerController : MonoBehaviour
 
         if (movement.magnitude >= 0.1f && rb != null)
         {
+            if (isJumping)
+            {
+                SoundManager.Instance.StopRunning();  // Останавливаем звук шагов, если прыгаем
+            }
+            else
+            {
+                if (Input.GetKey(KeyCode.LeftShift))
+                {
+                    SoundManager.Instance.StartRunning(sprintSpeed);  // Спринт
+                    playerAnimator.SetSprint(true);
+                }
+                else
+                {
+                    SoundManager.Instance.StartRunning(walkSpeed);  // Обычный бег
+                    playerAnimator.SetMove(true);
+                }
+            }
+
             float currentMoveSpeed = moveSpeed;
             if (Input.GetKey(KeyCode.LeftShift))
             {
                 currentMoveSpeed *= sprintMultiplier;
-                playerAnimator.SetSprint(true);
-            }
-            else
-            {
-                playerAnimator.SetMove(true);
             }
 
             Vector3 moveDirection = transform.forward * movement.z + transform.right * movement.x;
@@ -103,23 +120,23 @@ public class PlayerController : MonoBehaviour
         }
         else if (!isJumping)
         {
+            SoundManager.Instance.StopRunning();
             playerAnimator.PlayIdle();
         }
     }
+
     private void UpdateMagicAttackIconColor()
     {
         if (currentCooldown <= 0)
         {
-            
             magicAttackIcon.color = Color.green;
         }
         else
         {
-
-
             magicAttackIcon.color = Color.red;
         }
     }
+
     private void Jump()
     {
         if (Physics.Raycast(transform.position, Vector3.down, 1.1f, groundLayer) && inputHandler.IsJumpPressed() && rb != null)
@@ -127,6 +144,8 @@ public class PlayerController : MonoBehaviour
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             playerAnimator.PlayJump();
             isJumping = true;
+            SoundManager.Instance.StopRunning();
+            SoundManager.Instance.PlayJump();
         }
         else if (isJumping)
         {
@@ -155,12 +174,14 @@ public class PlayerController : MonoBehaviour
         {
             meleeWeapon.attackType.ExecuteAttack(transform, meleeWeapon.damage);
             playerAnimator.PlayAttack();
+            SoundManager.Instance.PlayMelee();
         }
         else if (inputHandler.IsMagicAttackPressed() && magicWeapon != null && !isStunned && currentCooldown <= 0)
         {
             magicWeapon.attackType.ExecuteAttack(transform, magicWeapon.damage);
             playerAnimator.PlayMagicAttack();
             currentCooldown = magicAttackCooldown;
+            SoundManager.Instance.PlayMagic();
         }
     }
 
@@ -215,7 +236,6 @@ public class PlayerController : MonoBehaviour
         this.enabled = false;
         movementController.enabled = false;
         inputHandler.enabled = false;
-        //Destroy(gameObject, 3f);
     }
 
     public void ApplyStun(float duration)
@@ -239,23 +259,26 @@ public class PlayerController : MonoBehaviour
         playerAnimator.PlayIdle();
     }
 
+
+
     public bool HasMeleeWeapon()
-    {
-        return meleeWeapon != null;
-    }
+        {
+            return meleeWeapon != null;
+        }
 
-    public bool HasMagicWeapon()
-    {
-        return magicWeapon != null;
-    }
+        public bool HasMagicWeapon()
+        {
+            return magicWeapon != null;
+        }
 
-    public Weapon GetMeleeWeapon()
-    {
-        return meleeWeapon;
-    }
+        public Weapon GetMeleeWeapon()
+        {
+            return meleeWeapon;
+        }
 
-    public Weapon GetMagicWeapon()
-    {
-        return magicWeapon;
-    }
+        public Weapon GetMagicWeapon()
+        {
+            return magicWeapon;
+        }
+    
 }
