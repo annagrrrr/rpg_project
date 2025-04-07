@@ -4555,6 +4555,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 152
       objectReference: {fileID: 0}
+    - target: {fileID: 3447265877038260464, guid: ea8179b695d1764489359c01184ec5d1, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: -2432090755550338912, guid: 7d732e9c71b4d5b48a267d4ef6ab8159, type: 3}
     - target: {fileID: 6133656202143271587, guid: ea8179b695d1764489359c01184ec5d1, type: 3}
       propertyPath: weaponModel
       value: 
@@ -4567,6 +4571,10 @@ PrefabInstance:
       propertyPath: weaponHoldPoint
       value: 
       objectReference: {fileID: 1604874978}
+    - target: {fileID: 6543248387439920500, guid: ea8179b695d1764489359c01184ec5d1, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: -2432090755550338912, guid: 7d732e9c71b4d5b48a267d4ef6ab8159, type: 3}
     - target: {fileID: 7035859982244406514, guid: ea8179b695d1764489359c01184ec5d1, type: 3}
       propertyPath: m_Name
       value: Sword 1
@@ -17128,8 +17136,12 @@ PrefabInstance:
       value: Mage
       objectReference: {fileID: 0}
     - target: {fileID: 682595604837272536, guid: 246f536b5b6b6d2459d9ecf4e4446af8, type: 3}
+      propertyPath: enemySpawns.Array.data[0].damage
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 682595604837272536, guid: 246f536b5b6b6d2459d9ecf4e4446af8, type: 3}
       propertyPath: enemySpawns.Array.data[1].damage
-      value: 30
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 682595604837272536, guid: 246f536b5b6b6d2459d9ecf4e4446af8, type: 3}
       propertyPath: enemySpawns.Array.data[2].damage
