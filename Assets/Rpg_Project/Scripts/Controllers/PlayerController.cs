@@ -33,7 +33,7 @@ public class PlayerController : MonoBehaviour
 
     private bool isJumping = false;
     private bool isDead = false;
-
+    
     private float walkSpeed = 1.3f;  // Скорость шагов при обычном беге
     private float sprintSpeed = 1.7f;  // Скорость шагов при спринте
 
@@ -43,6 +43,10 @@ public class PlayerController : MonoBehaviour
         this.damageHandler = damageHandler ?? throw new ArgumentNullException(nameof(damageHandler));
         this.healthUIUpdater = new HealthUIUpdater(healthBar);
         healthUIUpdater.Subscribe(healthManager);
+    }
+    public HealthManager GetHealthManager()
+    {
+        return healthManager;
     }
 
     private void Start()
@@ -226,6 +230,10 @@ public class PlayerController : MonoBehaviour
             Debug.LogError("HealthManager или DamageHandler не инициализированы!");
         }
     }
+    
+
+    
+
 
     private void Die()
     {

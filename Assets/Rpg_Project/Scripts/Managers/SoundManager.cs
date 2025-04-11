@@ -15,6 +15,7 @@ public class SoundManager : MonoBehaviour
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
+        SetVolume(1f);
     }
 
     public void PlayMelee() => PlayClip(meleeClip);
@@ -49,4 +50,12 @@ public class SoundManager : MonoBehaviour
             isRunning = false;
         }
     }
+    public void SetVolume(float volume)
+    {
+        if (playerAudioSource != null)
+        {
+            playerAudioSource.volume = volume;
+        }
+    }
+
 }
