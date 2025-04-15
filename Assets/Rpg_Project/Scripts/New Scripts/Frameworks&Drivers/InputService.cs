@@ -15,6 +15,11 @@ public class InputService : IInputService
         { PlayerInputAction.SecondaryAttack, 1 }
     };
 
+    private readonly Dictionary<PlayerInputAction, KeyCode> _keyBindings = new()
+    {
+        { PlayerInputAction.Pickup, KeyCode.E }
+    };
+
     public float GetAxis(PlayerInputAction action)
     {
         if (_axisBindings.TryGetValue(action, out var axisName))
@@ -27,6 +32,9 @@ public class InputService : IInputService
     {
         if (_buttonBindings.TryGetValue(action, out var mouseButton))
             return Input.GetMouseButtonDown(mouseButton);
+
+        if (_keyBindings.TryGetValue(action, out var keyCode))
+            return Input.GetKeyDown(keyCode);
 
         return false;
     }

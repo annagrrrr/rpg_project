@@ -6,7 +6,7 @@ public class PlayerControllerr : MonoBehaviour
     private AttackUseCase _attackUseCase;
     private IInputService _input;
     private WeaponInventory _inventory;
-
+    private PickupWeaponUseCase _pickupWeaponUseCase;
     private void Start()
     {
         _inventory = new WeaponInventory();
@@ -23,12 +23,16 @@ public class PlayerControllerr : MonoBehaviour
 
         var attackPresenter = new AttackPresenter();
         _attackUseCase = new AttackUseCase(_inventory, attackPresenter);
+
+        var pickupProvider = new WeaponRaycastPickupProvider(transform);
+        _pickupWeaponUseCase = new PickupWeaponUseCase(pickupProvider, _inventory);
     }
 
     private void Update()
     {
         HandleMovement();
         HandleAttack();
+        HandlePickup();
     }
 
     private void HandleMovement()
@@ -50,4 +54,12 @@ public class PlayerControllerr : MonoBehaviour
             _attackUseCase.ExecuteSecondaryAttack();
         }
     }
+    private void HandlePickup()
+    {
+        if (_input.GetActionDown(PlayerInputAction.Pickup))
+        {
+            _pickupWeaponUseCase.Execute();
+        }
+    }
+
 }

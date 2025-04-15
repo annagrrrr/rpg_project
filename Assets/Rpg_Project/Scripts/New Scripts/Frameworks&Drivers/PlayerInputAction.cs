@@ -3,5 +3,6 @@ public enum PlayerInputAction
     MoveHorizontal,
     MoveVertical,
     PrimaryAttack,
-    SecondaryAttack
+    SecondaryAttack,
+    Pickup
 }
