@@ -1,0 +1,1 @@
+V papke Old Scripts vsya proshlaya struktura proekta. Realizovano absolyutno vse po tz, vklyuchaya sohraneniya progressa, menyu i nastroek. V papke New Scripts novaya struktura (po poslednei lekcii) s Bootstrapper, interfeisami, prezenterami. Konkretno v novoi strukture poka ne realizovano sohranenie i menyu, a takje animacii i zvuki, vse eto v Old Scripts.
