@@ -7,25 +7,31 @@ public class PlayerControllerr : MonoBehaviour
     private IInputService _input;
     private WeaponInventory _inventory;
     private PickupWeaponUseCase _pickupWeaponUseCase;
+    private JumpUseCase _jumpUseCase;
+    private PlayerHealthPresenter _healthPresenter; // Добавляем Presenter для здоровья
+
+    [SerializeField] private float jumpForce;
+
     private void Start()
     {
-        _inventory = new WeaponInventory();
-        var sword = new MeleeWeapon(20);
-        var staff = new RangedWeapon(15);
-        _inventory.EquipRightHand(sword);
-        _inventory.EquipLeftHand(staff);
+    }
 
-        _input = new InputService();
-
-        var repository = new InMemoryPlayerRepository();
-        var presenter = new PlayerPresenter(transform);
-        _movePlayerUseCase = new MovePlayerUseCase(repository, presenter);
-
-        var attackPresenter = new AttackPresenter();
-        _attackUseCase = new AttackUseCase(_inventory, attackPresenter);
-
-        var pickupProvider = new WeaponRaycastPickupProvider(transform);
-        _pickupWeaponUseCase = new PickupWeaponUseCase(pickupProvider, _inventory);
+    public void Initialize(
+        IInputService input,
+        MovePlayerUseCase movePlayerUseCase,
+        AttackUseCase attackUseCase,
+        PickupWeaponUseCase pickupWeaponUseCase,
+        JumpUseCase jumpUseCase,
+        WeaponInventory inventory,
+        PlayerHealthPresenter healthPresenter)
+    {
+        _input = input;
+        _movePlayerUseCase = movePlayerUseCase;
+        _attackUseCase = attackUseCase;
+        _pickupWeaponUseCase = pickupWeaponUseCase;
+        _jumpUseCase = jumpUseCase;
+        _inventory = inventory;
+        _healthPresenter = healthPresenter;
     }
 
     private void Update()
@@ -33,6 +39,7 @@ public class PlayerControllerr : MonoBehaviour
         HandleMovement();
         HandleAttack();
         HandlePickup();
+        HandleJump();
     }
 
     private void HandleMovement()
@@ -49,11 +56,12 @@ public class PlayerControllerr : MonoBehaviour
             _attackUseCase.ExecutePrimaryAttack();
         }
 
-        if (_input.GetActionDown(PlayerInputAction.SecondaryAttack)) 
+        if (_input.GetActionDown(PlayerInputAction.SecondaryAttack))
         {
             _attackUseCase.ExecuteSecondaryAttack();
         }
     }
+
     private void HandlePickup()
     {
         if (_input.GetActionDown(PlayerInputAction.Pickup))
@@ -62,4 +70,12 @@ public class PlayerControllerr : MonoBehaviour
         }
     }
 
+    private void HandleJump()
+    {
+        if (_input.GetActionDown(PlayerInputAction.Jump))
+        {
+            _jumpUseCase.Execute();
+            Debug.Log("jumpy");
+        }
+    }
 }

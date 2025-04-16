@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 public class TakeDamageUseCase
 {
     private readonly Health _health;
@@ -9,7 +11,14 @@ public class TakeDamageUseCase
 
     public void Execute(int damage)
     {
-        _health.TakeDamage(damage);
-        UnityEngine.Debug.Log($"player took {damage} damage. cur HP: {_health.Current}");
+        if (_health != null)
+        {
+            _health.TakeDamage(damage);
+            UnityEngine.Debug.Log($"player took {damage} damage. cur HP: {_health.Current}");
+        }
+        else
+        {
+            UnityEngine.Debug.Log("no");
+        }
     }
 }

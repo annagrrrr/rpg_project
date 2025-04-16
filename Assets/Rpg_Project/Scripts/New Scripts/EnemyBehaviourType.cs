@@ -1,4 +1,4 @@
-public enum EnemyBehaviourType
+public enum EnemyBehaviourTypes
 {
     Melee,
     Ranged

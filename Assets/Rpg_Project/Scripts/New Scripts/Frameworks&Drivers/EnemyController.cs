@@ -7,18 +7,24 @@ public class EnemyController : MonoBehaviour
     [SerializeField] private float moveSpeed = 3f;
     [SerializeField] private float attackCooldown = 1.5f;
     [SerializeField] private int damage = 10;
-    [SerializeField] private EnemyBehaviourType behaviourType;
+    [SerializeField] private EnemyBehaviourTypes behaviourType;
     [SerializeField] private float safeDistance = 5f;
     [SerializeField] private PlayerHealthController playerHealth;
     [SerializeField] private EnemyHealthController enemyHealthController;
 
     private EnemyPresenter _presenter;
+    public void Initialize(PlayerHealthController playerHealth)
+    {
+        this.playerHealth = playerHealth;
+    }
 
     private EnemyData CreateData()
     {
+
+
         switch (behaviourType)
         {
-            case EnemyBehaviourType.Melee:
+            case EnemyBehaviourTypes.Melee:
                 return new EnemyData
                 {
                     DetectionRange = detectionRange,
@@ -28,7 +34,7 @@ public class EnemyController : MonoBehaviour
                     Damage = damage
                 };
 
-            case EnemyBehaviourType.Ranged:
+            case EnemyBehaviourTypes.Ranged:
                 return new RangedEnemyData
                 {
                     DetectionRange = detectionRange,
@@ -46,18 +52,26 @@ public class EnemyController : MonoBehaviour
 
     private void Start()
     {
+        if (playerHealth == null)
+        {
+            Debug.LogError("EnemyController: PlayerHealthController not assigned!");
+            return;
+        }
+
         var data = CreateData();
 
         IEnemyBehaviourr behaviour = behaviourType switch
         {
-            EnemyBehaviourType.Melee => new MeleeEnemyBehaviour(data),
-            EnemyBehaviourType.Ranged => new RangedEnemyBehaviour((RangedEnemyData)data),
+            EnemyBehaviourTypes.Melee => new MeleeEnemyBehaviour(data),
+            EnemyBehaviourTypes.Ranged => new RangedEnemyBehaviour((RangedEnemyData)data),
             _ => throw new System.NotImplementedException()
         };
 
-        var player = GameObject.FindWithTag("Player")?.transform;
+        var player = playerHealth.transform;
+
         _presenter = new EnemyPresenter(behaviour, transform, player, moveSpeed, playerHealth, enemyHealthController);
     }
+
 
 
     private void Update()

@@ -39,8 +39,21 @@ public class EnemyPresenter
 
     public void Tick()
     {
+        if (_playerTransform == null)
+        {
+            Debug.LogWarning("Player transform is null! Cannot execute Tick.");
+            return;
+        }
+
+        if (_behaviour == null)
+        {
+            Debug.LogWarning("Enemy behaviour is null! Cannot execute Tick.");
+            return;
+        }
+
         _behaviour.Tick(_transform.position, _playerTransform);
     }
+
 
     private void MoveTowards(Vector3 direction)
     {

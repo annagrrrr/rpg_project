@@ -16,9 +16,10 @@ public class InputService : IInputService
     };
 
     private readonly Dictionary<PlayerInputAction, KeyCode> _keyBindings = new()
-    {
-        { PlayerInputAction.Pickup, KeyCode.E }
-    };
+{
+    { PlayerInputAction.Pickup, KeyCode.E },
+    { PlayerInputAction.Jump, KeyCode.Space }
+};
 
     public float GetAxis(PlayerInputAction action)
     {

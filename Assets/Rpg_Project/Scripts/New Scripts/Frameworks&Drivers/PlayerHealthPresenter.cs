@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 public class PlayerHealthPresenter
 {
     private readonly TakeDamageUseCase _takeDamageUseCase;

@@ -2,18 +2,18 @@ using UnityEngine;
 
 public class PlayerHealthController : MonoBehaviour
 {
-    [SerializeField] private int maxHealth = 100;
-
     private PlayerHealthPresenter _presenter;
 
-    private void Awake()
+    public void Initialize(PlayerHealthPresenter presenter)
     {
-        var health = new Health(maxHealth);
-        _presenter = new PlayerHealthPresenter(health);
+        Debug.Log("PlayerHealthController: Initialized");
+        _presenter = presenter;
     }
 
     public void ReceiveDamage(int damage)
     {
+        Debug.Log("PlayerHealthController: Received damage");
+        Debug.Log(_presenter);
         _presenter.TakeDamage(damage);
     }
 }
