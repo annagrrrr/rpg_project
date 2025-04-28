@@ -48,7 +48,7 @@ public class SceneBootstrapper : MonoBehaviour
         inventory.EquipLeftHand(staff);
 
         var attackPresenter = new AttackPresenter();
-        var attackUseCase = new AttackUseCase(inventory, attackPresenter);
+        var attackUseCase = new AttackUseCase(inventory, attackPresenter, playerInstance.transform);
 
         var pickupProvider = new WeaponRaycastPickupProvider(playerInstance.transform);
         var pickupUseCase = new PickupWeaponUseCase(pickupProvider, inventory);

@@ -8,7 +8,7 @@ public class PlayerControllerr : MonoBehaviour
     private WeaponInventory _inventory;
     private PickupWeaponUseCase _pickupWeaponUseCase;
     private JumpUseCase _jumpUseCase;
-    private PlayerHealthPresenter _healthPresenter; // Добавляем Presenter для здоровья
+    private PlayerHealthPresenter _healthPresenter;
 
     [SerializeField] private float jumpForce;
 

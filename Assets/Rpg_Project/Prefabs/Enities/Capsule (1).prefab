@@ -14,8 +14,8 @@ GameObject:
   - component: {fileID: 6177789762113921521}
   - component: {fileID: 5184520685146160931}
   - component: {fileID: 2460164617089546483}
-  - component: {fileID: 1569412550669549018}
-  m_Layer: 0
+  - component: {fileID: 3780678162390445890}
+  m_Layer: 7
   m_Name: Capsule (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -134,7 +134,7 @@ MonoBehaviour:
   behaviourType: 1
   safeDistance: 5
   playerHealth: {fileID: 2833778490787056609, guid: 6d62c79e26542bb4ca1b6e4d5851cfcb, type: 3}
-  enemyHealthController: {fileID: 1569412550669549018}
+  enemyHealthPresenter: {fileID: 3780678162390445890}
 --- !u!54 &2460164617089546483
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -162,7 +162,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 80
   m_CollisionDetection: 0
---- !u!114 &1569412550669549018
+--- !u!114 &3780678162390445890
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -171,7 +171,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2830343791426558142}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fff5a018091d0ba43ae6b1a849b840c4, type: 3}
+  m_Script: {fileID: 11500000, guid: 2edc3143d1c21f3468bdb3b1a5719d31, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 100
@@ -187,7 +187,7 @@ GameObject:
   - component: {fileID: 7310206552304703502}
   - component: {fileID: 3221255154385776344}
   - component: {fileID: 364934416185439215}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}

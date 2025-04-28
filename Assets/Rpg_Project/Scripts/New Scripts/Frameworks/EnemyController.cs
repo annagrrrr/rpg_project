@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
+    [Header("Behaviour Settings")]
     [SerializeField] private float detectionRange = 10f;
     [SerializeField] private float attackRange = 2f;
     [SerializeField] private float moveSpeed = 3f;
@@ -9,10 +10,13 @@ public class EnemyController : MonoBehaviour
     [SerializeField] private int damage = 10;
     [SerializeField] private EnemyBehaviourTypes behaviourType;
     [SerializeField] private float safeDistance = 5f;
+
+    [Header("References")]
     [SerializeField] private PlayerHealthController playerHealth;
-    [SerializeField] private EnemyHealthController enemyHealthController;
+    [SerializeField] private EnemyHealthPresenter enemyHealthPresenter;
 
     private EnemyPresenter _presenter;
+
     public void Initialize(PlayerHealthController playerHealth)
     {
         this.playerHealth = playerHealth;
@@ -20,34 +24,29 @@ public class EnemyController : MonoBehaviour
 
     private EnemyData CreateData()
     {
-
-
-        switch (behaviourType)
+        return behaviourType switch
         {
-            case EnemyBehaviourTypes.Melee:
-                return new EnemyData
-                {
-                    DetectionRange = detectionRange,
-                    AttackRange = attackRange,
-                    MoveSpeed = moveSpeed,
-                    AttackCooldown = attackCooldown,
-                    Damage = damage
-                };
+            EnemyBehaviourTypes.Melee => new EnemyData
+            {
+                DetectionRange = detectionRange,
+                AttackRange = attackRange,
+                MoveSpeed = moveSpeed,
+                AttackCooldown = attackCooldown,
+                Damage = damage
+            },
 
-            case EnemyBehaviourTypes.Ranged:
-                return new RangedEnemyData
-                {
-                    DetectionRange = detectionRange,
-                    AttackRange = attackRange,
-                    MoveSpeed = moveSpeed,
-                    AttackCooldown = attackCooldown,
-                    SafeDistance = safeDistance,
-                    Damage = damage
-                };
+            EnemyBehaviourTypes.Ranged => new RangedEnemyData
+            {
+                DetectionRange = detectionRange,
+                AttackRange = attackRange,
+                MoveSpeed = moveSpeed,
+                AttackCooldown = attackCooldown,
+                SafeDistance = safeDistance,
+                Damage = damage
+            },
 
-            default:
-                throw new System.NotImplementedException($"unknown behaviour type: {behaviourType}");
-        }
+            _ => throw new System.NotImplementedException($"Unknown behaviour type: {behaviourType}")
+        };
     }
 
     private void Start()
@@ -55,6 +54,12 @@ public class EnemyController : MonoBehaviour
         if (playerHealth == null)
         {
             Debug.LogError("EnemyController: PlayerHealthController not assigned!");
+            return;
+        }
+
+        if (enemyHealthPresenter == null)
+        {
+            Debug.LogError("EnemyController: EnemyHealthPresenter not assigned!");
             return;
         }
 
@@ -67,15 +72,17 @@ public class EnemyController : MonoBehaviour
             _ => throw new System.NotImplementedException()
         };
 
-        var player = playerHealth.transform;
-
-        _presenter = new EnemyPresenter(behaviour, transform, player, moveSpeed, playerHealth, enemyHealthController);
+        _presenter = new EnemyPresenter(
+            behaviour,
+            transform,
+            playerHealth,
+            enemyHealthPresenter,
+            moveSpeed
+        );
     }
-
-
 
     private void Update()
     {
-        _presenter.Tick();
+        _presenter?.Tick();
     }
 }

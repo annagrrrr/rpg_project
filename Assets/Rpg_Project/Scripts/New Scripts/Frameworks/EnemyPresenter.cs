@@ -5,69 +5,63 @@ public class EnemyPresenter
     private readonly IEnemyBehaviourr _behaviour;
     private readonly Transform _transform;
     private readonly Transform _playerTransform;
-    private readonly float _moveSpeed;
     private readonly PlayerHealthController _playerHealth;
-    private readonly EnemyHealthController _enemyHealthController; 
+    private readonly IEnemyHealth _enemyHealth;
+    private readonly float _moveSpeed;
+
+    private bool _isDead = false;
 
     public EnemyPresenter(
         IEnemyBehaviourr behaviour,
         Transform transform,
-        Transform playerTransform,
-        float moveSpeed,
         PlayerHealthController playerHealth,
-        EnemyHealthController enemyHealthController)  
+        IEnemyHealth enemyHealth,
+        float moveSpeed)
     {
         _behaviour = behaviour;
         _transform = transform;
-        _playerTransform = playerTransform;
-        _moveSpeed = moveSpeed;
         _playerHealth = playerHealth;
-        _enemyHealthController = enemyHealthController; 
+        _playerTransform = playerHealth.transform;
+        _enemyHealth = enemyHealth;
+        _moveSpeed = moveSpeed;
 
         if (_behaviour is MeleeEnemyBehaviour melee)
         {
             melee.SetMoveCallback(MoveTowards);
-            melee.SetAttackCallback(Attack);
+            melee.SetAttackCallback(AttackPlayer);
         }
         else if (_behaviour is RangedEnemyBehaviour ranged)
         {
             ranged.SetMoveCallback(MoveTowards);
-            ranged.SetAttackCallback(Attack);
+            ranged.SetAttackCallback(AttackPlayer);
             ranged.SetRotateCallback(RotateTowards);
         }
     }
 
     public void Tick()
     {
-        if (_playerTransform == null)
+        if (_isDead) return;
+
+        if (_enemyHealth.IsDead)
         {
-            Debug.LogWarning("Player transform is null! Cannot execute Tick.");
+            HandleDeath();
             return;
         }
 
-        if (_behaviour == null)
+        if (_playerTransform == null)
         {
-            Debug.LogWarning("Enemy behaviour is null! Cannot execute Tick.");
+            Debug.LogWarning("Player transform is null!");
             return;
         }
 
         _behaviour.Tick(_transform.position, _playerTransform);
     }
 
-
     private void MoveTowards(Vector3 direction)
     {
-        _transform.position += direction * _moveSpeed * Time.deltaTime;
-    }
+        if (direction == Vector3.zero) return;
 
-    private void Attack()
-    {
-        Debug.Log("Enemy attacks!");
-        if (_behaviour is IEnemyWithData withData)
-        {
-            int damage = withData.GetData().Damage;
-            _playerHealth.ReceiveDamage(damage);
-        }
+        _transform.position += direction.normalized * _moveSpeed * Time.deltaTime;
     }
 
     private void RotateTowards(Vector3 direction)
@@ -77,11 +71,24 @@ public class EnemyPresenter
         Quaternion lookRotation = Quaternion.LookRotation(direction);
         _transform.rotation = Quaternion.Slerp(_transform.rotation, lookRotation, 10f * Time.deltaTime);
     }
+
+    private void AttackPlayer()
+    {
+        if (_behaviour is IEnemyWithData withData)
+        {
+            int damage = withData.GetData().Damage;
+            _playerHealth.ReceiveDamage(damage);
+            Debug.Log($"Enemy attacks player for {damage} damage!");
+        }
+    }
+
     private void HandleDeath()
     {
-        if (_enemyHealthController.IsDead())
-        {
-            Debug.Log("Enemy is dead!");
-        }
+        if (_isDead) return;
+
+        _isDead = true;
+        Debug.Log("Enemy has died!");
+
+        GameObject.Destroy(_transform.gameObject, 2f);
     }
 }
