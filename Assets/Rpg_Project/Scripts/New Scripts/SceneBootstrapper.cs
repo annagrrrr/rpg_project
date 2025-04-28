@@ -50,8 +50,9 @@ public class SceneBootstrapper : MonoBehaviour
         var attackPresenter = new AttackPresenter();
         var attackUseCase = new AttackUseCase(inventory, attackPresenter, playerInstance.transform);
 
-        var pickupProvider = new WeaponRaycastPickupProvider(playerInstance.transform);
+        var pickupProvider = playerInstance.GetComponent<WeaponTriggerPickupProvider>();
         var pickupUseCase = new PickupWeaponUseCase(pickupProvider, inventory);
+
         var jumpPresenter = new PlayerJumpPresenter(rb);
         var jumpUseCase = new JumpUseCase(jumpPresenter, groundChecker, jumpForce: 6f);
         var health = new Health(100);
