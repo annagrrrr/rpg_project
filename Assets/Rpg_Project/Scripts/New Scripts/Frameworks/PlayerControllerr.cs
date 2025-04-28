@@ -46,8 +46,11 @@ public class PlayerControllerr : MonoBehaviour
     {
         float horizontal = _input.GetAxis(PlayerInputAction.MoveHorizontal);
         float vertical = _input.GetAxis(PlayerInputAction.MoveVertical);
-        _movePlayerUseCase.Execute(horizontal, vertical);
+        bool isSprinting = _input.GetAction(PlayerInputAction.Sprint);
+
+        _movePlayerUseCase.Execute(horizontal, vertical, isSprinting);
     }
+
 
     private void HandleAttack()
     {

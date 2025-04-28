@@ -13,7 +13,7 @@ public class MovePlayerUseCase
         _camera = camera;
     }
 
-    public void Execute(float horizontalInput, float verticalInput)
+    public void Execute(float horizontalInput, float verticalInput, bool isSprinting)
     {
         var player = _repository.GetPlayer();
         var input = new Vector3(horizontalInput, 0, verticalInput);
@@ -25,12 +25,19 @@ public class MovePlayerUseCase
         var cameraRight = Vector3.Cross(Vector3.up, cameraForward);
         var moveDir = (cameraForward * input.z + cameraRight * input.x).normalized;
 
-        _presenter.Move(moveDir * player.Speed * Time.deltaTime);
+        float speed = player.Speed;
+        if (isSprinting)
+        {
+            speed *= player.SprintMultiplier;
+        }
+
+        _presenter.Move(moveDir * speed * Time.deltaTime);
 
         if (moveDir.magnitude > 0.01f)
         {
             _presenter.RotateTowards(moveDir);
         }
     }
+
 
 }

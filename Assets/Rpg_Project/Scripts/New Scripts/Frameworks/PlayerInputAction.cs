@@ -5,5 +5,6 @@ public enum PlayerInputAction
     Jump,
     PrimaryAttack,
     SecondaryAttack,
-    Pickup
+    Pickup,
+    Sprint
 }
