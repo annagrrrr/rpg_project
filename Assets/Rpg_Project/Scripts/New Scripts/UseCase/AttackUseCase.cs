@@ -8,6 +8,12 @@ public class AttackUseCase
     private readonly LayerMask _enemyLayer;
     private readonly Transform _playerTransform;
 
+    private float _primaryAttackCooldown = 2f;
+    private float _secondaryAttackCooldown = 6f;
+
+    private float _nextPrimaryAttackTime = 0f;
+    private float _nextSecondaryAttackTime = 0f;
+
     public AttackUseCase(WeaponInventory inventory, IAttackPresenter attackPresenter, Transform playerTransform)
     {
         _inventory = inventory;
@@ -18,6 +24,12 @@ public class AttackUseCase
 
     public void ExecutePrimaryAttack()
     {
+        if (Time.time < _nextPrimaryAttackTime)
+        {
+            Debug.Log("Primary attack is on cooldown!");
+            return;
+        }
+
         var weapon = _inventory.GetRightHandWeapon();
         if (weapon == null)
         {
@@ -27,10 +39,18 @@ public class AttackUseCase
 
         _attackPresenter.ShowAttack(weapon.AttackType);
         AttemptHit(weapon);
+
+        _nextPrimaryAttackTime = Time.time + _primaryAttackCooldown;
     }
 
     public void ExecuteSecondaryAttack()
     {
+        if (Time.time < _nextSecondaryAttackTime)
+        {
+            Debug.Log("Secondary attack is on cooldown!");
+            return;
+        }
+
         var weapon = _inventory.GetLeftHandWeapon();
         if (weapon == null)
         {
@@ -40,6 +60,8 @@ public class AttackUseCase
 
         _attackPresenter.ShowAttack(weapon.AttackType);
         AttemptHit(weapon);
+
+        _nextSecondaryAttackTime = Time.time + _secondaryAttackCooldown;
     }
 
     private void AttemptHit(IWeapon weapon)
@@ -50,7 +72,7 @@ public class AttackUseCase
             return;
         }
 
-        Vector3 attackOrigin = _playerTransform.position; 
+        Vector3 attackOrigin = _playerTransform.position;
         Vector3 attackDirection = _playerTransform.forward;
 
         RaycastHit[] hits = Physics.SphereCastAll(attackOrigin, 1f, attackDirection, _attackRange, _enemyLayer);

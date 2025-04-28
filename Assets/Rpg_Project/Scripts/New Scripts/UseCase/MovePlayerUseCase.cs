@@ -26,5 +26,11 @@ public class MovePlayerUseCase
         var moveDir = (cameraForward * input.z + cameraRight * input.x).normalized;
 
         _presenter.Move(moveDir * player.Speed * Time.deltaTime);
+
+        if (moveDir.magnitude > 0.01f)
+        {
+            _presenter.RotateTowards(moveDir);
+        }
     }
+
 }

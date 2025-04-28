@@ -16,10 +16,10 @@ public class PlayerPresenter : IPlayerPresenter
 
     public void RotateTowards(Vector3 direction)
     {
-        if (direction.sqrMagnitude > 0.01f)
-        {
-            Quaternion targetRotation = Quaternion.LookRotation(direction);
-            _transform.rotation = Quaternion.Slerp(_transform.rotation, targetRotation, 10f * Time.deltaTime);
-        }
+        if (direction == Vector3.zero)
+            return;
+
+        Quaternion targetRotation = Quaternion.LookRotation(direction, Vector3.up);
+        _transform.rotation = Quaternion.Slerp(_transform.rotation, targetRotation, Time.deltaTime * 10f);
     }
 }
