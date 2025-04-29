@@ -9,6 +9,9 @@ public class SceneBootstrapper : MonoBehaviour
     [SerializeField] private CameraController cameraController;
     [SerializeField] private Transform cameraTransform;
 
+    [Header("UI")]
+    [SerializeField] private PlayerHealthView playerHealthView;
+
     private void Start()
     {
         var playerInstance = Instantiate(playerPrefab);
@@ -42,10 +45,10 @@ public class SceneBootstrapper : MonoBehaviour
         var rotationPresenter = new PlayerRotationPresenter(playerInstance.transform);
 
         var inventory = new WeaponInventory();
-        //var sword = new MeleeWeapon(20);
-        //var staff = new RangedWeapon(15);
-        //inventory.EquipRightHand(sword);
-        //inventory.EquipLeftHand(staff);
+        // var sword = new MeleeWeapon(20);
+        // var staff = new RangedWeapon(15);
+        // inventory.EquipRightHand(sword);
+        // inventory.EquipLeftHand(staff);
 
         var attackPresenter = new AttackPresenter();
         var attackUseCase = new AttackUseCase(inventory, attackPresenter, playerInstance.transform);
@@ -55,8 +58,9 @@ public class SceneBootstrapper : MonoBehaviour
 
         var jumpPresenter = new PlayerJumpPresenter(rb);
         var jumpUseCase = new JumpUseCase(jumpPresenter, groundChecker, jumpForce: 6f);
+
         var health = new Health(100);
-        var healthPresenter = new PlayerHealthPresenter(health);
+        var healthPresenter = new PlayerHealthPresenter(health, playerHealthView);
 
         var healthController = playerInstance.GetComponent<PlayerHealthController>();
         healthController.Initialize(healthPresenter);
