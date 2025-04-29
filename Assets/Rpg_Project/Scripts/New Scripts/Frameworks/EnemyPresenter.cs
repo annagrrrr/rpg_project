@@ -10,7 +10,8 @@ public class EnemyPresenter
     private readonly float _moveSpeed;
 
     private bool _isDead = false;
-
+    private bool _isStunned = false;
+    private float _stunTimer = 0f;
     public EnemyPresenter(
         IEnemyBehaviourr behaviour,
         Transform transform,
@@ -36,6 +37,8 @@ public class EnemyPresenter
             ranged.SetAttackCallback(AttackPlayer);
             ranged.SetRotateCallback(RotateTowards);
         }
+
+        _enemyHealth.OnDamaged += OnDamaged;
     }
 
     public void Tick()
@@ -51,6 +54,16 @@ public class EnemyPresenter
         if (_playerTransform == null)
         {
             Debug.LogWarning("Player transform is null!");
+            return;
+        }
+
+        if (_isStunned)
+        {
+            _stunTimer -= Time.deltaTime;
+            if (_stunTimer <= 0f)
+            {
+                _isStunned = false;
+            }
             return;
         }
 
@@ -90,5 +103,16 @@ public class EnemyPresenter
         Debug.Log("Enemy has died!");
 
         GameObject.Destroy(_transform.gameObject, 2f);
+    }
+
+    private void OnDamaged()
+    {
+        Stun(0.5f);
+    }
+
+    public void Stun(float duration)
+    {
+        _isStunned = true;
+        _stunTimer = duration;
     }
 }

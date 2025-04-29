@@ -1,13 +1,15 @@
+using System;
 using UnityEngine;
 
 public class EnemyHealthPresenter : MonoBehaviour, IEnemyHealth
 {
     [SerializeField] private int maxHealth = 100;
 
+    public event Action OnDamaged;
+
     private EnemyHealth _health;
 
     public bool IsDead => _health.IsDead;
-
     private void Awake()
     {
         _health = new EnemyHealth(maxHealth);
@@ -22,6 +24,7 @@ public class EnemyHealthPresenter : MonoBehaviour, IEnemyHealth
         {
             Die();
         }
+        OnDamaged?.Invoke();
     }
 
     private void Die()
