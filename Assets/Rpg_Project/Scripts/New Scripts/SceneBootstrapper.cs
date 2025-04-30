@@ -5,6 +5,8 @@ public class SceneBootstrapper : MonoBehaviour
     [SerializeField] private PlayerControllerr playerPrefab;
     [SerializeField] private EnemyController[] enemyPrefabs;
     [SerializeField] private Transform[] enemySpawnPoints;
+    [SerializeField] private BossController bossPrefab;
+    [SerializeField] private Transform bossSpawnPoint;
 
     [SerializeField] private CameraController cameraController;
     [SerializeField] private Transform cameraTransform;
@@ -32,6 +34,13 @@ public class SceneBootstrapper : MonoBehaviour
             MaxPitch = 60f,
             Distance = 5f
         };
+        if (bossPrefab != null && bossSpawnPoint != null)
+        {
+            var bossInstance = Instantiate(bossPrefab, bossSpawnPoint.position, Quaternion.identity);
+            bossInstance.Initialize(playerInstance.transform);
+
+            bossInstance.GetComponent<BossController>().enabled = true;
+        }
 
         var followCameraUseCase = new FollowCameraUseCase(
             cameraInput,

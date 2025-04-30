@@ -840,6 +840,8 @@ MonoBehaviour:
   enemySpawnPoints:
   - {fileID: 839648894}
   - {fileID: 1213645212}
+  bossPrefab: {fileID: 6790111117378941490, guid: 8cdff7ba8233091479e1c455b1333fdd, type: 3}
+  bossSpawnPoint: {fileID: 1941014100}
   cameraController: {fileID: 2139944033}
   cameraTransform: {fileID: 2139944037}
   playerHealthView: {fileID: 644925953}
@@ -1253,6 +1255,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1761242481}
   m_CullTransparentMesh: 1
+--- !u!1 &1941014099
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1941014100}
+  m_Layer: 0
+  m_Name: GameObject (2)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1941014100
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1941014099}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -11.752, y: 9.847442, z: -9.54}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2139944032
 GameObject:
   m_ObjectHideFlags: 0
@@ -1414,6 +1447,7 @@ SceneRoots:
   - {fileID: 1152748163}
   - {fileID: 839648894}
   - {fileID: 1213645212}
+  - {fileID: 1941014100}
   - {fileID: 2139944037}
   - {fileID: 1601044232}
   - {fileID: 644925952}

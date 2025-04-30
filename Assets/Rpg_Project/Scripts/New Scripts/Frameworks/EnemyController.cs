@@ -16,6 +16,15 @@ public class EnemyController : MonoBehaviour
     [SerializeField] private EnemyHealthPresenter enemyHealthPresenter;
 
     private EnemyPresenter _presenter;
+    private IEnemyState currentState;
+
+    public Vector3 PlayerPosition => playerHealth != null ? playerHealth.transform.position : transform.position;
+    public float DetectionRange => detectionRange;
+    public float AttackRange => attackRange;
+    public float SafeDistance => safeDistance;
+    public float AttackCooldown => attackCooldown;
+    public int Damage => damage;
+    public bool IsDead => enemyHealthPresenter.IsDead;
 
     public void Initialize(PlayerHealthController playerHealth)
     {
@@ -79,10 +88,44 @@ public class EnemyController : MonoBehaviour
             enemyHealthPresenter,
             moveSpeed
         );
+
+        ChangeState(new IdleState());
     }
 
     private void Update()
     {
-        _presenter?.Tick();
+        if (IsDead) return;
+
+        currentState?.Execute(this);
+    }
+
+    public void ChangeState(IEnemyState newState)
+    {
+        if (currentState == newState) return;
+        currentState?.Exit(this);
+        currentState = newState;
+        currentState?.Enter(this);
+    }
+
+    public void MoveTowards(Vector3 target)
+    {
+        Vector3 dir = (target - transform.position).normalized;
+        transform.position += dir * moveSpeed * Time.deltaTime;
+        if (dir != Vector3.zero)
+        {
+            Quaternion rot = Quaternion.LookRotation(dir);
+            transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.deltaTime * 10f);
+        }
+    }
+
+    public void Attack()
+    {
+        playerHealth.ReceiveDamage(damage);
+        Debug.Log("Enemy attacks player!");
+    }
+
+    public bool IsPlayerInRange(float range)
+    {
+        return Vector3.Distance(transform.position, PlayerPosition) <= range;
     }
 }
