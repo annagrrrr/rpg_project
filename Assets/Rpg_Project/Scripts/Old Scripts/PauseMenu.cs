@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Collections;
+using Unity.VisualScripting;
 
 public class PauseMenu : MonoBehaviour
 {
@@ -100,7 +101,14 @@ public class PauseMenu : MonoBehaviour
         }
     }
 
-
+    public void SetPeacefulMode()
+    {
+        Debug.Log("peaceful");
+    }
+    public void SetNormalMode()
+    {
+        Debug.Log("normal");
+    }
 }
 
 
