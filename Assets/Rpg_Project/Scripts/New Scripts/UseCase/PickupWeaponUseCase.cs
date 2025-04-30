@@ -16,8 +16,21 @@ public class PickupWeaponUseCase
         IWeapon weapon = _pickupProvider.TryPickupWeapon();
         if (weapon != null)
         {
-            _inventory.EquipRightHand(weapon);
-            Debug.Log($"Оружие подобрано: {weapon.AttackType} с уроном {weapon.Damage}");
+            if (weapon is MeleeWeapon)
+            {
+                _inventory.EquipRightHand(weapon);
+                Debug.Log($"Подобрано ближнее оружие в правую руку: {weapon.Damage} урона");
+            }
+            else if (weapon is RangedWeapon)
+            {
+                _inventory.EquipLeftHand(weapon);
+                Debug.Log($"Подобрано дальнобойное оружие в левую руку: {weapon.Damage} урона");
+            }
+            else
+            {
+                Debug.LogWarning("Неизвестный тип оружия!");
+            }
         }
     }
+
 }

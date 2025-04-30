@@ -1,4 +1,4 @@
 public class RangedEnemyData : EnemyData
 {
-    public float SafeDistance { get; set; }
+    public float SafeDistance;
 }
