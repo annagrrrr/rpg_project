@@ -5,38 +5,41 @@ public class BossController : MonoBehaviour
     [Header("Boss Settings")]
     [SerializeField] private BossData data;
     [SerializeField] private Transform player;
-    public Transform Player => player;
 
+    public Transform Player => player;
     public BossData Data => data;
 
-    [SerializeField] private Transform playerTransform;
-
     private IBossState currentState;
-
-    // Управление движением
     private bool canMove = true;
+    private bool isProvoked = false;
+    public float AttackRange => data.AttackRange;
+    public float AggroRange => data.AggroRange;
+    public float HeavyAttackRange => data.HeavyAttackRange;
+    public float RetreatThreshold => data.RetreatHealthThreshold;
 
-    // Для ChargeState
-    private Vector3 chargeTarget;
+
 
     private void Start()
     {
-        if (playerTransform == null)
+        if (player == null)
         {
-            GameObject player = GameObject.FindGameObjectWithTag("Player");
-            if (player != null) playerTransform = player.transform;
+            var p = GameObject.FindGameObjectWithTag("Player");
+            if (p != null) player = p.transform;
+            else Debug.LogError("BossController: не найден объект с тегом Player");
         }
-
-        
+        ChangeState(new BossIdleState());
     }
 
     private void Update()
     {
         currentState?.Execute(this);
+        if (isCharging)
+            UpdateCharge();
     }
+
     public void Initialize(Transform player)
     {
-        this.playerTransform = player;
+        this.player = player;
         ChangeState(new BossIdleState());
     }
 
@@ -45,21 +48,55 @@ public class BossController : MonoBehaviour
         currentState?.Exit(this);
         currentState = newState;
         currentState?.Enter(this);
-
-        Debug.Log($"Boss: Changed state to {newState.GetType().Name}");
     }
 
-    // ======== Свойства доступа к параметрам из BossData ========
-    public float AggroRange => data.AggroRange;
-    public float AttackRange => data.AttackRange;
-    public float HeavyAttackRange => data.HeavyAttackRange;
-    public float RetreatThreshold => data.RetreatHealthThreshold;
-    public float ChargeSpeed => data.ChargeSpeed;
-    public float ChargeDuration => data.ChargeDuration;
+    
+    private bool IsPeacefulMode()
+    {
+        return GameModeManager.Instance.CurrentMode == GameMode.Peaceful;
+    }
 
-    // ======== Движение и перемещение ========
+    
+    public void PerformAttack()
+    {
+        if (IsPeacefulMode()) return;
+        Debug.Log("Boss: Performing normal attack!");
+    }
+
+    public void PerformHeavyAttack()
+    {
+        if (IsPeacefulMode()) return;
+        Debug.Log("Boss: Performing heavy attack!");
+    }
+
+    public void PerformCharge()
+    {
+        if (IsPeacefulMode()) return;
+        Debug.Log("Boss: Charging!");
+    }
+
+    public void PerformRetreat()
+    {
+        if (IsPeacefulMode()) return;
+        Debug.Log("Boss: Retreating!");
+    }
+
+    public void PerformEnrage()
+    {
+        if (IsPeacefulMode()) return;
+        Debug.Log("Boss: Enraged!");
+    }
+
+    public void PerformStun()
+    {
+        if (IsPeacefulMode()) return;
+        Debug.Log("Boss: Stunned!");
+    }
+
+    
     public void MoveTowards(Vector3 target, float speed)
     {
+        if (IsPeacefulMode()) return;  
         if (!canMove) return;
 
         Vector3 direction = (target - transform.position).normalized;
@@ -80,7 +117,51 @@ public class BossController : MonoBehaviour
     public void DisableMovement() => canMove = false;
     public bool CanMove() => canMove;
 
-    // ======== Работа с ChargeState ========
+    
+    private float chargeTimer = 0f;
+    private bool isCharging = false;
+
+    public void StartCharge()
+    {
+        if (IsPeacefulMode()) return;
+        Debug.Log("Boss: Started Charge");
+        isCharging = true;
+        chargeTimer = data.ChargeDuration;
+        SetChargeTarget(PlayerPosition);
+        DisableMovement();
+    }
+
+    public void UpdateCharge()
+    {
+        if (IsPeacefulMode() || !isCharging) return;
+
+        chargeTimer -= Time.deltaTime;
+        MoveTowards(chargeTarget, data.ChargeSpeed);
+    }
+
+    public void StopCharge()
+    {
+        if (IsPeacefulMode()) return;
+        Debug.Log("Boss: Stopped Charge");
+        isCharging = false;
+        EnableMovement();
+    }
+
+    
+    public bool IsPlayerInRange(float range)
+    {
+        if (player == null) return false;
+        return Vector3.Distance(transform.position, player.position) <= range;
+    }
+
+    public float DistanceToPlayer()
+    {
+        if (player == null) return Mathf.Infinity;
+        return Vector3.Distance(transform.position, player.position);
+    }
+
+    
+    private Vector3 chargeTarget;
     public void SetChargeTarget(Vector3 target)
     {
         chargeTarget = target;
@@ -91,59 +172,19 @@ public class BossController : MonoBehaviour
         return Vector3.Distance(transform.position, chargeTarget) <= 1f;
     }
 
-    // ======== Информация о расстоянии до игрока ========
-    public bool IsPlayerInRange(float range)
-    {
-        if (playerTransform == null) return false;
-        return Vector3.Distance(transform.position, playerTransform.position) <= range;
-    }
-
-    public float DistanceToPlayer()
-    {
-        if (playerTransform == null) return Mathf.Infinity;
-        return Vector3.Distance(transform.position, playerTransform.position);
-        
-        
-    }
-    // ==== CHARGE ====
-    private float chargeTimer = 0f;
-    private bool isCharging = false;
-
-    public void StartCharge()
-    {
-        Debug.Log("Boss: Started Charge");
-        isCharging = true;
-        chargeTimer = ChargeDuration;
-        SetChargeTarget(PlayerPosition);
-        DisableMovement(); // отключим стандартное движение
-    }
-
-    public void UpdateCharge()
-    {
-        if (!isCharging) return;
-
-        chargeTimer -= Time.deltaTime;
-        MoveTowards(chargeTarget, ChargeSpeed);
-    }
-
-    public void StopCharge()
-    {
-        Debug.Log("Boss: Stopped Charge");
-        isCharging = false;
-        EnableMovement();
-    }
-
-    // ==== RETREAT ====
+    
     public void MoveAwayFromPlayer(float speed)
     {
+        if (IsPeacefulMode()) return;
         Vector3 dir = (transform.position - PlayerPosition).normalized;
         MoveTowards(transform.position + dir, speed);
     }
 
-    // ==== ENRAGED ====
+   
     private bool enraged = false;
     public void IncreaseDamageAndSpeed()
     {
+        if (IsPeacefulMode()) return;
         if (enraged) return;
 
         Debug.Log("Boss: Enraged! Increasing stats.");
@@ -152,49 +193,20 @@ public class BossController : MonoBehaviour
         enraged = true;
     }
 
-    // ==== ATTACK ====
+    
     public bool ShouldUseHeavyAttack()
     {
-        // Пример условия: если игрок близко и рандом
-        return IsPlayerInRange(HeavyAttackRange) && Random.value > 0.5f;
+        if (IsPeacefulMode()) return false;
+        return IsPlayerInRange(data.HeavyAttackRange) && Random.value > 0.5f;
     }
 
     public void MoveTowardsPlayer(float speed)
     {
+        if (IsPeacefulMode()) return;
         MoveTowards(PlayerPosition, speed);
     }
 
+    public Vector3 PlayerPosition => player?.position ?? transform.position;
 
-    public Vector3 PlayerPosition => playerTransform?.position ?? transform.position;
-
-    // ======== Атаки (можно заменить на анимации или визуал эффекты) ========
-    public void PerformAttack()
-    {
-        Debug.Log("Boss: Performing normal attack!");
-    }
-
-    public void PerformHeavyAttack()
-    {
-        Debug.Log("Boss: Performing heavy attack!");
-    }
-
-    public void PerformCharge()
-    {
-        Debug.Log("Boss: Charging!");
-    }
-
-    public void PerformRetreat()
-    {
-        Debug.Log("Boss: Retreating!");
-    }
-
-    public void PerformEnrage()
-    {
-        Debug.Log("Boss: Enraged!");
-    }
-
-    public void PerformStun()
-    {
-        Debug.Log("Boss: Stunned!");
-    }
+    
 }

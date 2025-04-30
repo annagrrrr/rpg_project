@@ -5,12 +5,16 @@ public class EnemyHealthPresenter : MonoBehaviour, IEnemyHealth
 {
     [SerializeField] private int maxHealth = 100;
     [SerializeField] private EnemyHealthBarUI barUI;
+    
 
     public event Action OnDamaged;
 
     private EnemyHealth _health;
-
+    
     public bool IsDead => _health.IsDead;
+    public int Current => _health.Current;
+    public int Max => _health.Max;
+
     private void Awake()
     {
         _health = new EnemyHealth(maxHealth);

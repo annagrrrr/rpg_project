@@ -10,6 +10,7 @@ public class EnemyController : MonoBehaviour
     [SerializeField] private int damage = 10;
     [SerializeField] private EnemyBehaviourTypes behaviourType;
     [SerializeField] private float safeDistance = 5f;
+    public EnemyHealthPresenter Health => enemyHealthPresenter;
 
     [Header("References")]
     [SerializeField] private PlayerHealthController playerHealth;

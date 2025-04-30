@@ -8,15 +8,19 @@ public class BossIdleState : IBossState
     }
 
     public void Execute(BossController boss)
-
     {
-        Debug.Log("Boss in Idle. Checking player range...");
+        if (GameModeManager.Instance.CurrentMode == GameMode.Peaceful && !boss.IsPlayerInRange(boss.AggroRange))
+        {
+            return; 
+        }
+
+        
         if (boss.IsPlayerInRange(boss.AggroRange))
         {
-            Debug.Log("Player in range! Switching to Aggro.");
-            boss.ChangeState(new BossAggroState());
+            boss.ChangeState(new BossAggroState()); 
         }
     }
+
 
     public void Exit(BossController boss)
     {

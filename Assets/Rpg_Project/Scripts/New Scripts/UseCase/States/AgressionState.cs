@@ -6,6 +6,19 @@ public class AggressionState : IEnemyState
 
     public void Execute(EnemyController enemy)
     {
+        
+        if (GameModeManager.Instance.CurrentMode == GameMode.Peaceful)
+        {
+            enemy.ChangeState(new IdleState());
+            return;
+            if (enemy.Health.Current < enemy.Health.Max * 0.3f)
+            {
+                enemy.ChangeState(new FleeState());
+                return;
+            }
+        }
+
+        
         if (enemy.IsPlayerInRange(enemy.AttackRange))
         {
             enemy.ChangeState(new AttackState());
