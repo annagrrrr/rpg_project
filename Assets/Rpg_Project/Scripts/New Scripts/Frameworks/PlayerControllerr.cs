@@ -9,6 +9,7 @@ public class PlayerControllerr : MonoBehaviour
     private PickupWeaponUseCase _pickupWeaponUseCase;
     private JumpUseCase _jumpUseCase;
     private PlayerHealthPresenter _healthPresenter;
+    private StunPlayerUseCase _stunPlayerUseCase;
 
     [SerializeField] private float jumpForce;
 
@@ -23,7 +24,8 @@ public class PlayerControllerr : MonoBehaviour
         PickupWeaponUseCase pickupWeaponUseCase,
         JumpUseCase jumpUseCase,
         WeaponInventory inventory,
-        PlayerHealthPresenter healthPresenter)
+        PlayerHealthPresenter healthPresenter,
+        StunPlayerUseCase stunPlayerUseCase)
     {
         _input = input;
         _movePlayerUseCase = movePlayerUseCase;
@@ -32,10 +34,14 @@ public class PlayerControllerr : MonoBehaviour
         _jumpUseCase = jumpUseCase;
         _inventory = inventory;
         _healthPresenter = healthPresenter;
+        _stunPlayerUseCase = stunPlayerUseCase;
     }
 
     private void Update()
     {
+        if (_stunPlayerUseCase.IsStunned())
+            return;
+
         HandleMovement();
         HandleAttack();
         HandlePickup();

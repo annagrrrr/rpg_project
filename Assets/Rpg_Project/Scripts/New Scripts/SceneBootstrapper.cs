@@ -24,6 +24,9 @@ public class SceneBootstrapper : MonoBehaviour
         var repository = new InMemoryPlayerRepository();
         var presenter = new PlayerPresenter(playerInstance.transform);
 
+        var playerStunState = new PlayerStunState();
+        var stunPlayerUseCase = new StunPlayerUseCase(playerStunState);
+
         var cameraInput = new CameraInputService();
         var cameraPresenter = new CameraPresenter(cameraTransform);
         var cameraSettings = new CameraSettings
@@ -69,7 +72,7 @@ public class SceneBootstrapper : MonoBehaviour
         var jumpUseCase = new JumpUseCase(jumpPresenter, groundChecker, jumpForce: 6f);
 
         var health = new Health(100);
-        var healthPresenter = new PlayerHealthPresenter(health, playerHealthView);
+        var healthPresenter = new PlayerHealthPresenter(health, playerHealthView, stunPlayerUseCase);
 
         var healthController = playerInstance.GetComponent<PlayerHealthController>();
         healthController.Initialize(healthPresenter);
@@ -81,7 +84,8 @@ public class SceneBootstrapper : MonoBehaviour
             pickupUseCase,
             jumpUseCase,
             inventory,
-            healthPresenter
+            healthPresenter,
+            stunPlayerUseCase
         );
 
         for (int i = 0; i < enemyPrefabs.Length && i < enemySpawnPoints.Length; i++)
