@@ -1,10 +1,12 @@
 public class StunPlayerUseCase
 {
     private readonly PlayerStunState _stunState;
+    private readonly IPlayerAnimationPresenter _animator;
 
-    public StunPlayerUseCase(PlayerStunState stunState)
+    public StunPlayerUseCase(PlayerStunState stunState, IPlayerAnimationPresenter animator)
     {
         _stunState = stunState;
+        _animator = animator;
     }
 
     public void Stun(float duration)

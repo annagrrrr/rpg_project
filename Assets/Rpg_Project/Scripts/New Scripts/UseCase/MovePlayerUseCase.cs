@@ -5,12 +5,14 @@ public class MovePlayerUseCase
     private readonly IPlayerRepository _repository;
     private readonly IPlayerPresenter _presenter;
     private readonly ICameraPresenter _camera;
+    private readonly IPlayerAnimationPresenter _animator;
 
-    public MovePlayerUseCase(IPlayerRepository repository, IPlayerPresenter presenter, ICameraPresenter camera)
+    public MovePlayerUseCase(IPlayerRepository repository, IPlayerPresenter presenter, ICameraPresenter camera, IPlayerAnimationPresenter animator)
     {
         _repository = repository;
         _presenter = presenter;
         _camera = camera;
+        _animator = animator;
     }
 
     public void Execute(float horizontalInput, float verticalInput, bool isSprinting)
@@ -36,6 +38,11 @@ public class MovePlayerUseCase
         if (moveDir.magnitude > 0.01f)
         {
             _presenter.RotateTowards(moveDir);
+            _animator.PlayRunAnimation(true);
+        }
+        else
+        {
+            _animator.PlayRunAnimation(false);
         }
     }
 

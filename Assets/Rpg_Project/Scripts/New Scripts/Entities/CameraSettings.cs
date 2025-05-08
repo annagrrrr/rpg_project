@@ -7,4 +7,6 @@ public class CameraSettings
     public float MinPitch;
     public float MaxPitch;
     public float Distance;
+
+    public LayerMask CollisionMask;
 }

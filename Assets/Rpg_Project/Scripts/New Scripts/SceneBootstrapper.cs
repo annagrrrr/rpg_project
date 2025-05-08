@@ -19,13 +19,14 @@ public class SceneBootstrapper : MonoBehaviour
         var playerInstance = Instantiate(playerPrefab);
         var rb = playerInstance.GetComponent<Rigidbody>();
         var groundChecker = playerInstance.GetComponent<IPlayerGroundChecker>();
+        var animationPresenter = playerInstance.GetComponent<PlayerAnimatorPresenter>();
 
         var input = new InputService();
         var repository = new InMemoryPlayerRepository();
         var presenter = new PlayerPresenter(playerInstance.transform);
 
         var playerStunState = new PlayerStunState();
-        var stunPlayerUseCase = new StunPlayerUseCase(playerStunState);
+        var stunPlayerUseCase = new StunPlayerUseCase(playerStunState, animationPresenter);
 
         var cameraInput = new CameraInputService();
         var cameraPresenter = new CameraPresenter(cameraTransform);
@@ -35,7 +36,8 @@ public class SceneBootstrapper : MonoBehaviour
             Sensitivity = 3f,
             MinPitch = -30f,
             MaxPitch = 60f,
-            Distance = 5f
+            Distance = 5f,
+            CollisionMask = LayerMask.GetMask("Environment", "Obstacles")
         };
         if (bossPrefab != null && bossSpawnPoint != null)
         {
@@ -53,7 +55,7 @@ public class SceneBootstrapper : MonoBehaviour
         );
         cameraController.Initialize(followCameraUseCase);
 
-        var moveUseCase = new MovePlayerUseCase(repository, presenter, cameraPresenter);
+        var moveUseCase = new MovePlayerUseCase(repository, presenter, cameraPresenter, animationPresenter);
         var rotationPresenter = new PlayerRotationPresenter(playerInstance.transform);
 
         var inventory = new WeaponInventory();
@@ -63,13 +65,13 @@ public class SceneBootstrapper : MonoBehaviour
         // inventory.EquipLeftHand(staff);
 
         var attackPresenter = new AttackPresenter();
-        var attackUseCase = new AttackUseCase(inventory, attackPresenter, playerInstance.transform);
+        var attackUseCase = new AttackUseCase(inventory, attackPresenter, playerInstance.transform, animationPresenter);
 
         var pickupProvider = playerInstance.GetComponent<WeaponTriggerPickupProvider>();
         var pickupUseCase = new PickupWeaponUseCase(pickupProvider, inventory);
 
         var jumpPresenter = new PlayerJumpPresenter(rb);
-        var jumpUseCase = new JumpUseCase(jumpPresenter, groundChecker, jumpForce: 6f);
+        var jumpUseCase = new JumpUseCase(jumpPresenter, groundChecker, jumpForce: 6f, animationPresenter);
 
         var health = new Health(100);
         var healthPresenter = new PlayerHealthPresenter(health, playerHealthView, stunPlayerUseCase);

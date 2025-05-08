@@ -4,6 +4,7 @@ public class AttackUseCase
 {
     private readonly WeaponInventory _inventory;
     private readonly IAttackPresenter _attackPresenter;
+    private readonly IPlayerAnimationPresenter _animator;
     private readonly float _attackRange = 2.0f;
     private readonly LayerMask _enemyLayer;
     private readonly Transform _playerTransform;
@@ -14,12 +15,13 @@ public class AttackUseCase
     private float _nextPrimaryAttackTime = 0f;
     private float _nextSecondaryAttackTime = 0f;
 
-    public AttackUseCase(WeaponInventory inventory, IAttackPresenter attackPresenter, Transform playerTransform)
+    public AttackUseCase(WeaponInventory inventory, IAttackPresenter attackPresenter, Transform playerTransform, IPlayerAnimationPresenter animator)
     {
         _inventory = inventory;
         _attackPresenter = attackPresenter;
         _enemyLayer = LayerMask.GetMask("Enemy");
         _playerTransform = playerTransform;
+        _animator = animator;
     }
 
     public void ExecutePrimaryAttack()
@@ -38,6 +40,7 @@ public class AttackUseCase
         }
 
         _attackPresenter.ShowAttack(weapon.AttackType);
+        _animator.PlayAttackAnimation(weapon.AttackType);
         AttemptHit(weapon);
 
         _nextPrimaryAttackTime = Time.time + _primaryAttackCooldown;

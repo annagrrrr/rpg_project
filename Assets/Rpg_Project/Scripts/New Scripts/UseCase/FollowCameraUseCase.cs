@@ -28,7 +28,7 @@ public class FollowCameraUseCase
         Vector3 desiredPosition = _target.position + rotation * _settings.Offset;
 
         Vector3 direction = desiredPosition - _target.position;
-        if (Physics.Raycast(_target.position, direction.normalized, out RaycastHit hit, _settings.Distance))
+        if (Physics.Raycast(_target.position, direction.normalized, out RaycastHit hit, _settings.Distance, _settings.CollisionMask))
         {
             desiredPosition = hit.point - direction.normalized * 0.3f;
         }
