@@ -8,6 +8,10 @@ public class PlayerAnimatorPresenter : MonoBehaviour, IPlayerAnimationPresenter
     {
         _animator.SetBool("isRunning", isRunning);
     }
+    public void PlaySprintAnimation(bool isSprinting)
+    {
+        _animator.SetBool("isSprinting", isSprinting);
+    }
 
     public void PlayAttackAnimation(AttackType type)
     {

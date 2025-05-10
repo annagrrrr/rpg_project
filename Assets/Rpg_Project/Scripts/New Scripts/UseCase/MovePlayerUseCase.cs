@@ -31,6 +31,11 @@ public class MovePlayerUseCase
         if (isSprinting)
         {
             speed *= player.SprintMultiplier;
+            _animator.PlaySprintAnimation(true);
+        }
+        else
+        {
+            _animator.PlaySprintAnimation(false);
         }
 
         _presenter.Move(moveDir * speed * Time.deltaTime);

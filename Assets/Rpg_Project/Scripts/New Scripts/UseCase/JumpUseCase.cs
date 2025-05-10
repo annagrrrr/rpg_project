@@ -21,6 +21,11 @@ public class JumpUseCase
         {
             _presenter.Jump(_jumpForce);
             _animator.PlayJumpAnimation();
+            Debug.Log("f");
+        }
+        else
+        {
+            Debug.Log("not f");
         }
     }
 }

@@ -62,6 +62,7 @@ public class AttackUseCase
         }
 
         _attackPresenter.ShowAttack(weapon.AttackType);
+        _animator.PlayAttackAnimation(weapon.AttackType);
         AttemptHit(weapon);
 
         _nextSecondaryAttackTime = Time.time + _secondaryAttackCooldown;
