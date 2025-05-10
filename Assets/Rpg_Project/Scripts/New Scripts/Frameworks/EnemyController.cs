@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class EnemyController : MonoBehaviour
+public class EnemyController : MonoBehaviour, IStunnable
 {
     [Header("Behaviour Settings")]
     [SerializeField] private float detectionRange = 10f;
@@ -10,6 +10,7 @@ public class EnemyController : MonoBehaviour
     [SerializeField] private int damage = 10;
     [SerializeField] private EnemyBehaviourTypes behaviourType;
     [SerializeField] private float safeDistance = 5f;
+    [SerializeField] private EnemyAnimatorPresenter enemyAnimatorPresenter;
     public EnemyHealthPresenter Health => enemyHealthPresenter;
 
     [Header("References")]
@@ -19,6 +20,8 @@ public class EnemyController : MonoBehaviour
     private EnemyPresenter _presenter;
     private IEnemyState currentState;
 
+    private bool _isRunning = false;
+
     public Vector3 PlayerPosition => playerHealth != null ? playerHealth.transform.position : transform.position;
     public float DetectionRange => detectionRange;
     public float AttackRange => attackRange;
@@ -27,11 +30,13 @@ public class EnemyController : MonoBehaviour
     public int Damage => damage;
     public bool IsDead => enemyHealthPresenter.IsDead;
 
+    private StunState _stunState = new StunState();
+    public bool IsStunned => _stunState.IsStunned;
+
     public void Initialize(PlayerHealthController playerHealth)
     {
         this.playerHealth = playerHealth;
     }
-
     private EnemyData CreateData()
     {
         return behaviourType switch
@@ -87,14 +92,16 @@ public class EnemyController : MonoBehaviour
             transform,
             playerHealth,
             enemyHealthPresenter,
-            moveSpeed
+            moveSpeed,
+            enemyAnimatorPresenter
         );
-
+        enemyHealthPresenter.OnDied += HandleDeath;
         ChangeState(new IdleState());
     }
 
     private void Update()
     {
+        if (IsStunned) return;
         if (IsDead) return;
 
         currentState?.Execute(this);
@@ -111,16 +118,25 @@ public class EnemyController : MonoBehaviour
     public void MoveTowards(Vector3 target)
     {
         Vector3 dir = (target - transform.position).normalized;
-        transform.position += dir * moveSpeed * Time.deltaTime;
-        if (dir != Vector3.zero)
+
+        if (dir == Vector3.zero)
         {
-            Quaternion rot = Quaternion.LookRotation(dir);
-            transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.deltaTime * 10f);
+            SetRunning(false);
+            return;
         }
+
+        transform.position += dir * moveSpeed * Time.deltaTime;
+
+        Quaternion rot = Quaternion.LookRotation(dir);
+        transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.deltaTime * 10f);
+
+        SetRunning(true);
     }
+
 
     public void Attack()
     {
+        enemyAnimatorPresenter.PlayAttackAnimation();
         playerHealth.ReceiveDamage(damage);
         Debug.Log("Enemy attacks player!");
     }
@@ -129,4 +145,20 @@ public class EnemyController : MonoBehaviour
     {
         return Vector3.Distance(transform.position, PlayerPosition) <= range;
     }
+    public void SetRunning(bool isRunning)
+    {
+        if (_isRunning == isRunning) return;
+        _isRunning = isRunning;
+        enemyAnimatorPresenter.PlayRunAnimation(isRunning);
+    }
+    private void HandleDeath()
+    {
+        enemyAnimatorPresenter.PlayDeathAnimation();
+    }
+    public void ApplyStun(float duration)
+    {
+        _stunState.ApplyStun(duration);
+        enemyAnimatorPresenter.PlayStunAnimation();
+    }
+
 }

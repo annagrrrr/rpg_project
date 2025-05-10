@@ -5,8 +5,8 @@ public class EnemyHealthPresenter : MonoBehaviour, IEnemyHealth
 {
     [SerializeField] private int maxHealth = 100;
     [SerializeField] private EnemyHealthBarUI barUI;
-    
 
+    public event Action OnDied;
     public event Action OnDamaged;
 
     private EnemyHealth _health;
@@ -22,7 +22,6 @@ public class EnemyHealthPresenter : MonoBehaviour, IEnemyHealth
             barUI.Initialize(transform, maxHealth);
         UpdateView();
     }
-
     public void ReceiveDamage(int damage)
     {
         _health.TakeDamage(damage);
@@ -30,21 +29,16 @@ public class EnemyHealthPresenter : MonoBehaviour, IEnemyHealth
 
         UpdateView();
 
+        OnDamaged?.Invoke();
+
         if (IsDead)
         {
-            Die();
+            OnDied?.Invoke();
         }
-        OnDamaged?.Invoke();
     }
-
     private void UpdateView()
     {
         if (barUI != null)
             barUI.UpdateHealth(_health.Current);
-    }
-    private void Die()
-    {
-        Debug.Log("Enemy has died!");
-        Destroy(gameObject);
     }
 }

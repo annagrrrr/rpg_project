@@ -4,6 +4,7 @@ public class PlayerAnimatorPresenter : MonoBehaviour, IPlayerAnimationPresenter
 {
     [SerializeField] private Animator _animator;
 
+
     public void PlayRunAnimation(bool isRunning)
     {
         _animator.SetBool("isRunning", isRunning);

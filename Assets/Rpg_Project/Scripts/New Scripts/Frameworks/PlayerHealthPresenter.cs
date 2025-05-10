@@ -20,6 +20,6 @@ public class PlayerHealthPresenter
     {
         _takeDamageUseCase.Execute(damage);
         _healthView.SetCurrentHealth(_health.Current);
-        _stunUseCase.Stun(0.5f);
+        _stunUseCase.Stun(0.2f);
     }
 }

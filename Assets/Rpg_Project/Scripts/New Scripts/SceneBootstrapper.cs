@@ -59,11 +59,6 @@ public class SceneBootstrapper : MonoBehaviour
         var rotationPresenter = new PlayerRotationPresenter(playerInstance.transform);
 
         var inventory = new WeaponInventory();
-        // var sword = new MeleeWeapon(20);
-        // var staff = new RangedWeapon(15);
-        // inventory.EquipRightHand(sword);
-        // inventory.EquipLeftHand(staff);
-
         var attackPresenter = new AttackPresenter();
         var attackUseCase = new AttackUseCase(inventory, attackPresenter, playerInstance.transform, animationPresenter);
 

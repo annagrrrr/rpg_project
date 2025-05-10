@@ -11,6 +11,7 @@ public class StunPlayerUseCase
 
     public void Stun(float duration)
     {
+        _animator.PlayStunAnimation();
         _stunState.Stun(duration);
     }
 

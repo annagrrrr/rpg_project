@@ -62,8 +62,6 @@ public class Enemy : MonoBehaviour
         
         playerController = GameObject.FindWithTag("Player").GetComponentInChildren<PlayerController>();
 
-        Health.onDamageTaken += (damage) => Debug.Log($"{Name} ������� {damage} �����!");
-        Health.onDeath += () => Debug.Log($"{Name} �����!");
     }
 
     private void Update()

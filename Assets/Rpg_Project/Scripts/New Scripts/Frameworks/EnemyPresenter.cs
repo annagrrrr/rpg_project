@@ -7,17 +7,21 @@ public class EnemyPresenter
     private readonly Transform _playerTransform;
     private readonly PlayerHealthController _playerHealth;
     private readonly IEnemyHealth _enemyHealth;
+    private readonly IEnemyAnimationPresenter _animator;
     private readonly float _moveSpeed;
 
     private bool _isDead = false;
     private bool _isStunned = false;
     private float _stunTimer = 0f;
+
+    private bool _wasMovingThisFrame = false;
     public EnemyPresenter(
         IEnemyBehaviourr behaviour,
         Transform transform,
         PlayerHealthController playerHealth,
         IEnemyHealth enemyHealth,
-        float moveSpeed)
+        float moveSpeed,
+        IEnemyAnimationPresenter animator)
     {
         _behaviour = behaviour;
         _transform = transform;
@@ -25,6 +29,7 @@ public class EnemyPresenter
         _playerTransform = playerHealth.transform;
         _enemyHealth = enemyHealth;
         _moveSpeed = moveSpeed;
+        _animator = animator;
 
         if (_behaviour is MeleeEnemyBehaviour melee)
         {
@@ -64,18 +69,31 @@ public class EnemyPresenter
             {
                 _isStunned = false;
             }
+
+            _animator.PlayRunAnimation(false);
             return;
         }
 
+        _wasMovingThisFrame = false;
         _behaviour.Tick(_transform.position, _playerTransform);
+
+        if (!_wasMovingThisFrame)
+        {
+            _animator.PlayRunAnimation(false);
+        }
     }
+
 
     private void MoveTowards(Vector3 direction)
     {
+        Debug.Log("AAAAAAAAAAAAAA");
         if (direction == Vector3.zero) return;
 
+        _wasMovingThisFrame = true;
         _transform.position += direction.normalized * _moveSpeed * Time.deltaTime;
+        _animator.PlayRunAnimation(true);
     }
+
 
     private void RotateTowards(Vector3 direction)
     {
@@ -87,6 +105,8 @@ public class EnemyPresenter
 
     private void AttackPlayer()
     {
+        _animator.PlayAttackAnimation();
+
         if (_behaviour is IEnemyWithData withData)
         {
             int damage = withData.GetData().Damage;
@@ -100,6 +120,7 @@ public class EnemyPresenter
         if (_isDead) return;
 
         _isDead = true;
+        _animator.PlayDeathAnimation();
         Debug.Log("Enemy has died!");
 
         GameObject.Destroy(_transform.gameObject, 2f);
@@ -114,5 +135,6 @@ public class EnemyPresenter
     {
         _isStunned = true;
         _stunTimer = duration;
+        _animator.PlayStunAnimation();
     }
 }

@@ -15,7 +15,11 @@ public class AttackUseCase
     private float _nextPrimaryAttackTime = 0f;
     private float _nextSecondaryAttackTime = 0f;
 
-    public AttackUseCase(WeaponInventory inventory, IAttackPresenter attackPresenter, Transform playerTransform, IPlayerAnimationPresenter animator)
+    public AttackUseCase(
+        WeaponInventory inventory,
+        IAttackPresenter attackPresenter,
+        Transform playerTransform,
+        IPlayerAnimationPresenter animator)
     {
         _inventory = inventory;
         _attackPresenter = attackPresenter;
@@ -79,14 +83,22 @@ public class AttackUseCase
         Vector3 attackOrigin = _playerTransform.position;
         Vector3 attackDirection = _playerTransform.forward;
 
-        RaycastHit[] hits = Physics.SphereCastAll(attackOrigin, 1f, attackDirection, _attackRange, _enemyLayer);
+        RaycastHit[] hits = Physics.SphereCastAll(
+            attackOrigin, 1f, attackDirection, _attackRange, _enemyLayer);
 
         foreach (var hit in hits)
         {
-            if (hit.collider.TryGetComponent(out EnemyHealthPresenter enemyHealth))
+            if (hit.collider.TryGetComponent(out IEnemyHealth enemyHealth))
             {
                 enemyHealth.ReceiveDamage(weapon.Damage);
                 Debug.Log($"Hit enemy! Dealt {weapon.Damage} damage.");
+            }
+
+            if (hit.collider.TryGetComponent(out IStunnable stunnable))
+            {
+                var stunUseCase = new ApplyStunUseCase(stunnable);
+                stunUseCase.Execute(0.8f);
+                Debug.Log("Applied stun to enemy.");
             }
         }
     }

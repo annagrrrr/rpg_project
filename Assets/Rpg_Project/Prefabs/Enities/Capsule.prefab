@@ -134,6 +134,7 @@ MonoBehaviour:
   damage: 10
   behaviourType: 0
   safeDistance: 5
+  enemyAnimatorPresenter: {fileID: 0}
   playerHealth: {fileID: 2833778490787056609, guid: 6d62c79e26542bb4ca1b6e4d5851cfcb, type: 3}
   enemyHealthPresenter: {fileID: 7302080530777442855}
 --- !u!54 &5991035188145742231
