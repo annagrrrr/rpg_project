@@ -16,9 +16,6 @@ public class TakeDamageUseCase
             _health.TakeDamage(damage);
             UnityEngine.Debug.Log($"player took {damage} damage. cur HP: {_health.Current}");
         }
-        else
-        {
-            UnityEngine.Debug.Log("no");
-        }
+        
     }
 }

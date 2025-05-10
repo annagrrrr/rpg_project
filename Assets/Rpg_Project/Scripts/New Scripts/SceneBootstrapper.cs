@@ -69,7 +69,7 @@ public class SceneBootstrapper : MonoBehaviour
         var jumpUseCase = new JumpUseCase(jumpPresenter, groundChecker, jumpForce: 6f, animationPresenter);
 
         var health = new Health(100);
-        var healthPresenter = new PlayerHealthPresenter(health, playerHealthView, stunPlayerUseCase);
+        var healthPresenter = new PlayerHealthPresenter(health, playerHealthView, stunPlayerUseCase, animationPresenter);
 
         var healthController = playerInstance.GetComponent<PlayerHealthController>();
         healthController.Initialize(healthPresenter);

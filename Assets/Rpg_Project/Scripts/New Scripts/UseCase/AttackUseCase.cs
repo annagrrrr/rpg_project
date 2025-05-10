@@ -97,7 +97,7 @@ public class AttackUseCase
             if (hit.collider.TryGetComponent(out IStunnable stunnable))
             {
                 var stunUseCase = new ApplyStunUseCase(stunnable);
-                stunUseCase.Execute(0.8f);
+                stunUseCase.Execute(1f);
                 Debug.Log("Applied stun to enemy.");
             }
         }

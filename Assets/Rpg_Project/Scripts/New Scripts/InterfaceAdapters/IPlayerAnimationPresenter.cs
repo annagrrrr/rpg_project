@@ -6,4 +6,6 @@ public interface IPlayerAnimationPresenter
     void PlayAttackAnimation(AttackType type);
     void PlayJumpAnimation();
     void PlayStunAnimation();
+
+    void PlayDeathAnimation();
 }

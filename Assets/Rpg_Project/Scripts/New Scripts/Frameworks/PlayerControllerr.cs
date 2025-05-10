@@ -39,7 +39,7 @@ public class PlayerControllerr : MonoBehaviour
 
     private void Update()
     {
-        if (_stunPlayerUseCase.IsStunned())
+        if (_healthPresenter.IsDead || _stunPlayerUseCase.IsStunned())
             return;
 
         HandleMovement();

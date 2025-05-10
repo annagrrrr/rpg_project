@@ -28,4 +28,9 @@ public class PlayerAnimatorPresenter : MonoBehaviour, IPlayerAnimationPresenter
     {
         _animator.SetTrigger("Stun");
     }
+
+    public void PlayDeathAnimation()
+    {
+        _animator.SetTrigger("Death");
+    }
 }
