@@ -7,12 +7,12 @@ public class SceneBootstrapper : MonoBehaviour
     [SerializeField] private Transform[] enemySpawnPoints;
     [SerializeField] private BossController bossPrefab;
     [SerializeField] private Transform bossSpawnPoint;
-
     [SerializeField] private CameraController cameraController;
     [SerializeField] private Transform cameraTransform;
 
     [Header("UI")]
     [SerializeField] private PlayerHealthView playerHealthView;
+    [SerializeField] private AttackCooldownPresenter cooldownPresenter;
 
     private void Start()
     {
@@ -60,7 +60,7 @@ public class SceneBootstrapper : MonoBehaviour
 
         var inventory = new WeaponInventory();
         var attackPresenter = new AttackPresenter();
-        var attackUseCase = new AttackUseCase(inventory, attackPresenter, playerInstance.transform, animationPresenter);
+        var attackUseCase = new AttackUseCase(inventory, attackPresenter, playerInstance.transform, animationPresenter, cooldownPresenter);
 
         var pickupProvider = playerInstance.GetComponent<WeaponTriggerPickupProvider>();
         var pickupUseCase = new PickupWeaponUseCase(pickupProvider, inventory);

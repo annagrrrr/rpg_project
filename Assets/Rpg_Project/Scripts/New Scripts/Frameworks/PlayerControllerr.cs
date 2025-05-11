@@ -36,11 +36,12 @@ public class PlayerControllerr : MonoBehaviour
         _healthPresenter = healthPresenter;
         _stunPlayerUseCase = stunPlayerUseCase;
     }
-
     private void Update()
     {
         if (_healthPresenter.IsDead || _stunPlayerUseCase.IsStunned())
             return;
+
+        _attackUseCase.UpdateCooldowns();
 
         HandleMovement();
         HandleAttack();
@@ -56,7 +57,6 @@ public class PlayerControllerr : MonoBehaviour
 
         _movePlayerUseCase.Execute(horizontal, vertical, isSprinting);
     }
-
 
     private void HandleAttack()
     {
@@ -84,7 +84,6 @@ public class PlayerControllerr : MonoBehaviour
         if (_input.GetActionDown(PlayerInputAction.Jump))
         {
             _jumpUseCase.Execute();
-            Debug.Log("jumpy");
         }
     }
 }
