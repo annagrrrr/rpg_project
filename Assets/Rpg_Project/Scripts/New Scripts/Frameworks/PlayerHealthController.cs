@@ -6,14 +6,11 @@ public class PlayerHealthController : MonoBehaviour
 
     public void Initialize(PlayerHealthPresenter presenter)
     {
-        Debug.Log("PlayerHealthController: Initialized");
         _presenter = presenter;
     }
 
     public void ReceiveDamage(int damage)
     {
-        Debug.Log("PlayerHealthController: Received damage");
-        Debug.Log(_presenter);
         _presenter.TakeDamage(damage);
     }
 }

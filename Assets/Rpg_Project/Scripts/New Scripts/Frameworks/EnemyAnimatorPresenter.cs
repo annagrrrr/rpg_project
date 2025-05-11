@@ -6,7 +6,6 @@ public class EnemyAnimatorPresenter : MonoBehaviour, IEnemyAnimationPresenter
 
     public void PlayRunAnimation(bool isRunning)
     {
-        Debug.Log(isRunning);
         _animator.SetBool("isRunning", isRunning);
     }
 

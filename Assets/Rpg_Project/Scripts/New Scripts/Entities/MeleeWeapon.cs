@@ -10,9 +10,4 @@ public class MeleeWeapon : IWeapon
         Damage = damage;
         AttackType = attackType;
     }
-
-    public void Attack()
-    {
-        Debug.Log($"Melee attack: dealing {Damage} {AttackType} damage");
-    }
 }

@@ -1911,6 +1911,7 @@ MonoBehaviour:
   cameraController: {fileID: 2139944033}
   cameraTransform: {fileID: 2139944037}
   playerHealthView: {fileID: 644925953}
+  cooldownPresenter: {fileID: 801495250}
 --- !u!4 &1152748163
 Transform:
   m_ObjectHideFlags: 0

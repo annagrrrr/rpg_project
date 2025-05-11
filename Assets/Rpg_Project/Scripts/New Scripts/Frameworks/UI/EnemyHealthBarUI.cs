@@ -18,7 +18,6 @@ public class EnemyHealthBarUI : MonoBehaviour
 
     public void UpdateHealth(int currentHealth)
     {
-        Debug.Log(currentHealth + "dgsdfdhshtht");
         healthSlider.value = currentHealth;
     }
 

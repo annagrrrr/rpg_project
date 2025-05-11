@@ -10,9 +10,4 @@ public class RangedWeapon : IWeapon
         Damage = damage;
         AttackType = attackType;
     }
-
-    public void Attack()
-    {
-        Debug.Log($"Ranged attack: shooting {Damage} {AttackType} damage projectile");
-    }
 }

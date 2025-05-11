@@ -95,7 +95,7 @@ public class AttackUseCase
         {
             if (hit.collider.TryGetComponent(out IEnemyHealth enemyHealth))
             {
-                enemyHealth.ReceiveDamage(weapon.Damage);
+                enemyHealth.ReceiveDamage(weapon.Damage, weapon.AttackType);
                 Debug.Log($"Hit enemy! Dealt {weapon.Damage} damage.");
             }
 
