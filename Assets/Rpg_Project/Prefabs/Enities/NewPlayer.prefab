@@ -232,7 +232,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   groundMask:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 65
   groundCheckDistance: 1
 --- !u!114 &3939018559113955681
 MonoBehaviour:

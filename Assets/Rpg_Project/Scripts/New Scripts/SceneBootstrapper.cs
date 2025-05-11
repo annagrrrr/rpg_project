@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class SceneBootstrapper : MonoBehaviour
 {
+    [SerializeField] private Transform playerSpawnPoint;
     [SerializeField] private PlayerControllerr playerPrefab;
     [SerializeField] private EnemyController[] enemyPrefabs;
     [SerializeField] private Transform[] enemySpawnPoints;
@@ -16,10 +17,11 @@ public class SceneBootstrapper : MonoBehaviour
 
     private void Start()
     {
-        var playerInstance = Instantiate(playerPrefab);
+        var playerInstance = Instantiate(playerPrefab, playerSpawnPoint.position, playerSpawnPoint.rotation);
         var rb = playerInstance.GetComponent<Rigidbody>();
         var groundChecker = playerInstance.GetComponent<IPlayerGroundChecker>();
         var animationPresenter = playerInstance.GetComponent<PlayerAnimatorPresenter>();
+
 
         var input = new InputService();
         var repository = new InMemoryPlayerRepository();
