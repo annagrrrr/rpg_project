@@ -17,6 +17,9 @@ public class EnemyController : MonoBehaviour, IStunnable
     [SerializeField] private PlayerHealthController playerHealth;
     [SerializeField] private EnemyHealthPresenter enemyHealthPresenter;
 
+    [SerializeField] private MonoBehaviour weaponObject;
+    private IEnemyWeapon weapon;
+
     private EnemyPresenter _presenter;
     private IEnemyState currentState;
 
@@ -66,6 +69,8 @@ public class EnemyController : MonoBehaviour, IStunnable
 
     private void Start()
     {
+        weapon = weaponObject.GetComponent<IEnemyWeapon>();
+        weapon?.Initialize(playerHealth, CreateData());
         if (playerHealth == null)
         {
             Debug.LogError("EnemyController: PlayerHealthController not assigned!");
@@ -93,7 +98,8 @@ public class EnemyController : MonoBehaviour, IStunnable
             playerHealth,
             enemyHealthPresenter,
             moveSpeed,
-            enemyAnimatorPresenter
+            enemyAnimatorPresenter,
+            weapon
         );
         enemyHealthPresenter.OnDied += HandleDeath;
         ChangeState(new IdleState());
@@ -137,7 +143,8 @@ public class EnemyController : MonoBehaviour, IStunnable
     public void Attack()
     {
         enemyAnimatorPresenter.PlayAttackAnimation();
-        playerHealth.ReceiveDamage(damage);
+        //playerHealth.ReceiveDamage(damage);
+        weapon?.Attack();
         Debug.Log("Enemy attacks player!");
     }
 

@@ -15,13 +15,16 @@ public class EnemyPresenter
     private float _stunTimer = 0f;
 
     private bool _wasMovingThisFrame = false;
+
+    private readonly IEnemyWeapon _weapon;
     public EnemyPresenter(
         IEnemyBehaviourr behaviour,
         Transform transform,
         PlayerHealthController playerHealth,
         IEnemyHealth enemyHealth,
         float moveSpeed,
-        IEnemyAnimationPresenter animator)
+        IEnemyAnimationPresenter animator,
+        IEnemyWeapon weapon)
     {
         _behaviour = behaviour;
         _transform = transform;
@@ -30,6 +33,7 @@ public class EnemyPresenter
         _enemyHealth = enemyHealth;
         _moveSpeed = moveSpeed;
         _animator = animator;
+        _weapon = weapon;
 
         if (_behaviour is MeleeEnemyBehaviour melee)
         {
@@ -106,13 +110,14 @@ public class EnemyPresenter
     private void AttackPlayer()
     {
         _animator.PlayAttackAnimation();
+        _weapon?.Attack();
 
-        if (_behaviour is IEnemyWithData withData)
-        {
-            int damage = withData.GetData().Damage;
-            _playerHealth.ReceiveDamage(damage);
-            Debug.Log($"Enemy attacks player for {damage} damage!");
-        }
+        //if (_behaviour is IEnemyWithData withData)
+        //{
+        //    int damage = withData.GetData().Damage;
+        //    _playerHealth.ReceiveDamage(damage);
+        //    Debug.Log($"Enemy attacks player for {damage} damage!");
+        //}
     }
 
     private void HandleDeath()

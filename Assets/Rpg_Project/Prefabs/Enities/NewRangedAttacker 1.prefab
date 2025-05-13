@@ -331,6 +331,7 @@ MonoBehaviour:
   enemyAnimatorPresenter: {fileID: 3588373578322352962}
   playerHealth: {fileID: 4276321850871112898, guid: b161d90bdd7379041b1f4dbe44c75805, type: 3}
   enemyHealthPresenter: {fileID: 1314029209743806566}
+  weaponObject: {fileID: 7342768991734705382, guid: dcca3bec5eafaee4ea258b0631eea16f, type: 3}
 --- !u!114 &1314029209743806566
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -345,6 +346,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 100
   barUI: {fileID: 9119527351573615203}
+  resistanceType: 0
+  resistanceValue: 0.3
 --- !u!114 &3588373578322352962
 MonoBehaviour:
   m_ObjectHideFlags: 0
