@@ -2,25 +2,21 @@ using UnityEngine;
 
 public class BossAttackState : IBossState
 {
-    private float attackCooldown = 2f;
-    private float lastAttackTime;
-
     public void Enter(BossController boss)
     {
         Debug.Log("Boss: Entering Attack state");
-        lastAttackTime = Time.time - attackCooldown;
     }
 
     public void Execute(BossController boss)
     {
-        if (Time.time - lastAttackTime >= attackCooldown)
+        if (boss.CanAttack())
         {
             boss.PerformAttack();
-            lastAttackTime = Time.time;
 
             if (boss.ShouldUseHeavyAttack())
             {
                 boss.ChangeState(new BossHeavyAttackState());
+                return;
             }
         }
 

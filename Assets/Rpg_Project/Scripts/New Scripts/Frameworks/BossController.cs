@@ -6,26 +6,65 @@ public class BossController : MonoBehaviour
     [SerializeField] private BossData data;
     [SerializeField] private Transform player;
 
+    private PlayerHealthController playerHealth;
+
     public Transform Player => player;
     public BossData Data => data;
 
     private IBossState currentState;
     private bool canMove = true;
     private bool isProvoked = false;
-    public float AttackRange => data.AttackRange;
     public float AggroRange => data.AggroRange;
     public float HeavyAttackRange => data.HeavyAttackRange;
     public float RetreatThreshold => data.RetreatHealthThreshold;
 
+    [SerializeField] private GameObject meleeWeaponPrefab;
+    [SerializeField] private GameObject rangedWeaponPrefab;
+
+    [SerializeField] private Transform firePoint;
 
 
+    private IBossWeapon _currentWeapon;
+    private ElementType _element;
+    public float AttackRange;
+
+    private float lastAttackTime = -Mathf.Infinity;
+    [SerializeField] private float attackCooldown = 2f;
+    public bool CanAttack()
+    {
+        return Time.time - lastAttackTime >= attackCooldown;
+    }
+
+    private void ResetAttackCooldown()
+    {
+        lastAttackTime = Time.time;
+    }
     private void Start()
     {
+        bool useMelee = Random.value > 0.5f;
+        GameObject weaponGO = Instantiate(useMelee ? meleeWeaponPrefab : rangedWeaponPrefab, transform);
+        Debug.Log(useMelee + "melee or not");
+        _currentWeapon = weaponGO.GetComponent<IBossWeapon>();
+        if (_currentWeapon is BossRangedWeapon rangedWeapon)
+        {
+            rangedWeapon.SetFirePoint(firePoint);
+        }
+
+        _element = (ElementType)Random.Range(0, 4);
+        _currentWeapon.SetElement(_element);
+        AttackRange = _currentWeapon?.AttackRange ?? 0f;
+
         if (player == null)
         {
             var p = GameObject.FindGameObjectWithTag("Player");
             if (p != null) player = p.transform;
             else Debug.LogError("BossController: не найден объект с тегом Player");
+        }
+
+        if (playerHealth == null)
+        {
+            playerHealth = player?.GetComponent<PlayerHealthController>();
+            if (playerHealth == null) Debug.LogError("BossController: не найден PlayerHealthController");
         }
         ChangeState(new BossIdleState());
     }
@@ -59,14 +98,24 @@ public class BossController : MonoBehaviour
     
     public void PerformAttack()
     {
-        if (IsPeacefulMode()) return;
-        Debug.Log("Boss: Performing normal attack!");
+        if (IsPeacefulMode() || !CanAttack()) return;
+        if (playerHealth != null)
+        {
+            _currentWeapon.Attack(player, data.Damage);
+            playerHealth.ReceiveDamage(data.Damage);
+            ResetAttackCooldown();
+        }
     }
 
     public void PerformHeavyAttack()
     {
-        if (IsPeacefulMode()) return;
-        Debug.Log("Boss: Performing heavy attack!");
+        if (IsPeacefulMode() || !CanAttack()) return;
+        if (playerHealth != null)
+        {
+            _currentWeapon.Attack(player, data.Damage);
+            playerHealth.ReceiveDamage(data.Damage);
+            ResetAttackCooldown();
+        }
     }
 
     public void PerformCharge()

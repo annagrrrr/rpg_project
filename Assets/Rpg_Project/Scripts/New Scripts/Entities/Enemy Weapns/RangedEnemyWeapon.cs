@@ -4,7 +4,7 @@ public class RangedEnemyWeapon : MonoBehaviour, IEnemyWeapon
 {
     [SerializeField] private int damage = 10;
     [SerializeField] private float rayDistance = 100f;
-    [SerializeField] private LayerMask hitMask; // Укажи нужный слой (например, "Player")
+    [SerializeField] private LayerMask hitMask;
 
     private IPlayerTarget _playerTarget;
     private EnemyData _enemyData;
@@ -22,7 +22,6 @@ public class RangedEnemyWeapon : MonoBehaviour, IEnemyWeapon
 
         Vector3 direction = (_playerTarget.Transform.position - transform.position).normalized;
 
-        // RaycastAll возвращает все попадания
         RaycastHit[] hits = Physics.RaycastAll(transform.position, direction, rayDistance, hitMask);
 
         foreach (var hit in hits)
@@ -31,7 +30,7 @@ public class RangedEnemyWeapon : MonoBehaviour, IEnemyWeapon
             {
                 target.ReceiveDamage(damage);
                 Debug.Log($"[RangedEnemyWeapon] Попадание по игроку! Урон: {damage}");
-                break; // Остановить после первого попадания по игроку
+                break;
             }
         }
     }
