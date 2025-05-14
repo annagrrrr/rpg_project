@@ -47,8 +47,6 @@ public class BossController : MonoBehaviour
         GameObject weaponGO = Instantiate(useMelee ? meleeWeaponPrefab : rangedWeaponPrefab, weaponParent);
         weaponGO.transform.localPosition = Vector3.zero;
         weaponGO.transform.localRotation = Quaternion.identity;
-
-        Debug.Log(useMelee + "melee or not");
         _currentWeapon = weaponGO.GetComponent<IBossWeapon>();
         if (_currentWeapon is BossRangedWeapon rangedWeapon)
         {
@@ -63,13 +61,11 @@ public class BossController : MonoBehaviour
         {
             var p = GameObject.FindGameObjectWithTag("Player");
             if (p != null) player = p.transform;
-            else Debug.LogError("BossController: не найден объект с тегом Player");
         }
 
         if (playerHealth == null)
         {
             playerHealth = player?.GetComponent<PlayerHealthController>();
-            if (playerHealth == null) Debug.LogError("BossController: не найден PlayerHealthController");
         }
         ChangeState(new BossIdleState());
     }
