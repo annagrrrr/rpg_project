@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2680743270930127187
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5679201826014479123}
+  - component: {fileID: 3283174385523928277}
+  m_Layer: 0
+  m_Name: SceneBootstrapper
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5679201826014479123
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2680743270930127187}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.0460413, y: 1.9224578, z: -1.2337064}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3283174385523928277
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2680743270930127187}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8188126cc78ac8143aaa26868018cdbf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerPrefab: {fileID: 3877948376099072069, guid: b161d90bdd7379041b1f4dbe44c75805, type: 3}
+  enemyPrefabs:
+  - {fileID: 5852979576447787544, guid: fcb25e24621239a4ca99c92061f56d5a, type: 3}
+  - {fileID: 5852979576447787544, guid: 2547cfd82c9bad741a31e2393119c796, type: 3}
+  enemySpawnPoints:
+  - {fileID: 0}
+  - {fileID: 0}
+  bossPrefab: {fileID: 6790111117378941490, guid: 8cdff7ba8233091479e1c455b1333fdd, type: 3}
+  bossSpawnPoint: {fileID: 0}
+  cameraController: {fileID: 0}
+  cameraTransform: {fileID: 0}
+  playerHealthView: {fileID: 0}
+  cooldownPresenter: {fileID: 0}
