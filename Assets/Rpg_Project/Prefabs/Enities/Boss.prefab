@@ -11,10 +11,10 @@ GameObject:
   - component: {fileID: 290688231269867195}
   - component: {fileID: 4317175042367717875}
   - component: {fileID: 2310572178609983576}
-  - component: {fileID: 8868538752682420874}
   - component: {fileID: 5991035188145742231}
   - component: {fileID: 7302080530777442855}
   - component: {fileID: 6790111117378941490}
+  - component: {fileID: 6340375244294441919}
   m_Layer: 7
   m_Name: Boss
   m_TagString: Untagged
@@ -92,29 +92,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!136 &8868538752682420874
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3949124110012362949}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &5991035188145742231
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -180,9 +157,33 @@ MonoBehaviour:
     ChargeDuration: 2
     Damage: 20
   player: {fileID: 830647282608067619, guid: 6d62c79e26542bb4ca1b6e4d5851cfcb, type: 3}
+  meleeWeaponAnchor: {fileID: 5761441049046981974}
   meleeWeaponPrefab: {fileID: 1843258558772267958, guid: bfbd9caddb617f546a51618e1fa26628, type: 3}
   rangedWeaponPrefab: {fileID: 7628737306068950429, guid: 17ec55b605ddd2c45937923d9ac21d34, type: 3}
   firePoint: {fileID: 5761441049046981974}
+  AttackRange: 0
+  attackCooldown: 2
+--- !u!65 &6340375244294441919
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3949124110012362949}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 2, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &3815375322397672578
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -322,7 +323,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 489336123128996683, guid: 7957a57c116241b439b6e81e49ec2fd8, type: 3}
       propertyPath: m_Name
-      value: FirePoint
+      value: Hand
       objectReference: {fileID: 0}
     - target: {fileID: 3374510179383134219, guid: 7957a57c116241b439b6e81e49ec2fd8, type: 3}
       propertyPath: m_LocalPosition.x

@@ -5,6 +5,7 @@ public class BossController : MonoBehaviour
     [Header("Boss Settings")]
     [SerializeField] private BossData data;
     [SerializeField] private Transform player;
+    [SerializeField] private Transform meleeWeaponAnchor;
 
     private PlayerHealthController playerHealth;
 
@@ -42,7 +43,11 @@ public class BossController : MonoBehaviour
     private void Start()
     {
         bool useMelee = Random.value > 0.5f;
-        GameObject weaponGO = Instantiate(useMelee ? meleeWeaponPrefab : rangedWeaponPrefab, transform);
+        Transform weaponParent = useMelee ? meleeWeaponAnchor : transform;
+        GameObject weaponGO = Instantiate(useMelee ? meleeWeaponPrefab : rangedWeaponPrefab, weaponParent);
+        weaponGO.transform.localPosition = Vector3.zero;
+        weaponGO.transform.localRotation = Quaternion.identity;
+
         Debug.Log(useMelee + "melee or not");
         _currentWeapon = weaponGO.GetComponent<IBossWeapon>();
         if (_currentWeapon is BossRangedWeapon rangedWeapon)
