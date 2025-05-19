@@ -55,6 +55,8 @@ public class BossController : MonoBehaviour
 
         _element = (ElementType)Random.Range(0, 4);
         _currentWeapon.SetElement(_element);
+        Debug.Log(_element);
+        Debug.Log(useMelee);
         AttackRange = _currentWeapon?.AttackRange ?? 0f;
 
         if (player == null)

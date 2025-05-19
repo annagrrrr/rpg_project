@@ -4,7 +4,7 @@ public class BossAggroState : IBossState
 {
     public void Enter(BossController boss)
     {
-        Debug.Log("Boss: Entering Aggro state");
+        //Debug.Log("Boss: Entering Aggro state");
     }
 
     public void Execute(BossController boss)
@@ -19,6 +19,6 @@ public class BossAggroState : IBossState
 
     public void Exit(BossController boss)
     {
-        Debug.Log("Boss: Exiting Aggro state");
+        //Debug.Log("Boss: Exiting Aggro state");
     }
 }

@@ -8,7 +8,7 @@ public class BossMeleeWeapon : MonoBehaviour, IBossWeapon
 
     public void Attack(Transform target, int damage)
     {
-        Debug.Log($"Boss Melee attacks {target.name} for {damage} damage with {_element} element.");
+        //сюда перенести
     }
 
     public void SetElement(ElementType element)

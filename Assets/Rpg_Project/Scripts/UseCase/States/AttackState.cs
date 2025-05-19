@@ -7,7 +7,7 @@ public class AttackState : IEnemyState
     public void Enter(EnemyController enemy)
     {
         lastAttackTime = Time.time - enemy.AttackCooldown;
-        Debug.Log($"{enemy.name} вошел в состояние Attack");
+        //Debug.Log($"{enemy.name} вошел в состояние Attack");
     }
 
     public void Execute(EnemyController enemy)

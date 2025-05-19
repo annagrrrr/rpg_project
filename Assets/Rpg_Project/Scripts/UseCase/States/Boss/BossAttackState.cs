@@ -4,7 +4,7 @@ public class BossAttackState : IBossState
 {
     public void Enter(BossController boss)
     {
-        Debug.Log("Boss: Entering Attack state");
+        //Debug.Log("Boss: Entering Attack state");
     }
 
     public void Execute(BossController boss)
@@ -28,6 +28,6 @@ public class BossAttackState : IBossState
 
     public void Exit(BossController boss)
     {
-        Debug.Log("Boss: Exiting Attack state");
+        //Debug.Log("Boss: Exiting Attack state");
     }
 }

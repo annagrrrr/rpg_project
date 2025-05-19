@@ -37,7 +37,7 @@ public class BossProjectile : MonoBehaviour
     {
         var health = _target.GetComponent<PlayerHealthController>();
         health?.ReceiveDamage(_damage);
-        Debug.Log($"Projectile hit player with {_element} element for {_damage} damage.");
+        //Debug.Log($"Projectile hit player with {_element} element for {_damage} damage.");
         Destroy(gameObject);
     }
 

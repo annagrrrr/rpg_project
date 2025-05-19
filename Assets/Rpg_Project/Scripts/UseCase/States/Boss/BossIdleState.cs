@@ -4,7 +4,7 @@ public class BossIdleState : IBossState
 {
     public void Enter(BossController boss)
     {
-        Debug.Log("Boss: Entering Idle state");
+        //Debug.Log("Boss: Entering Idle state");
     }
 
     public void Execute(BossController boss)
@@ -24,6 +24,6 @@ public class BossIdleState : IBossState
 
     public void Exit(BossController boss)
     {
-        Debug.Log("Boss: Exiting Idle state");
+        //Debug.Log("Boss: Exiting Idle state");
     }
 }

@@ -18,7 +18,6 @@ public class BossRangedWeapon : MonoBehaviour, IBossWeapon
         var proj = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
         var projectile = proj.GetComponent<BossProjectile>();
         projectile?.Initialize(target, damage, _element);
-        Debug.Log($"Boss Ranged attacks {target.name} with {_element} projectile.");
     }
     public void SetElement(ElementType element)
     {
