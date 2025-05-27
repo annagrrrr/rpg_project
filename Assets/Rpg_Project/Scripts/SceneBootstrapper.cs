@@ -10,6 +10,10 @@ public class SceneBootstrapper : MonoBehaviour
     [SerializeField] private Transform bossSpawnPoint;
     [SerializeField] private CameraController cameraController;
     [SerializeField] private Transform cameraTransform;
+    [SerializeField] private VictoryMusicPlayer victoryMusicPlayer;
+    [SerializeField] private GameObject bossContainer;
+    [SerializeField] private EnemyKillTracker killTracker;
+
 
     [Header("UI")]
     [SerializeField] private PlayerHealthView playerHealthView;
@@ -96,5 +100,20 @@ public class SceneBootstrapper : MonoBehaviour
                 enemyController.Initialize(healthController);
             }
         }
+        killTracker.OnThreeEnemiesKilled += () =>
+        {
+            if (bossPrefab != null && bossSpawnPoint != null)
+            {
+                var bossInstance = Instantiate(bossPrefab, bossSpawnPoint.position, Quaternion.identity, bossContainer.transform);
+                bossInstance.Initialize(playerInstance.transform);
+            }
+        };
+
+        killTracker.OnFiveEnemiesKilled += () =>
+        {
+            victoryMusicPlayer.PlayVictory();
+        };
+
+        
     }
 }
