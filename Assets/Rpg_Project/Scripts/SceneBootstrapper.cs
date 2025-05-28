@@ -14,18 +14,17 @@ public class SceneBootstrapper : MonoBehaviour
     [SerializeField] private GameObject bossContainer;
     [SerializeField] private EnemyKillTracker killTracker;
 
-
     [Header("UI")]
     [SerializeField] private PlayerHealthView playerHealthView;
     [SerializeField] private AttackCooldownPresenter cooldownPresenter;
 
     private void Start()
     {
+        // Спавним игрока
         var playerInstance = Instantiate(playerPrefab, playerSpawnPoint.position, playerSpawnPoint.rotation);
         var rb = playerInstance.GetComponent<Rigidbody>();
         var groundChecker = playerInstance.GetComponent<IPlayerGroundChecker>();
         var animationPresenter = playerInstance.GetComponent<PlayerAnimatorPresenter>();
-
 
         var input = new InputService();
         var repository = new InMemoryPlayerRepository();
@@ -45,13 +44,6 @@ public class SceneBootstrapper : MonoBehaviour
             Distance = 5f,
             CollisionMask = LayerMask.GetMask("Environment", "Obstacles")
         };
-        if (bossPrefab != null && bossSpawnPoint != null)
-        {
-            var bossInstance = Instantiate(bossPrefab, bossSpawnPoint.position, Quaternion.identity);
-            bossInstance.Initialize(playerInstance.transform);
-
-            bossInstance.GetComponent<BossController>().enabled = true;
-        }
 
         var followCameraUseCase = new FollowCameraUseCase(
             cameraInput,
@@ -91,15 +83,18 @@ public class SceneBootstrapper : MonoBehaviour
             stunPlayerUseCase
         );
 
+        // Спавним врагов и инициализируем их с killTracker
         for (int i = 0; i < enemyPrefabs.Length && i < enemySpawnPoints.Length; i++)
         {
             var enemyInstance = Instantiate(enemyPrefabs[i], enemySpawnPoints[i].position, Quaternion.identity);
             var enemyController = enemyInstance.GetComponent<EnemyController>();
             if (enemyController != null)
             {
-                enemyController.Initialize(healthController);
+                enemyController.Initialize(healthController, killTracker);
             }
         }
+
+        // Подписываемся на события killTracker
         killTracker.OnThreeEnemiesKilled += () =>
         {
             if (bossPrefab != null && bossSpawnPoint != null)
@@ -113,7 +108,5 @@ public class SceneBootstrapper : MonoBehaviour
         {
             victoryMusicPlayer.PlayVictory();
         };
-
-        
     }
 }

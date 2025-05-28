@@ -1,9 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class ScoreDisplay : MonoBehaviour
 {
-    [SerializeField] private Text scoreText;
+    [SerializeField] private TMP_Text scoreText;
 
     private void Start()
     {
@@ -13,6 +14,9 @@ public class ScoreDisplay : MonoBehaviour
 
     private void UpdateScore(int score)
     {
-        scoreText.text = "Score: " + score;
+        if (scoreText != null)
+            scoreText.text = "Score: " + score;
+        else
+            Debug.LogError("ScoreText is not assigned!");
     }
 }

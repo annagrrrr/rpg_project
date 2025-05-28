@@ -24,7 +24,8 @@ public class EnemyController : MonoBehaviour, IStunnable
     private IEnemyState currentState;
 
     private bool _isRunning = false;
-
+    private EnemyKillTracker _killTracker;
+    private bool ifDead = false;
     public Vector3 PlayerPosition => playerHealth != null ? playerHealth.transform.position : transform.position;
     public float DetectionRange => detectionRange;
     public float AttackRange => attackRange;
@@ -36,10 +37,12 @@ public class EnemyController : MonoBehaviour, IStunnable
     private StunState _stunState = new StunState();
     public bool IsStunned => _stunState.IsStunned;
 
-    public void Initialize(PlayerHealthController playerHealth)
+    public void Initialize(PlayerHealthController playerHealth, EnemyKillTracker killTracker)
     {
         this.playerHealth = playerHealth;
+        this._killTracker = killTracker;
     }
+
     private EnemyData CreateData()
     {
         return behaviourType switch
@@ -139,11 +142,9 @@ public class EnemyController : MonoBehaviour, IStunnable
         SetRunning(true);
     }
 
-
     public void Attack()
     {
         enemyAnimatorPresenter.PlayAttackAnimation();
-        //playerHealth.ReceiveDamage(damage);
         weapon?.Attack();
         Debug.Log("Enemy attacks player!");
     }
@@ -152,20 +153,28 @@ public class EnemyController : MonoBehaviour, IStunnable
     {
         return Vector3.Distance(transform.position, PlayerPosition) <= range;
     }
+
     public void SetRunning(bool isRunning)
     {
         if (_isRunning == isRunning) return;
         _isRunning = isRunning;
         enemyAnimatorPresenter.PlayRunAnimation(isRunning);
     }
+
     private void HandleDeath()
     {
+        if (ifDead)
+            return;
+
+        ifDead = true;
         enemyAnimatorPresenter.PlayDeathAnimation();
+        _killTracker?.RegisterKill();
+        
     }
+
     public void ApplyStun(float duration)
     {
         _stunState.ApplyStun(duration);
         enemyAnimatorPresenter.PlayStunAnimation();
     }
-
 }

@@ -11,6 +11,7 @@ public class EnemyKillTracker : MonoBehaviour
     public void RegisterKill()
     {
         killCount++;
+        ScoreManager.Instance.AddScore(1);
         Debug.Log($"Kills: {killCount}");
 
         if (killCount == 3)
