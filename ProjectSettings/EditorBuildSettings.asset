@@ -12,6 +12,9 @@ EditorBuildSettings:
     path: Assets/Rpg_Project/Scenes/Locations/MainMenu.unity
     guid: 31c5c55052c760c4897fdd0c55bea23a
   - enabled: 1
+    path: Assets/Rpg_Project/Scenes/Testy.unity
+    guid: f028eb83380524a48b2f6fa0328b3ed4
+  - enabled: 1
     path: Assets/Rpg_Project/Scenes/Locations/FirstLocation.unity
     guid: 3a8aea03e85c17d4da23aee71188e9b0
   m_configObjects:
