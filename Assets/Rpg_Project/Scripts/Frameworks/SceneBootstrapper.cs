@@ -20,7 +20,6 @@ public class SceneBootstrapper : MonoBehaviour
 
     private void Start()
     {
-        // Спавним игрока
         var playerInstance = Instantiate(playerPrefab, playerSpawnPoint.position, playerSpawnPoint.rotation);
         var rb = playerInstance.GetComponent<Rigidbody>();
         var groundChecker = playerInstance.GetComponent<IPlayerGroundChecker>();
@@ -37,11 +36,11 @@ public class SceneBootstrapper : MonoBehaviour
         var cameraPresenter = new CameraPresenter(cameraTransform);
         var cameraSettings = new CameraSettings
         {
-            Offset = new Vector3(0, 2, -4),
+            Offset = new Vector3(0, 2, -6),
             Sensitivity = 3f,
-            MinPitch = -30f,
-            MaxPitch = 60f,
-            Distance = 5f,
+            MinPitch = -40f,
+            MaxPitch = 80f,
+            Distance = 8f,
             CollisionMask = LayerMask.GetMask("Environment", "Obstacles")
         };
 
@@ -83,7 +82,6 @@ public class SceneBootstrapper : MonoBehaviour
             stunPlayerUseCase
         );
 
-        // Спавним врагов и инициализируем их с killTracker
         for (int i = 0; i < enemyPrefabs.Length && i < enemySpawnPoints.Length; i++)
         {
             var enemyInstance = Instantiate(enemyPrefabs[i], enemySpawnPoints[i].position, Quaternion.identity);
@@ -94,7 +92,6 @@ public class SceneBootstrapper : MonoBehaviour
             }
         }
 
-        // Подписываемся на события killTracker
         killTracker.OnThreeEnemiesKilled += () =>
         {
             if (bossPrefab != null && bossSpawnPoint != null)

@@ -123,5 +123,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: edd6a45bad85e9c4bbced6a654a52086, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hitbox: {fileID: 6051078505728216702}
-  _damage: 20
+  damage: 40

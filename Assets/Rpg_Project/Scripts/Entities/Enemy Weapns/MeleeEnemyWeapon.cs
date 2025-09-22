@@ -22,11 +22,11 @@ public class MeleeEnemyWeapon : MonoBehaviour, IEnemyWeapon
         if (distance <= _enemyData.AttackRange)
         {
             _playerTarget.ReceiveDamage(damage);
-            Debug.Log($"[MeleeEnemyWeapon] Удар прошёл! Урон: {damage}, расстояние: {distance:F2}");
+            Debug.Log($"[MeleeEnemyWeapon] пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ! пїЅпїЅпїЅпїЅ: {damage}, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: {distance:F2}");
         }
         else
         {
-            Debug.Log($"[MeleeEnemyWeapon] Игрок слишком далеко: {distance:F2} > {_enemyData.AttackRange}");
+            Debug.Log($"[MeleeEnemyWeapon] пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ: {distance:F2} > {_enemyData.AttackRange}");
         }
     }
 }
