@@ -5,112 +5,78 @@ public class AttackUseCase
     private readonly WeaponInventory _inventory;
     private readonly IAttackPresenter _attackPresenter;
     private readonly IPlayerAnimationPresenter _animator;
-    private readonly float _attackRange = 2.0f;
-    private readonly LayerMask _enemyLayer;
     private readonly Transform _playerTransform;
-
-    private float _primaryAttackCooldown = 1f;
-    private float _secondaryAttackCooldown = 5f;
-
-    private float _nextPrimaryAttackTime = 0f;
-    private float _nextSecondaryAttackTime = 0f;
-
     private readonly IAttackCooldownPresenter _cooldownPresenter;
+    private readonly LayerMask _enemyLayer;
+
+    private readonly AddDamageDealtUseCase _addDamageDealtUseCase;
+
+    private float _primaryCooldown = 1f;
+    private float _secondaryCooldown = 5f;
+
+    private float _nextPrimaryTime = 0f;
+    private float _nextSecondaryTime = 0f;
 
     public AttackUseCase(
         WeaponInventory inventory,
         IAttackPresenter attackPresenter,
         Transform playerTransform,
         IPlayerAnimationPresenter animator,
-        IAttackCooldownPresenter cooldownPresenter)
+        IAttackCooldownPresenter cooldownPresenter,
+        AddDamageDealtUseCase addDamageDealtUseCase)
     {
         _inventory = inventory;
         _attackPresenter = attackPresenter;
-        _enemyLayer = LayerMask.GetMask("Enemy");
-        _playerTransform = playerTransform;
         _animator = animator;
+        _playerTransform = playerTransform;
         _cooldownPresenter = cooldownPresenter;
+        _enemyLayer = LayerMask.GetMask("Enemy");
+
+        _addDamageDealtUseCase = addDamageDealtUseCase;
     }
 
     public void ExecutePrimaryAttack()
     {
-        if (Time.time < _nextPrimaryAttackTime)
-        {
-            Debug.Log("Primary attack is on cooldown!");
-            return;
-        }
+        if (Time.time < _nextPrimaryTime) return;
 
         var weapon = _inventory.GetRightHandWeapon();
-        if (weapon == null)
-        {
-            Debug.LogWarning("No weapon in right hand!");
-            return;
-        }
+        if (weapon == null) return;
 
         _attackPresenter.ShowAttack(weapon.AttackType);
         _animator.PlayAttackAnimation(weapon.AttackType);
         AttemptHit(weapon);
 
-        _nextPrimaryAttackTime = Time.time + _primaryAttackCooldown;
+        _nextPrimaryTime = Time.time + _primaryCooldown;
     }
 
     public void ExecuteSecondaryAttack()
     {
-        if (Time.time < _nextSecondaryAttackTime)
-        {
-            Debug.Log("Secondary attack is on cooldown!");
-            return;
-        }
+        if (Time.time < _nextSecondaryTime) return;
 
         var weapon = _inventory.GetLeftHandWeapon();
-        if (weapon == null)
-        {
-            Debug.LogWarning("No weapon in left hand!");
-            return;
-        }
+        if (weapon == null) return;
 
         _attackPresenter.ShowAttack(weapon.AttackType);
         _animator.PlayAttackAnimation(weapon.AttackType);
         AttemptHit(weapon);
 
-        _nextSecondaryAttackTime = Time.time + _secondaryAttackCooldown;
-        _cooldownPresenter.UpdateSecondaryCooldown(_secondaryAttackCooldown, _secondaryAttackCooldown);
+        _nextSecondaryTime = Time.time + _secondaryCooldown;
     }
 
     private void AttemptHit(IWeapon weapon)
     {
-        if (_playerTransform == null)
-        {
-            Debug.LogWarning("Player transform is not assigned!");
-            return;
-        }
+        Vector3 origin = _playerTransform.position;
+        Vector3 dir = _playerTransform.forward;
 
-        Vector3 attackOrigin = _playerTransform.position;
-        Vector3 attackDirection = _playerTransform.forward;
-
-        RaycastHit[] hits = Physics.SphereCastAll(
-            attackOrigin, 1f, attackDirection, _attackRange, _enemyLayer);
+        RaycastHit[] hits = Physics.SphereCastAll(origin, 1f, dir, 2f, _enemyLayer);
 
         foreach (var hit in hits)
         {
-            if (hit.collider.TryGetComponent(out IEnemyHealth enemyHealth))
+            if (hit.collider.TryGetComponent(out IEnemyHealth enemy))
             {
-                enemyHealth.ReceiveDamage(weapon.Damage, weapon.AttackType);
-                Debug.Log($"Hit enemy! Dealt {weapon.Damage} damage.");
-            }
-
-            if (hit.collider.TryGetComponent(out IStunnable stunnable))
-            {
-                var stunUseCase = new ApplyStunUseCase(stunnable);
-                stunUseCase.Execute(1f);
-                Debug.Log("Applied stun to enemy.");
+                enemy.ReceiveDamage(weapon.Damage, weapon.AttackType);
+                _addDamageDealtUseCase.Execute(weapon.Damage);
             }
         }
     }
-    public void UpdateCooldowns()
-    {
-        float timeLeft = Mathf.Max(0, _nextSecondaryAttackTime - Time.time);
-        _cooldownPresenter.UpdateSecondaryCooldown(timeLeft, _secondaryAttackCooldown);
-    }
-
 }
