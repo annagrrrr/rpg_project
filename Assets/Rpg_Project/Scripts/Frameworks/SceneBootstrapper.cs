@@ -17,146 +17,93 @@ public class SceneBootstrapper : MonoBehaviour
     [Header("UI")]
     [SerializeField] private PlayerHealthView playerHealthView;
     [SerializeField] private AttackCooldownPresenter cooldownPresenter;
-    [SerializeField] private StatisticsUI statisticsUI;
-
-
-    private IStatisticsRepository statisticsRepo;
-
-    private AddKillUseCase addKill;
-    private AddDamageDealtUseCase addDealt;
-    private AddDamageReceivedUseCase addReceived;
-    private UpdatePlayTimeUseCase updateTime;
-    private FinishRunUseCase finishRun;
-
-    private bool gameEnded = false;
-
 
     private void Start()
     {
-        // --------------------------
-        //   INIT STATISTICS
-        // --------------------------
-        statisticsRepo = new InMemoryStatisticsRepository();
-        addKill = new AddKillUseCase(statisticsRepo);
-        addDealt = new AddDamageDealtUseCase(statisticsRepo);
-        addReceived = new AddDamageReceivedUseCase(statisticsRepo);
-        updateTime = new UpdatePlayTimeUseCase(statisticsRepo);
-        finishRun = new FinishRunUseCase(statisticsRepo);
-
-        // --------------------------
-        //   PLAYER INIT
-        // --------------------------
-        var player = Instantiate(playerPrefab, playerSpawnPoint.position, playerSpawnPoint.rotation);
-
-        var rb = player.GetComponent<Rigidbody>();
-        var groundChecker = player.GetComponent<IPlayerGroundChecker>();
-        var animPresenter = player.GetComponent<PlayerAnimatorPresenter>();
+        var playerInstance = Instantiate(playerPrefab, playerSpawnPoint.position, playerSpawnPoint.rotation);
+        var rb = playerInstance.GetComponent<Rigidbody>();
+        var groundChecker = playerInstance.GetComponent<IPlayerGroundChecker>();
+        var animationPresenter = playerInstance.GetComponent<PlayerAnimatorPresenter>();
 
         var input = new InputService();
-        var repo = new InMemoryPlayerRepository();
-        var presenter = new PlayerPresenter(player.transform);
+        var repository = new InMemoryPlayerRepository();
+        var presenter = new PlayerPresenter(playerInstance.transform);
 
-        var stunState = new PlayerStunState();
-        var stunUC = new StunPlayerUseCase(stunState, animPresenter);
+        var playerStunState = new PlayerStunState();
+        var stunPlayerUseCase = new StunPlayerUseCase(playerStunState, animationPresenter);
 
         var cameraInput = new CameraInputService();
-        var camPresenter = new CameraPresenter(cameraTransform);
-
-        var camSettings = new CameraSettings()
+        var cameraPresenter = new CameraPresenter(cameraTransform);
+        var cameraSettings = new CameraSettings
         {
             Offset = new Vector3(0, 2, -6),
             Sensitivity = 3f,
-            MinPitch = -40,
-            MaxPitch = 80,
-            Distance = 8,
+            MinPitch = -40f,
+            MaxPitch = 80f,
+            Distance = 8f,
             CollisionMask = LayerMask.GetMask("Environment", "Obstacles")
         };
 
-        var followUC = new FollowCameraUseCase(cameraInput, camPresenter, player.transform, camSettings);
-        cameraController.Initialize(followUC);
+        var followCameraUseCase = new FollowCameraUseCase(
+            cameraInput,
+            cameraPresenter,
+            playerInstance.transform,
+            cameraSettings
+        );
+        cameraController.Initialize(followCameraUseCase);
 
-        var moveUC = new MovePlayerUseCase(repo, presenter, camPresenter, animPresenter);
+        var moveUseCase = new MovePlayerUseCase(repository, presenter, cameraPresenter, animationPresenter);
+        var rotationPresenter = new PlayerRotationPresenter(playerInstance.transform);
 
         var inventory = new WeaponInventory();
         var attackPresenter = new AttackPresenter();
+        var attackUseCase = new AttackUseCase(inventory, attackPresenter, playerInstance.transform, animationPresenter, cooldownPresenter);
 
-        var attackUC = new AttackUseCase(
-            inventory,
-            attackPresenter,
-            player.transform,
-            animPresenter,
-            cooldownPresenter,
-            addDealt
-        );
-
-        var pickupProvider = player.GetComponent<WeaponTriggerPickupProvider>();
-        var pickupUC = new PickupWeaponUseCase(pickupProvider, inventory);
+        var pickupProvider = playerInstance.GetComponent<WeaponTriggerPickupProvider>();
+        var pickupUseCase = new PickupWeaponUseCase(pickupProvider, inventory);
 
         var jumpPresenter = new PlayerJumpPresenter(rb);
-        var jumpUC = new JumpUseCase(jumpPresenter, groundChecker, 6f, animPresenter);
+        var jumpUseCase = new JumpUseCase(jumpPresenter, groundChecker, jumpForce: 6f, animationPresenter);
 
         var health = new Health(100);
-        var healthPresenter = new PlayerHealthPresenter(health, playerHealthView, stunUC, animPresenter);
+        var healthPresenter = new PlayerHealthPresenter(health, playerHealthView, stunPlayerUseCase, animationPresenter);
 
-        var healthCtrl = player.GetComponent<PlayerHealthController>();
-        healthCtrl.Initialize(healthPresenter);
+        var healthController = playerInstance.GetComponent<PlayerHealthController>();
+        healthController.Initialize(healthPresenter);
 
-        // ?????? ?????? ? ??????????
-        healthPresenter.OnPlayerDied += () =>
-        {
-            if (gameEnded) return;
-            gameEnded = true;
-
-            addReceived.Execute(9999); // ??????????? ????????
-            var stats = finishRun.Execute();
-
-            statisticsUI.Show(stats);
-        };
-
-        player.Construct(
+        playerInstance.Initialize(
             input,
-            moveUC,
-            attackUC,
-            pickupUC,
-            jumpUC,
+            moveUseCase,
+            attackUseCase,
+            pickupUseCase,
+            jumpUseCase,
             inventory,
             healthPresenter,
-            stunUC
+            stunPlayerUseCase
         );
 
-        // --------------------------
-        //   ENEMIES
-        // --------------------------
         for (int i = 0; i < enemyPrefabs.Length && i < enemySpawnPoints.Length; i++)
         {
-            var instance = Instantiate(enemyPrefabs[i], enemySpawnPoints[i].position, Quaternion.identity);
-            var ctrl = instance.GetComponent<EnemyController>();
-            var hpPresenter = instance.GetComponent<EnemyHealthPresenter>();
-
-            ctrl.Construct(healthCtrl, hpPresenter, killTracker);
-
-            ctrl.OnEnemyKilled += () =>
+            var enemyInstance = Instantiate(enemyPrefabs[i], enemySpawnPoints[i].position, Quaternion.identity);
+            var enemyController = enemyInstance.GetComponent<EnemyController>();
+            if (enemyController != null)
             {
-                addKill.Execute();
-            };
+                enemyController.Initialize(healthController, killTracker);
+            }
         }
 
-        // spawn boss
         killTracker.OnThreeEnemiesKilled += () =>
         {
-            var b = Instantiate(bossPrefab, bossSpawnPoint.position, Quaternion.identity, bossContainer.transform);
-            b.Initialize(player.transform);
+            if (bossPrefab != null && bossSpawnPoint != null)
+            {
+                var bossInstance = Instantiate(bossPrefab, bossSpawnPoint.position, Quaternion.identity, bossContainer.transform);
+                bossInstance.Initialize(playerInstance.transform);
+            }
         };
 
         killTracker.OnFiveEnemiesKilled += () =>
         {
             victoryMusicPlayer.PlayVictory();
         };
-    }
-
-    private void Update()
-    {
-        if (!gameEnded)
-            updateTime.Execute(Time.deltaTime);
     }
 }

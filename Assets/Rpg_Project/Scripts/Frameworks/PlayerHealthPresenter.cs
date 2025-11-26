@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 public class PlayerHealthPresenter
@@ -9,23 +8,17 @@ public class PlayerHealthPresenter
     private readonly StunPlayerUseCase _stunUseCase;
     private readonly IPlayerAnimationPresenter _animator;
 
-    public event Action OnPlayerDied;
-
     public bool IsDead => _health.Current <= 0;
 
-    public PlayerHealthPresenter(
-        Health health,
-        PlayerHealthView healthView,
-        StunPlayerUseCase stunUseCase,
-        IPlayerAnimationPresenter animator)
+
+    public PlayerHealthPresenter(Health health, PlayerHealthView healthView, StunPlayerUseCase stunUseCase, IPlayerAnimationPresenter animator)
     {
         _health = health;
         _healthView = healthView;
         _takeDamageUseCase = new TakeDamageUseCase(health);
 
-        _healthView.SetMaxHealth(_health.Max);
-        _healthView.SetCurrentHealth(_health.Current);
-
+        _healthView.SetMaxHealth(health.Max);
+        _healthView.SetCurrentHealth(health.Current);
         _stunUseCase = stunUseCase;
         _animator = animator;
     }
@@ -35,16 +28,16 @@ public class PlayerHealthPresenter
         _takeDamageUseCase.Execute(damage);
         _healthView.SetCurrentHealth(_health.Current);
         _stunUseCase.Stun(0.2f);
-
         if (_health.Current <= 0)
+        {
             OnDeath();
+        }
     }
 
     private void OnDeath()
     {
-        Debug.Log("Player died.");
+        UnityEngine.Debug.Log("Player died.");
         _stunUseCase.Stun(float.MaxValue);
         _animator.PlayDeathAnimation();
-        OnPlayerDied?.Invoke();
     }
 }
