@@ -1,64 +1,91 @@
-using UnityEngine;
-using System.Collections.Generic;
+﻿using UnityEngine;
 
 public class MobileInputService : IInputService
 {
-    private VirtualJoystick _joystick;
+    private DynamicJoystick _joystick;
     private MobileButton _jumpButton;
-    private MobileButton _primaryAttackButton;
-    private MobileButton _secondaryAttackButton;
-    private MobileButton _pickupButton;
-    private MobileButton _sprintButton;
 
-    public MobileInputService(
-        VirtualJoystick joystick,
-        MobileButton jumpButton,
-        MobileButton primaryAttackButton,
-        MobileButton secondaryAttackButton,
-        MobileButton pickupButton,
-        MobileButton sprintButton)
+    public MobileInputService(DynamicJoystick joystick, MobileButton jumpButton)
     {
         _joystick = joystick;
         _jumpButton = jumpButton;
-        _primaryAttackButton = primaryAttackButton;
-        _secondaryAttackButton = secondaryAttackButton;
-        _pickupButton = pickupButton;
-        _sprintButton = sprintButton;
+
+        if (_joystick == null)
+        {
+            Debug.LogError("❌ DynamicJoystick is NULL in MobileInputService constructor!");
+        }
+        else
+        {
+            Debug.Log("✅ MobileInputService initialized with DynamicJoystick");
+        }
+
+        if (_jumpButton == null)
+        {
+            Debug.LogWarning("⚠️ JumpButton is NULL - прыжок не будет работать");
+        }
+        else
+        {
+            Debug.Log("✅ JumpButton assigned to MobileInputService");
+        }
     }
 
     public float GetAxis(PlayerInputAction action)
     {
+        if (_joystick == null)
+        {
+            return 0f;
+        }
+
+        float value = 0f;
         switch (action)
         {
-            case PlayerInputAction.MoveHorizontal: return _joystick.Horizontal;
-            case PlayerInputAction.MoveVertical: return _joystick.Vertical;
+            case PlayerInputAction.MoveHorizontal:
+                value = _joystick.Horizontal;
+                break;
+            case PlayerInputAction.MoveVertical:
+                value = _joystick.Vertical;
+                break;
         }
-        return 0f;
+
+        return value;
     }
 
     public bool GetActionDown(PlayerInputAction action)
     {
         switch (action)
         {
-            case PlayerInputAction.Jump: return _jumpButton.WasPressed;
-            case PlayerInputAction.PrimaryAttack: return _primaryAttackButton.WasPressed;
-            case PlayerInputAction.SecondaryAttack: return _secondaryAttackButton.WasPressed;
-            case PlayerInputAction.Pickup: return _pickupButton.WasPressed;
-            case PlayerInputAction.Sprint: return _sprintButton.WasPressed;
+            case PlayerInputAction.Jump:
+                if (_jumpButton != null && _jumpButton.WasPressed)
+                {
+                    Debug.Log("🦘 Jump button pressed!");
+                    return true;
+                }
+                return false;
+
+            case PlayerInputAction.PrimaryAttack:
+            case PlayerInputAction.SecondaryAttack:
+            case PlayerInputAction.Pickup:
+            case PlayerInputAction.Sprint:
+                return false; // Пока заглушки
+            default:
+                return false;
         }
-        return false;
     }
 
     public bool GetAction(PlayerInputAction action)
     {
         switch (action)
         {
-            case PlayerInputAction.Jump: return _jumpButton.IsHeld;
-            case PlayerInputAction.PrimaryAttack: return _primaryAttackButton.IsHeld;
-            case PlayerInputAction.SecondaryAttack: return _secondaryAttackButton.IsHeld;
-            case PlayerInputAction.Pickup: return _pickupButton.IsHeld;
-            case PlayerInputAction.Sprint: return _sprintButton.IsHeld;
+            case PlayerInputAction.Jump:
+                return _jumpButton != null && _jumpButton.IsHeld;
+
+            case PlayerInputAction.PrimaryAttack:
+            case PlayerInputAction.SecondaryAttack:
+            case PlayerInputAction.Pickup:
+            case PlayerInputAction.Sprint:
+                return false; // Пока заглушки
+            default:
+                return false;
         }
-        return false;
     }
 }

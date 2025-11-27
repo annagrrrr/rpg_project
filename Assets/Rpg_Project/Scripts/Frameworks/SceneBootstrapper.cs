@@ -1,15 +1,26 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class SceneBootstrapper : MonoBehaviour
 {
+    [Header("Mobile Input")]
+    [SerializeField] private DynamicJoystick mobileJoystick;
+    [SerializeField] private MobileButton jumpButton; 
+
+    [Header("Player Settings")]
     [SerializeField] private Transform playerSpawnPoint;
     [SerializeField] private PlayerControllerr playerPrefab;
+
+    [Header("Enemies")]
     [SerializeField] private EnemyController[] enemyPrefabs;
     [SerializeField] private Transform[] enemySpawnPoints;
     [SerializeField] private BossController bossPrefab;
     [SerializeField] private Transform bossSpawnPoint;
+
+    [Header("Camera")]
     [SerializeField] private CameraController cameraController;
     [SerializeField] private Transform cameraTransform;
+
+    [Header("Game Flow")]
     [SerializeField] private VictoryMusicPlayer victoryMusicPlayer;
     [SerializeField] private GameObject bossContainer;
     [SerializeField] private EnemyKillTracker killTracker;
@@ -26,26 +37,64 @@ public class SceneBootstrapper : MonoBehaviour
 
     private void Start()
     {
+        InitializeGame();
+    }
+
+    private void InitializeGame()
+    {
+        
         var statsRepository = new PlayerPrefsStatsRepository();
         _statsService = new GameStatsService(statsRepository);
-
         _statsService.StartNewSession();
 
         var sceneLoader = new SceneLoader();
         _endGameUseCase = new EndGameUseCase(_statsService, sceneLoader);
 
+        
         var playerInstance = Instantiate(playerPrefab, playerSpawnPoint.position, playerSpawnPoint.rotation);
         var rb = playerInstance.GetComponent<Rigidbody>();
         var groundChecker = playerInstance.GetComponent<IPlayerGroundChecker>();
         var animationPresenter = playerInstance.GetComponent<PlayerAnimatorPresenter>();
 
-        var input = new InputService();
+        
+        IInputService inputService = CreateInputService();
+
+        
+        InitializePlayerSystems(playerInstance, inputService, rb, groundChecker, animationPresenter);
+        InitializeEnemies(playerInstance);
+        InitializeGameEvents();
+    }
+
+    private IInputService CreateInputService()
+    {
+#if UNITY_ANDROID || UNITY_IOS
+        if (mobileJoystick != null)
+        {
+            Debug.Log("🎮 Creating MobileInputService with DynamicJoystick and Jump");
+            return new MobileInputService(mobileJoystick, jumpButton);
+        }
+        else
+        {
+            Debug.LogError("❌ MobileJoystick not assigned in SceneBootstrapper! Using PC input as fallback");
+            return new InputService();
+        }
+#else
+        Debug.Log("🖥️ Creating PC InputService");
+        return new InputService();
+#endif
+    }
+
+    private void InitializePlayerSystems(PlayerControllerr playerInstance, IInputService inputService,
+                                       Rigidbody rb, IPlayerGroundChecker groundChecker,
+                                       PlayerAnimatorPresenter animationPresenter)
+    {
         var repository = new InMemoryPlayerRepository();
         var presenter = new PlayerPresenter(playerInstance.transform);
 
         var playerStunState = new PlayerStunState();
         var stunPlayerUseCase = new StunPlayerUseCase(playerStunState, animationPresenter);
 
+        
         var cameraInput = new CameraInputService();
         var cameraPresenter = new CameraPresenter(cameraTransform);
         var cameraSettings = new CameraSettings
@@ -64,8 +113,17 @@ public class SceneBootstrapper : MonoBehaviour
             playerInstance.transform,
             cameraSettings
         );
-        cameraController.Initialize(followCameraUseCase);
 
+        if (cameraController != null)
+        {
+            cameraController.Initialize(followCameraUseCase);
+        }
+        else
+        {
+            Debug.LogWarning("CameraController not assigned in SceneBootstrapper");
+        }
+
+        
         var moveUseCase = new MovePlayerUseCase(repository, presenter, cameraPresenter, animationPresenter);
         var rotationPresenter = new PlayerRotationPresenter(playerInstance.transform);
 
@@ -83,10 +141,14 @@ public class SceneBootstrapper : MonoBehaviour
         var healthPresenter = new PlayerHealthPresenter(health, playerHealthView, stunPlayerUseCase, animationPresenter, _statsService);
 
         var healthController = playerInstance.GetComponent<PlayerHealthController>();
-        healthController.Initialize(healthPresenter);
+        if (healthController != null)
+        {
+            healthController.Initialize(healthPresenter);
+        }
 
+        
         playerInstance.Initialize(
-            input,
+            inputService,
             moveUseCase,
             attackUseCase,
             pickupUseCase,
@@ -96,14 +158,41 @@ public class SceneBootstrapper : MonoBehaviour
             stunPlayerUseCase
         );
 
+        Debug.Log("✅ Player systems initialized successfully");
+    }
+
+    private void InitializeEnemies(PlayerControllerr playerInstance)
+    {
+        if (enemyPrefabs == null || enemySpawnPoints == null)
+        {
+            Debug.LogWarning("Enemy prefabs or spawn points not assigned");
+            return;
+        }
+
+        var healthController = playerInstance.GetComponent<PlayerHealthController>();
+
         for (int i = 0; i < enemyPrefabs.Length && i < enemySpawnPoints.Length; i++)
         {
-            var enemyInstance = Instantiate(enemyPrefabs[i], enemySpawnPoints[i].position, Quaternion.identity);
-            var enemyController = enemyInstance.GetComponent<EnemyController>();
-            if (enemyController != null)
+            if (enemyPrefabs[i] != null && enemySpawnPoints[i] != null)
             {
-                enemyController.Initialize(healthController, killTracker);
+                var enemyInstance = Instantiate(enemyPrefabs[i], enemySpawnPoints[i].position, Quaternion.identity);
+                var enemyController = enemyInstance.GetComponent<EnemyController>();
+                if (enemyController != null && healthController != null)
+                {
+                    enemyController.Initialize(healthController, killTracker);
+                }
             }
+        }
+
+        Debug.Log($"✅ Spawned {Mathf.Min(enemyPrefabs.Length, enemySpawnPoints.Length)} enemies");
+    }
+
+    private void InitializeGameEvents()
+    {
+        if (killTracker == null)
+        {
+            Debug.LogWarning("KillTracker not assigned in SceneBootstrapper");
+            return;
         }
 
         killTracker.OnEnemyKilled += () =>
@@ -113,17 +202,24 @@ public class SceneBootstrapper : MonoBehaviour
 
         killTracker.OnThreeEnemiesKilled += () =>
         {
-            if (bossPrefab != null && bossSpawnPoint != null)
+            if (bossPrefab != null && bossSpawnPoint != null && bossContainer != null)
             {
                 var bossInstance = Instantiate(bossPrefab, bossSpawnPoint.position, Quaternion.identity, bossContainer.transform);
-                bossInstance.Initialize(playerInstance.transform);
+                bossInstance.Initialize(playerPrefab.transform); 
+                Debug.Log("🎯 Boss spawned!");
             }
         };
 
         killTracker.OnFiveEnemiesKilled += () =>
         {
-            victoryMusicPlayer.PlayVictory();
+            if (victoryMusicPlayer != null)
+            {
+                victoryMusicPlayer.PlayVictory();
+            }
             _endGameUseCase.Execute(true);
+            Debug.Log("🎉 Victory! Game completed!");
         };
+
+        Debug.Log("✅ Game events initialized");
     }
 }
