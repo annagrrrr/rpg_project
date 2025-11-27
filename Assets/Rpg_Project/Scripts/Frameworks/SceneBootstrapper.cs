@@ -18,8 +18,22 @@ public class SceneBootstrapper : MonoBehaviour
     [SerializeField] private PlayerHealthView playerHealthView;
     [SerializeField] private AttackCooldownPresenter cooldownPresenter;
 
+    [Header("Stats")]
+    [SerializeField] private GameStatsView statsViewPrefab;
+
+    private GameStatsService _statsService;
+    private EndGameUseCase _endGameUseCase;
+
     private void Start()
     {
+        var statsRepository = new PlayerPrefsStatsRepository();
+        _statsService = new GameStatsService(statsRepository);
+
+        _statsService.StartNewSession();
+
+        var sceneLoader = new SceneLoader();
+        _endGameUseCase = new EndGameUseCase(_statsService, sceneLoader);
+
         var playerInstance = Instantiate(playerPrefab, playerSpawnPoint.position, playerSpawnPoint.rotation);
         var rb = playerInstance.GetComponent<Rigidbody>();
         var groundChecker = playerInstance.GetComponent<IPlayerGroundChecker>();
@@ -66,7 +80,7 @@ public class SceneBootstrapper : MonoBehaviour
         var jumpUseCase = new JumpUseCase(jumpPresenter, groundChecker, jumpForce: 6f, animationPresenter);
 
         var health = new Health(100);
-        var healthPresenter = new PlayerHealthPresenter(health, playerHealthView, stunPlayerUseCase, animationPresenter);
+        var healthPresenter = new PlayerHealthPresenter(health, playerHealthView, stunPlayerUseCase, animationPresenter, _statsService);
 
         var healthController = playerInstance.GetComponent<PlayerHealthController>();
         healthController.Initialize(healthPresenter);
@@ -92,6 +106,11 @@ public class SceneBootstrapper : MonoBehaviour
             }
         }
 
+        killTracker.OnEnemyKilled += () =>
+        {
+            _statsService.RecordEnemyKill();
+        };
+
         killTracker.OnThreeEnemiesKilled += () =>
         {
             if (bossPrefab != null && bossSpawnPoint != null)
@@ -104,6 +123,7 @@ public class SceneBootstrapper : MonoBehaviour
         killTracker.OnFiveEnemiesKilled += () =>
         {
             victoryMusicPlayer.PlayVictory();
+            _endGameUseCase.Execute(true);
         };
     }
 }

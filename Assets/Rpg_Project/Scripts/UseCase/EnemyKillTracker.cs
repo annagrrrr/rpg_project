@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class EnemyKillTracker : MonoBehaviour
 {
+    public event Action OnEnemyKilled;
     public event Action OnThreeEnemiesKilled;
     public event Action OnFiveEnemiesKilled;
 
@@ -13,6 +14,8 @@ public class EnemyKillTracker : MonoBehaviour
         killCount++;
         ScoreManager.Instance.AddScore(1);
         Debug.Log($"Kills: {killCount}");
+
+        OnEnemyKilled?.Invoke();
 
         if (killCount == 3)
             OnThreeEnemiesKilled?.Invoke();

@@ -11,7 +11,7 @@ public class PlayerHealthPresenter
     public bool IsDead => _health.Current <= 0;
 
 
-    public PlayerHealthPresenter(Health health, PlayerHealthView healthView, StunPlayerUseCase stunUseCase, IPlayerAnimationPresenter animator)
+    public PlayerHealthPresenter(Health health, PlayerHealthView healthView, StunPlayerUseCase stunUseCase, IPlayerAnimationPresenter animator, GameStatsService statsService)
     {
         _health = health;
         _healthView = healthView;
@@ -21,6 +21,11 @@ public class PlayerHealthPresenter
         _healthView.SetCurrentHealth(health.Current);
         _stunUseCase = stunUseCase;
         _animator = animator;
+
+        health.OnDamageTaken += (damage) =>
+        {
+            statsService.RecordDamageTaken(damage);
+        };
     }
 
     public void TakeDamage(int damage)
