@@ -11,11 +11,12 @@ public class GameStatsService
     public GameStatsService(IGameStatsRepository repository)
     {
         _repository = repository;
-        //StartNewSession();
+        StartNewSession();
     }
 
     public void StartNewSession()
     {
+        Debug.Log("NEW SESSION CREATED");
         _currentStats = new GameStats();
         _gameStartTime = Time.time;
     }
@@ -37,6 +38,16 @@ public class GameStatsService
 
     public void CompleteGame(bool isVictory)
     {
+        Debug.Log("RAW JSON BEFORE SAVE:");
+        string jsonBefore = JsonUtility.ToJson(_currentStats, true);
+        Debug.Log(jsonBefore);
+
+        _repository.SaveStats(_currentStats);
+
+        string raw = PlayerPrefs.GetString("LastGameStats", "NO KEY FOUND");
+        Debug.Log("RAW JSON IN PLAYER PREFS:");
+        Debug.Log(raw);
+
         _currentStats.GameTime = Time.time - _gameStartTime;
         _currentStats.IsVictory = isVictory;
         _repository.SaveStats(_currentStats);

@@ -45,7 +45,6 @@ public class SceneBootstrapper : MonoBehaviour
         
         var statsRepository = new PlayerPrefsStatsRepository();
         _statsService = new GameStatsService(statsRepository);
-        _statsService.StartNewSession();
 
         var sceneLoader = new SceneLoader();
         _endGameUseCase = new EndGameUseCase(_statsService, sceneLoader);
@@ -129,7 +128,7 @@ public class SceneBootstrapper : MonoBehaviour
 
         var inventory = new WeaponInventory();
         var attackPresenter = new AttackPresenter();
-        var attackUseCase = new AttackUseCase(inventory, attackPresenter, playerInstance.transform, animationPresenter, cooldownPresenter);
+        var attackUseCase = new AttackUseCase(inventory, attackPresenter, playerInstance.transform, animationPresenter, cooldownPresenter, _statsService);
 
         var pickupProvider = playerInstance.GetComponent<WeaponTriggerPickupProvider>();
         var pickupUseCase = new PickupWeaponUseCase(pickupProvider, inventory);
@@ -138,7 +137,7 @@ public class SceneBootstrapper : MonoBehaviour
         var jumpUseCase = new JumpUseCase(jumpPresenter, groundChecker, jumpForce: 6f, animationPresenter);
 
         var health = new Health(100);
-        var healthPresenter = new PlayerHealthPresenter(health, playerHealthView, stunPlayerUseCase, animationPresenter, _statsService);
+        var healthPresenter = new PlayerHealthPresenter(health, playerHealthView, stunPlayerUseCase, animationPresenter, _statsService, _endGameUseCase);
 
         var healthController = playerInstance.GetComponent<PlayerHealthController>();
         if (healthController != null)

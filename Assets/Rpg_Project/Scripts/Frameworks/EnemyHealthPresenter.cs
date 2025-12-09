@@ -34,7 +34,7 @@ public class EnemyHealthPresenter : MonoBehaviour, IEnemyHealth
 
         UpdateView();
     }
-    public void ReceiveDamage(int damage)
+    public int ReceiveDamage(int damage)
     {
         _health.TakeDamage(damage);
         Debug.Log($"Enemy received {damage} damage. Current HP: {_health.Current}");
@@ -47,8 +47,9 @@ public class EnemyHealthPresenter : MonoBehaviour, IEnemyHealth
         {
             OnDied?.Invoke();
         }
+        return damage;
     }
-    public void ReceiveDamage(int damage, AttackType type)
+    public int ReceiveDamage(int damage, AttackType type)
     {
         float resist = _resistances.GetResistance(type);
         int finalDamage = Mathf.CeilToInt(damage * (1f - resist));
@@ -62,6 +63,8 @@ public class EnemyHealthPresenter : MonoBehaviour, IEnemyHealth
 
         if (IsDead)
             OnDied?.Invoke();
+
+        return finalDamage;
     }
     private void UpdateView()
     {

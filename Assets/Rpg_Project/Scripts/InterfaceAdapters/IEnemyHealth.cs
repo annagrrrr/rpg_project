@@ -2,8 +2,8 @@ using System;
 
 public interface IEnemyHealth
 {
-    void ReceiveDamage(int damage);
-    void ReceiveDamage(int damage, AttackType attackType);
+    int ReceiveDamage(int damage);
+    int ReceiveDamage(int damage, AttackType attackType);
     bool IsDead { get; }
 
     event Action OnDamaged;

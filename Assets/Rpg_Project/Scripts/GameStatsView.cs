@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 
@@ -17,6 +17,8 @@ public class GameStatsView : MonoBehaviour
     [SerializeField] private Button mainMenuButton;
     [SerializeField] private Button quitButton;
 
+    private GameStats cachedStats;
+
     public void DisplayStats(GameStats stats)
     {
         if (stats == null)
@@ -25,12 +27,34 @@ public class GameStatsView : MonoBehaviour
             return;
         }
 
+        cachedStats = stats;
+
+        if (gameObject.activeInHierarchy)
+        {
+            ApplyStats();
+        }
+    }
+
+    private void OnEnable()
+    {
+        if (cachedStats != null)
+        {
+            ApplyStats();
+        }
+    }
+
+    private void ApplyStats()
+    {
         titleText.text = "Statistics";
-        resultText.text = stats.IsVictory ? "Result: <color=green>WIN</color>" : "Result: <color=red>LOSS</color>";
-        killsText.text = $"Kills: {stats.EnemiesKilled}";
-        damageDealtText.text = $"Damage Dealt: {stats.DamageDealt}";
-        damageTakenText.text = $"Damage Taken: {stats.DamageTaken}";
-        timeText.text = $"Time: {stats.GetFormattedTime()}";
+
+        resultText.text = cachedStats.IsVictory
+            ? "Result: <color=green>WIN</color>"
+            : "Result: <color=red>LOSS</color>";
+
+        killsText.text = $"Kills: {cachedStats.EnemiesKilled}";
+        damageDealtText.text = $"Damage Dealt: {cachedStats.DamageDealt}";
+        damageTakenText.text = $"Damage Taken: {cachedStats.DamageTaken}";
+        timeText.text = $"Time: {cachedStats.GetFormattedTime()}";
     }
 
     public void SetRestartAction(System.Action action)

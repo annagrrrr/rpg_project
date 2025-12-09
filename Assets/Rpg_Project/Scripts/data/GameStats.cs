@@ -9,11 +9,9 @@ public class GameStats
     public int DamageTaken;
     public float GameTime;
     public bool IsVictory;
-    public DateTime EndTime;
 
     public GameStats()
     {
-        EndTime = DateTime.Now;
         EnemiesKilled = 0;
         DamageDealt = 0;
         DamageTaken = 0;

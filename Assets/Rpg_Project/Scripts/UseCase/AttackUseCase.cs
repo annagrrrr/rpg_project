@@ -17,12 +17,16 @@ public class AttackUseCase
 
     private readonly IAttackCooldownPresenter _cooldownPresenter;
 
+    private readonly GameStatsService _statsService;
+
+
     public AttackUseCase(
         WeaponInventory inventory,
         IAttackPresenter attackPresenter,
         Transform playerTransform,
         IPlayerAnimationPresenter animator,
-        IAttackCooldownPresenter cooldownPresenter)
+        IAttackCooldownPresenter cooldownPresenter,
+        GameStatsService statsService)
     {
         _inventory = inventory;
         _attackPresenter = attackPresenter;
@@ -30,6 +34,7 @@ public class AttackUseCase
         _playerTransform = playerTransform;
         _animator = animator;
         _cooldownPresenter = cooldownPresenter;
+        _statsService = statsService;
     }
 
     public void ExecutePrimaryAttack()
@@ -95,7 +100,9 @@ public class AttackUseCase
         {
             if (hit.collider.TryGetComponent(out IEnemyHealth enemyHealth))
             {
-                enemyHealth.ReceiveDamage(weapon.Damage, weapon.AttackType);
+                int finalDamage = enemyHealth.ReceiveDamage(weapon.Damage, weapon.AttackType);
+                _statsService.RecordDamageDealt(finalDamage);
+
                 Debug.Log($"Hit enemy! Dealt {weapon.Damage} damage.");
             }
 
