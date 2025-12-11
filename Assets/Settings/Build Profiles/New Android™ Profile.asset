@@ -22,11 +22,11 @@ MonoBehaviour:
   m_Scenes:
   - m_enabled: 0
     m_path: Assets/Rpg_Project/Scenes/Test Locations/SampleScene.unity
-  - m_enabled: 0
+  - m_enabled: 1
     m_path: Assets/Rpg_Project/Scenes/Locations/MainMenu.unity
   - m_enabled: 0
     m_path: Assets/Rpg_Project/Scenes/Testy.unity
-  - m_enabled: 0
+  - m_enabled: 1
     m_path: Assets/Rpg_Project/Scenes/Locations/StatsScene.unity
   - m_enabled: 1
     m_path: Assets/Rpg_Project/Scenes/Locations/FirstLocation.unity
