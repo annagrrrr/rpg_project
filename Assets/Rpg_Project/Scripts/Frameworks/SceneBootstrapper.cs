@@ -158,7 +158,7 @@ public class SceneBootstrapper : MonoBehaviour
         var jumpPresenter = new PlayerJumpPresenter(rb);
         var jumpUseCase = new JumpUseCase(jumpPresenter, groundChecker, jumpForce: 6f, animationPresenter);
 
-        var health = new Health(100);
+        var health = new Health(500);
 
         var healthPresenter = new PlayerHealthPresenter(
             health,

@@ -23,31 +23,24 @@ public class GameStatsService
 
     public void RecordEnemyKill()
     {
+        if (_currentStats == null) return;
         _currentStats.EnemiesKilled++;
     }
 
     public void RecordDamageDealt(int damage)
     {
+        if (_currentStats == null) return;
         _currentStats.DamageDealt += damage;
     }
 
     public void RecordDamageTaken(int damage)
     {
+        if (_currentStats == null) return;
         _currentStats.DamageTaken += damage;
     }
 
     public void CompleteGame(bool isVictory)
     {
-        Debug.Log("RAW JSON BEFORE SAVE:");
-        string jsonBefore = JsonUtility.ToJson(_currentStats, true);
-        Debug.Log(jsonBefore);
-
-        _repository.SaveStats(_currentStats);
-
-        string raw = PlayerPrefs.GetString("LastGameStats", "NO KEY FOUND");
-        Debug.Log("RAW JSON IN PLAYER PREFS:");
-        Debug.Log(raw);
-
         _currentStats.GameTime = Time.time - _gameStartTime;
         _currentStats.IsVictory = isVictory;
         _repository.SaveStats(_currentStats);
