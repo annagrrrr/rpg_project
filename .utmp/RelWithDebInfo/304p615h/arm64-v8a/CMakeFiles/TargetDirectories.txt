@@ -1,0 +1,5 @@
+C:/Users/ethereal/repos/rpg_project/.utmp/RelWithDebInfo/304p615h/arm64-v8a/CMakeFiles/edit_cache.dir
+C:/Users/ethereal/repos/rpg_project/.utmp/RelWithDebInfo/304p615h/arm64-v8a/CMakeFiles/rebuild_cache.dir
+C:/Users/ethereal/repos/rpg_project/.utmp/RelWithDebInfo/304p615h/arm64-v8a/GameActivity/CMakeFiles/game.dir
+C:/Users/ethereal/repos/rpg_project/.utmp/RelWithDebInfo/304p615h/arm64-v8a/GameActivity/CMakeFiles/edit_cache.dir
+C:/Users/ethereal/repos/rpg_project/.utmp/RelWithDebInfo/304p615h/arm64-v8a/GameActivity/CMakeFiles/rebuild_cache.dir

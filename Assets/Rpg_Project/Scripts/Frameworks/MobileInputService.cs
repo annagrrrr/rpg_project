@@ -4,50 +4,55 @@ public class MobileInputService : IInputService
 {
     private DynamicJoystick _joystick;
     private MobileButton _jumpButton;
+    private MobileButton _attackButton;
+    private MobileButton _magicButton;
+    private MobileButton _pickupButton;
+    private MobileButton _sprintButton;
 
-    public MobileInputService(DynamicJoystick joystick, MobileButton jumpButton)
+    public MobileInputService(DynamicJoystick joystick,
+                             MobileButton jumpButton,
+                             MobileButton attackButton,
+                             MobileButton magicButton,
+                             MobileButton pickupButton,
+                             MobileButton sprintButton)
     {
         _joystick = joystick;
         _jumpButton = jumpButton;
+        _attackButton = attackButton;
+        _magicButton = magicButton;
+        _pickupButton = pickupButton;
+        _sprintButton = sprintButton;
 
-        if (_joystick == null)
-        {
-            Debug.LogError("❌ DynamicJoystick is NULL in MobileInputService constructor!");
-        }
-        else
-        {
-            Debug.Log("✅ MobileInputService initialized with DynamicJoystick");
-        }
+        Debug.Log("🎮 MobileInputService initialized with 6 controls");
 
-        if (_jumpButton == null)
-        {
-            Debug.LogWarning("⚠️ JumpButton is NULL - прыжок не будет работать");
-        }
+        LogButtonStatus("Joystick", _joystick != null);
+        LogButtonStatus("Jump", _jumpButton != null);
+        LogButtonStatus("Attack", _attackButton != null);
+        LogButtonStatus("Magic", _magicButton != null);
+        LogButtonStatus("Pickup", _pickupButton != null);
+        LogButtonStatus("Sprint", _sprintButton != null);
+    }
+
+    private void LogButtonStatus(string name, bool isAssigned)
+    {
+        if (isAssigned)
+            Debug.Log($"✅ {name} button assigned");
         else
-        {
-            Debug.Log("✅ JumpButton assigned to MobileInputService");
-        }
+            Debug.LogWarning($"⚠️ {name} button is NULL");
     }
 
     public float GetAxis(PlayerInputAction action)
     {
-        if (_joystick == null)
-        {
-            return 0f;
-        }
+        if (_joystick == null) return 0f;
 
-        float value = 0f;
         switch (action)
         {
             case PlayerInputAction.MoveHorizontal:
-                value = _joystick.Horizontal;
-                break;
+                return _joystick.Horizontal;
             case PlayerInputAction.MoveVertical:
-                value = _joystick.Vertical;
-                break;
+                return _joystick.Vertical;
         }
-
-        return value;
+        return 0f;
     }
 
     public bool GetActionDown(PlayerInputAction action)
@@ -55,21 +60,21 @@ public class MobileInputService : IInputService
         switch (action)
         {
             case PlayerInputAction.Jump:
-                if (_jumpButton != null && _jumpButton.WasPressed)
-                {
-                    Debug.Log("🦘 Jump button pressed!");
-                    return true;
-                }
-                return false;
+                return CheckButtonPressed(_jumpButton, "🦘 Jump");
 
             case PlayerInputAction.PrimaryAttack:
+                return CheckButtonPressed(_attackButton, "⚔️ Sword Attack");
+
             case PlayerInputAction.SecondaryAttack:
+                return CheckButtonPressed(_magicButton, "🔮 Magic Attack");
+
             case PlayerInputAction.Pickup:
+                return CheckButtonPressed(_pickupButton, "🎁 Pickup Weapon");
+
             case PlayerInputAction.Sprint:
-                return false; // Пока заглушки
-            default:
-                return false;
+                return CheckButtonPressed(_sprintButton, "💨 Sprint");
         }
+        return false;
     }
 
     public bool GetAction(PlayerInputAction action)
@@ -80,12 +85,27 @@ public class MobileInputService : IInputService
                 return _jumpButton != null && _jumpButton.IsHeld;
 
             case PlayerInputAction.PrimaryAttack:
+                return _attackButton != null && _attackButton.IsHeld;
+
             case PlayerInputAction.SecondaryAttack:
+                return _magicButton != null && _magicButton.IsHeld;
+
             case PlayerInputAction.Pickup:
+                return _pickupButton != null && _pickupButton.IsHeld;
+
             case PlayerInputAction.Sprint:
-                return false; // Пока заглушки
-            default:
-                return false;
+                return _sprintButton != null && _sprintButton.IsHeld;
         }
+        return false;
+    }
+
+    private bool CheckButtonPressed(MobileButton button, string actionName)
+    {
+        if (button != null && button.WasPressed)
+        {
+            Debug.Log($"{actionName} button pressed!");
+            return true;
+        }
+        return false;
     }
 }

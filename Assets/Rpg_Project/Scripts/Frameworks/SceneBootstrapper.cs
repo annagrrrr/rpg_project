@@ -4,7 +4,11 @@ public class SceneBootstrapper : MonoBehaviour
 {
     [Header("Mobile Input")]
     [SerializeField] private DynamicJoystick mobileJoystick;
-    [SerializeField] private MobileButton jumpButton; 
+    [SerializeField] private MobileButton jumpButton;
+    [SerializeField] private MobileButton attackButton;
+    [SerializeField] private MobileButton magicButton;
+    [SerializeField] private MobileButton pickupButton;
+    [SerializeField] private MobileButton sprintButton;
 
     [Header("Player Settings")]
     [SerializeField] private Transform playerSpawnPoint;
@@ -42,23 +46,20 @@ public class SceneBootstrapper : MonoBehaviour
 
     private void InitializeGame()
     {
-        
         var statsRepository = new PlayerPrefsStatsRepository();
         _statsService = new GameStatsService(statsRepository);
+        _statsService.StartNewSession();
 
         var sceneLoader = new SceneLoader();
         _endGameUseCase = new EndGameUseCase(_statsService, sceneLoader);
 
-        
         var playerInstance = Instantiate(playerPrefab, playerSpawnPoint.position, playerSpawnPoint.rotation);
         var rb = playerInstance.GetComponent<Rigidbody>();
         var groundChecker = playerInstance.GetComponent<IPlayerGroundChecker>();
         var animationPresenter = playerInstance.GetComponent<PlayerAnimatorPresenter>();
 
-        
         IInputService inputService = CreateInputService();
 
-        
         InitializePlayerSystems(playerInstance, inputService, rb, groundChecker, animationPresenter);
         InitializeEnemies(playerInstance);
         InitializeGameEvents();
@@ -67,14 +68,29 @@ public class SceneBootstrapper : MonoBehaviour
     private IInputService CreateInputService()
     {
 #if UNITY_ANDROID || UNITY_IOS
-        if (mobileJoystick != null)
+        if (mobileJoystick != null && jumpButton != null && attackButton != null && 
+            magicButton != null && pickupButton != null && sprintButton != null)
         {
-            Debug.Log("🎮 Creating MobileInputService with DynamicJoystick and Jump");
-            return new MobileInputService(mobileJoystick, jumpButton);
+            Debug.Log("🎮 Creating MobileInputService with ALL 6 controls");
+            return new MobileInputService(
+                mobileJoystick, 
+                jumpButton, 
+                attackButton, 
+                magicButton,
+                pickupButton,
+                sprintButton
+            );
         }
         else
         {
-            Debug.LogError("❌ MobileJoystick not assigned in SceneBootstrapper! Using PC input as fallback");
+            Debug.LogError("❌ Mobile controls not fully assigned!");
+            if (mobileJoystick == null) Debug.LogError("   - Mobile Joystick");
+            if (jumpButton == null) Debug.LogError("   - Jump Button");
+            if (attackButton == null) Debug.LogError("   - Attack Button");
+            if (magicButton == null) Debug.LogError("   - Magic Button");
+            if (pickupButton == null) Debug.LogError("   - Pickup Button");
+            if (sprintButton == null) Debug.LogError("   - Sprint Button");
+            Debug.LogError("Using PC input as fallback");
             return new InputService();
         }
 #else
@@ -93,7 +109,6 @@ public class SceneBootstrapper : MonoBehaviour
         var playerStunState = new PlayerStunState();
         var stunPlayerUseCase = new StunPlayerUseCase(playerStunState, animationPresenter);
 
-        
         var cameraInput = new CameraInputService();
         var cameraPresenter = new CameraPresenter(cameraTransform);
         var cameraSettings = new CameraSettings
@@ -122,13 +137,20 @@ public class SceneBootstrapper : MonoBehaviour
             Debug.LogWarning("CameraController not assigned in SceneBootstrapper");
         }
 
-        
         var moveUseCase = new MovePlayerUseCase(repository, presenter, cameraPresenter, animationPresenter);
         var rotationPresenter = new PlayerRotationPresenter(playerInstance.transform);
 
         var inventory = new WeaponInventory();
         var attackPresenter = new AttackPresenter();
-        var attackUseCase = new AttackUseCase(inventory, attackPresenter, playerInstance.transform, animationPresenter, cooldownPresenter, _statsService);
+
+        var attackUseCase = new AttackUseCase(
+            inventory,
+            attackPresenter,
+            playerInstance.transform,
+            animationPresenter,
+            cooldownPresenter,
+            _statsService
+        );
 
         var pickupProvider = playerInstance.GetComponent<WeaponTriggerPickupProvider>();
         var pickupUseCase = new PickupWeaponUseCase(pickupProvider, inventory);
@@ -137,7 +159,15 @@ public class SceneBootstrapper : MonoBehaviour
         var jumpUseCase = new JumpUseCase(jumpPresenter, groundChecker, jumpForce: 6f, animationPresenter);
 
         var health = new Health(100);
-        var healthPresenter = new PlayerHealthPresenter(health, playerHealthView, stunPlayerUseCase, animationPresenter, _statsService, _endGameUseCase);
+
+        var healthPresenter = new PlayerHealthPresenter(
+            health,
+            playerHealthView,
+            stunPlayerUseCase,
+            animationPresenter,
+            _statsService,
+            _endGameUseCase
+        );
 
         var healthController = playerInstance.GetComponent<PlayerHealthController>();
         if (healthController != null)
@@ -145,7 +175,6 @@ public class SceneBootstrapper : MonoBehaviour
             healthController.Initialize(healthPresenter);
         }
 
-        
         playerInstance.Initialize(
             inputService,
             moveUseCase,
@@ -157,7 +186,23 @@ public class SceneBootstrapper : MonoBehaviour
             stunPlayerUseCase
         );
 
+        SetupPickupButton(playerInstance);
+
         Debug.Log("✅ Player systems initialized successfully");
+        Debug.Log("🎮 Mobile controls: Joystick + 5 buttons (Jump, Attack, Magic, Pickup, Sprint)");
+    }
+
+    private void SetupPickupButton(PlayerControllerr playerInstance)
+    {
+        var pickupProvider = playerInstance.GetComponent<WeaponTriggerPickupProvider>();
+
+        if (pickupButton != null && pickupProvider != null)
+        {
+            var pickupButtonController = gameObject.AddComponent<SimplePickupButtonController>();
+            pickupButtonController.Initialize(pickupButton, pickupProvider);
+
+            Debug.Log("✅ Pickup button controller initialized");
+        }
     }
 
     private void InitializeEnemies(PlayerControllerr playerInstance)
@@ -204,7 +249,7 @@ public class SceneBootstrapper : MonoBehaviour
             if (bossPrefab != null && bossSpawnPoint != null && bossContainer != null)
             {
                 var bossInstance = Instantiate(bossPrefab, bossSpawnPoint.position, Quaternion.identity, bossContainer.transform);
-                bossInstance.Initialize(playerPrefab.transform); 
+                bossInstance.Initialize(playerPrefab.transform);
                 Debug.Log("🎯 Boss spawned!");
             }
         };
@@ -220,5 +265,62 @@ public class SceneBootstrapper : MonoBehaviour
         };
 
         Debug.Log("✅ Game events initialized");
+    }
+}
+
+public class SimplePickupButtonController : MonoBehaviour
+{
+    private MobileButton _pickupButton;
+    private WeaponTriggerPickupProvider _pickupProvider;
+    private UnityEngine.UI.Image _buttonImage;
+
+    public void Initialize(MobileButton pickupButton, WeaponTriggerPickupProvider pickupProvider)
+    {
+        _pickupButton = pickupButton;
+        _pickupProvider = pickupProvider;
+        _buttonImage = pickupButton.GetComponent<UnityEngine.UI.Image>();
+
+        if (_buttonImage != null)
+        {
+            _buttonImage.color = new Color(1, 1, 1, 0.4f);
+        }
+    }
+
+    private void Update()
+    {
+        if (_pickupButton == null || _pickupProvider == null)
+            return;
+
+        bool hasWeaponNearby = CheckForWeaponNearby();
+
+        UpdateButtonState(hasWeaponNearby);
+    }
+
+    private bool CheckForWeaponNearby()
+    {
+        var field = typeof(WeaponTriggerPickupProvider).GetField("_currentWeaponPickup",
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+        if (field != null)
+        {
+            var weaponPickup = (WeaponPickup)field.GetValue(_pickupProvider);
+            return weaponPickup != null;
+        }
+
+        return true;
+    }
+
+    private void UpdateButtonState(bool isActive)
+    {
+        if (_buttonImage != null)
+        {
+            _buttonImage.color = isActive ? Color.white : new Color(1, 1, 1, 0.4f);
+        }
+
+        var unityButton = _pickupButton.GetComponent<UnityEngine.UI.Button>();
+        if (unityButton != null)
+        {
+            unityButton.interactable = isActive;
+        }
     }
 }

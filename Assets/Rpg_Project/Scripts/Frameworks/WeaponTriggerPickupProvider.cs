@@ -32,4 +32,8 @@ public class WeaponTriggerPickupProvider : MonoBehaviour, IWeaponPickupProvider
 
         return null;
     }
+    public bool HasWeaponNearby()
+    {
+        return _currentWeaponPickup != null;
+    }
 }
