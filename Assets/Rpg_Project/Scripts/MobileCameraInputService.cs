@@ -7,7 +7,7 @@ public class MobileCameraInputService : ICameraInputService
     private bool _isDragging = false;
     private int _cameraTouchId = -1;
 
-    private float sensitivity = 0.2f;
+    private float sensitivity = 0.1f;
 
     public float GetMouseX()
     {

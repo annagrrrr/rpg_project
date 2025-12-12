@@ -22,7 +22,7 @@ public class FollowCameraUseCase
         _settings = settings;
 
         _yaw = target.eulerAngles.y;
-        _pitch = 20f; 
+        _pitch = 20f;
 
 #if UNITY_ANDROID || UNITY_IOS
         _useMobileInput = true;
@@ -45,6 +45,8 @@ public class FollowCameraUseCase
 
         float mouseX = _input.GetMouseX();
         float mouseY = _input.GetMouseY();
+        float sensitivityMultiplier = _useMobileInput ? 0.5f : 1.0f;
+
 
         if (_useMobileInput && Mathf.Approximately(mouseX, 0f) && Mathf.Approximately(mouseY, 0f))
         {
@@ -89,7 +91,7 @@ public class FollowCameraUseCase
     public void ResetCameraToDefault()
     {
         _yaw = _target.eulerAngles.y;
-        _pitch = 20f; 
+        _pitch = 20f;
     }
 
     public void UpdateTarget(Transform newTarget)

@@ -162,7 +162,7 @@ public class SceneBootstrapper : MonoBehaviour
             _followCameraUseCase
         );
 
-        var health = new Health(100);
+        var health = new Health(1000);
         var healthPresenter = new PlayerHealthPresenter(
             health,
             playerHealthView,
