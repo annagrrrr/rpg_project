@@ -51,4 +51,23 @@ public class PlayerPrefsStatsRepository : IGameStatsRepository
         PlayerPrefs.Save();
         Debug.Log("Statistics cleared");
     }
+
+    private const string BEST_STATS_KEY = "BestGameStats";
+
+    public BestGameStats GetBestStats()
+    {
+        if (!PlayerPrefs.HasKey(BEST_STATS_KEY))
+            return null;
+
+        string json = PlayerPrefs.GetString(BEST_STATS_KEY);
+        return JsonUtility.FromJson<BestGameStats>(json);
+    }
+
+    public void SaveBestStats(BestGameStats stats)
+    {
+        string json = JsonUtility.ToJson(stats);
+        PlayerPrefs.SetString(BEST_STATS_KEY, json);
+        PlayerPrefs.Save();
+    }
+
 }

@@ -11,6 +11,14 @@ public class GameStatsView : MonoBehaviour
     [SerializeField] private TextMeshProUGUI damageDealtText;
     [SerializeField] private TextMeshProUGUI damageTakenText;
     [SerializeField] private TextMeshProUGUI timeText;
+    [SerializeField] private TextMeshProUGUI scoreText;
+
+    [SerializeField] private TextMeshProUGUI bestKillsText;
+    [SerializeField] private TextMeshProUGUI bestDamageDealtText;
+    [SerializeField] private TextMeshProUGUI bestDamageTakenText;
+    [SerializeField] private TextMeshProUGUI bestTimeText;
+    [SerializeField] private TextMeshProUGUI bestScoreText;
+
 
     [Header("Buttons")]
     [SerializeField] private Button restartButton;
@@ -18,8 +26,9 @@ public class GameStatsView : MonoBehaviour
     [SerializeField] private Button quitButton;
 
     private GameStats cachedStats;
+    private BestGameStats cachedBestStats;
 
-    public void DisplayStats(GameStats stats)
+    public void DisplayStats(GameStats stats, BestGameStats bestStats)
     {
         if (stats == null)
         {
@@ -28,6 +37,7 @@ public class GameStatsView : MonoBehaviour
         }
 
         cachedStats = stats;
+        cachedBestStats = bestStats;
 
         if (gameObject.activeInHierarchy)
         {
@@ -55,6 +65,13 @@ public class GameStatsView : MonoBehaviour
         damageDealtText.text = $"Damage Dealt: {cachedStats.DamageDealt}";
         damageTakenText.text = $"Damage Taken: {cachedStats.DamageTaken}";
         timeText.text = $"Time: {cachedStats.GetFormattedTime()}";
+        scoreText.text = $"Score: {cachedStats.TotalScore}";
+        bestKillsText.text = $"Best Kills: {cachedBestStats.BestEnemiesKilled}";
+        bestDamageDealtText.text = $"Best Damage: {cachedBestStats.BestDamageDealt}";
+        bestDamageTakenText.text = $"Best Damage Taken: {cachedBestStats.BestDamageTaken}";
+        bestTimeText.text = $"Best Time: {FormatTime(cachedBestStats.BestGameTime)}";
+        bestScoreText.text = $"Best Score: {cachedBestStats.BestTotalScore}";
+
     }
 
     public void SetRestartAction(System.Action action)
@@ -84,4 +101,12 @@ public class GameStatsView : MonoBehaviour
     {
         gameObject.SetActive(false);
     }
+    
+    private string FormatTime(float time)
+    {
+        int minutes = (int)(time / 60);
+        int seconds = (int)(time % 60);
+        return $"{minutes:00}:{seconds:00}";
+    }
+
 }

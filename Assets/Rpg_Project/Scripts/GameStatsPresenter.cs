@@ -16,33 +16,23 @@ public class GameStatsPresenter
     }
 
     private void InitializeView()
+{
+    var lastStats = _repository.GetLastStats();
+    var bestStats = _repository.GetBestStats();
+
+    if (lastStats == null || bestStats == null)
     {
-        var lastStats = _repository.GetLastStats();
-
-        if (lastStats != null)
-        {
-            _view.DisplayStats(lastStats);
-            Debug.Log($"Displaying stats: {lastStats}");
-        }
-        else
-        {
-            Debug.LogWarning("No stats found to display!");
-            var testStats = new GameStats
-            {
-                EnemiesKilled = 8,
-                DamageDealt = 750,
-                DamageTaken = 180,
-                GameTime = 325f,
-                IsVictory = true
-            };
-            _view.DisplayStats(testStats);
-        }
-
-        // ??????????? ??????
-        _view.SetRestartAction(RestartGame);
-        _view.SetMainMenuAction(GoToMainMenu);
-        _view.SetQuitAction(QuitGame);
+        Debug.LogWarning("Stats not found. Nothing to display.");
+        return;
     }
+
+    _view.DisplayStats(lastStats, bestStats);
+
+    _view.SetRestartAction(RestartGame);
+    _view.SetMainMenuAction(GoToMainMenu);
+    _view.SetQuitAction(QuitGame);
+}
+
 
     private void RestartGame()
     {

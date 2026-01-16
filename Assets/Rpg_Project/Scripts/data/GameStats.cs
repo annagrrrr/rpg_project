@@ -9,6 +9,7 @@ public class GameStats
     public int DamageTaken;
     public float GameTime;
     public bool IsVictory;
+    public int TotalScore;
 
     public GameStats()
     {
@@ -17,6 +18,7 @@ public class GameStats
         DamageTaken = 0;
         GameTime = 0f;
         IsVictory = false;
+        TotalScore = 0;
     }
 
     public string GetFormattedTime()

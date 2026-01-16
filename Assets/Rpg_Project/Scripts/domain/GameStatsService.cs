@@ -43,10 +43,19 @@ public class GameStatsService
     {
         _currentStats.GameTime = Time.time - _gameStartTime;
         _currentStats.IsVictory = isVictory;
+        _currentStats.TotalScore = ScoreCalculator.Calculate(_currentStats);
         _repository.SaveStats(_currentStats);
+        UpdateBestStats(_currentStats);
         Debug.Log($"Game completed! Stats saved: {_currentStats}");
 
         _currentStats = null;
+    }
+
+    private void UpdateBestStats(GameStats stats)
+    {
+        var bestStats = _repository.GetBestStats() ?? new BestGameStats();
+        bestStats.TryUpdate(stats);
+        _repository.SaveBestStats(bestStats);
     }
 
     public bool HasActiveSession => _currentStats != null;
