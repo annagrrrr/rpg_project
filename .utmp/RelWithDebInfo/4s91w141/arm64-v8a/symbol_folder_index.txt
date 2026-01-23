@@ -1,0 +1,1 @@
+C:\Users\ethereal\repos\rpg_project\Library\Bee\Android\Prj\IL2CPP\Gradle\unityLibrary\build\intermediates\cxx\RelWithDebInfo\4s91w141\obj\arm64-v8a

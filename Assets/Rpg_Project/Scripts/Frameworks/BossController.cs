@@ -1,262 +1,294 @@
-using UnityEngine;
+﻿using UnityEngine;
+using System;
 
 public class BossController : MonoBehaviour
 {
     [Header("Boss Settings")]
-    [SerializeField] private BossData data;
-    [SerializeField] private Transform player;
-    [SerializeField] private Transform meleeWeaponAnchor;
+    [SerializeField] private float detectionRange = 25f;
+    [SerializeField] private float moveSpeed = 2.5f;
+    [SerializeField] private int damage = 500;
 
+    [Header("References")]
+    [SerializeField] private EnemyController enemyController;
+    [SerializeField] private EnemyHealthPresenter healthPresenter;
+
+    private Transform player;
     private PlayerHealthController playerHealth;
+    private EnemyKillTracker killTracker;
+    private bool isRangedBoss = false;
 
-    public Transform Player => player;
-    public BossData Data => data;
+    public event Action OnBossDied;
 
-    private IBossState currentState;
-    private bool canMove = true;
-    private bool isProvoked = false;
-    public float AggroRange => data.AggroRange;
-    public float HeavyAttackRange => data.HeavyAttackRange;
-    public float RetreatThreshold => data.RetreatHealthThreshold;
-
-    [SerializeField] private GameObject meleeWeaponPrefab;
-    [SerializeField] private GameObject rangedWeaponPrefab;
-
-    [SerializeField] private Transform firePoint;
-
-
-    private IBossWeapon _currentWeapon;
-    private ElementType _element;
-    public float AttackRange;
-
-    private float lastAttackTime = -Mathf.Infinity;
-    [SerializeField] private float attackCooldown = 2f;
-    public bool CanAttack()
-    {
-        return Time.time - lastAttackTime >= attackCooldown;
-    }
-
-    private void ResetAttackCooldown()
-    {
-        lastAttackTime = Time.time;
-    }
     private void Start()
     {
-        bool useMelee = Random.value > 0.5f;
-        Transform weaponParent = useMelee ? meleeWeaponAnchor : transform;
-        GameObject weaponGO = Instantiate(useMelee ? meleeWeaponPrefab : rangedWeaponPrefab, weaponParent);
-        weaponGO.transform.localPosition = Vector3.zero;
-        weaponGO.transform.localRotation = Quaternion.identity;
-        _currentWeapon = weaponGO.GetComponent<IBossWeapon>();
-        if (_currentWeapon is BossRangedWeapon rangedWeapon)
+        Debug.Log("=== BOSS INITIALIZATION ===");
+
+        FindPlayer();
+
+        killTracker = FindObjectOfType<EnemyKillTracker>();
+        Debug.Log($"KillTracker found: {killTracker != null}");
+
+        if (enemyController == null)
+            enemyController = GetComponent<EnemyController>();
+
+        if (healthPresenter == null)
+            healthPresenter = GetComponent<EnemyHealthPresenter>();
+
+        Debug.Log($"EnemyController: {enemyController != null}");
+        Debug.Log($"HealthPresenter: {healthPresenter != null}");
+        Debug.Log($"PlayerHealth: {playerHealth != null}");
+
+        isRangedBoss = UnityEngine.Random.value > 0.5f;
+        Debug.Log($"Boss type: {(isRangedBoss ? "RANGED" : "MELEE")}");
+
+        ConfigureBossType();
+
+        InitializeEnemyController();
+
+        Invoke(nameof(ForceInitializeWeapon), 0.5f);
+
+        if (healthPresenter != null)
         {
-            rangedWeapon.SetFirePoint(firePoint);
+            healthPresenter.OnDied += HandleDeath;
         }
+    }
 
-        _element = (ElementType)Random.Range(0, 4);
-        _currentWeapon.SetElement(_element);
-        AttackRange = _currentWeapon?.AttackRange ?? 0f;
-
-        if (player == null)
+    private void FindPlayer()
+    {
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj != null)
         {
-            var p = GameObject.FindGameObjectWithTag("Player");
-            if (p != null) player = p.transform;
+            player = playerObj.transform;
+            Debug.Log($"Player object found: {playerObj.name}");
+
+            playerHealth = playerObj.GetComponent<PlayerHealthController>();
+
+            if (playerHealth == null)
+            {
+                playerHealth = playerObj.GetComponentInChildren<PlayerHealthController>();
+                Debug.Log("Trying GetComponentInChildren...");
+            }
+
+            if (playerHealth == null)
+            {
+                playerHealth = FindObjectOfType<PlayerHealthController>();
+                Debug.Log("Trying FindObjectOfType...");
+            }
+
+            if (playerHealth != null)
+            {
+                Debug.Log($"✅ PlayerHealthController FOUND: {playerHealth.gameObject.name}");
+            }
+            else
+            {
+                Debug.LogError("❌ PlayerHealthController NOT FOUND on player!");
+                Debug.Log("Player components:");
+                foreach (var comp in playerObj.GetComponents<Component>())
+                {
+                    Debug.Log($"  - {comp.GetType().Name}");
+                }
+            }
+        }
+        else
+        {
+            Debug.LogError("❌ Player object with tag 'Player' not found!");
+        }
+    }
+
+    private void ConfigureBossType()
+    {
+        if (enemyController == null) return;
+
+        enemyController.transform.localScale = new Vector3(0.55f, 0.55f, 0.55f);
+
+        try
+        {
+            var behaviourField = typeof(EnemyController).GetField("behaviourType",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+            if (behaviourField != null)
+            {
+                if (isRangedBoss)
+                {
+                    behaviourField.SetValue(enemyController, EnemyBehaviourTypes.Ranged);
+                    Debug.Log("Boss configured as RANGED");
+
+                    var attackRangeField = typeof(EnemyController).GetField("attackRange",
+                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    if (attackRangeField != null)
+                        attackRangeField.SetValue(enemyController, 10f);
+
+                    var safeDistanceField = typeof(EnemyController).GetField("safeDistance",
+                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    if (safeDistanceField != null)
+                        safeDistanceField.SetValue(enemyController, 6f);
+                }
+                else
+                {
+                    behaviourField.SetValue(enemyController, EnemyBehaviourTypes.Melee);
+                    Debug.Log("Boss configured as MELEE");
+
+                    var attackRangeField = typeof(EnemyController).GetField("attackRange",
+                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    if (attackRangeField != null)
+                        attackRangeField.SetValue(enemyController, 4f);
+                }
+            }
+
+            var damageField = typeof(EnemyController).GetField("damage",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (damageField != null)
+                damageField.SetValue(enemyController, 30);
+
+            if (healthPresenter != null)
+            {
+                var maxHealthField = typeof(EnemyHealthPresenter).GetField("maxHealth",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                if (maxHealthField != null)
+                    maxHealthField.SetValue(healthPresenter, 300);
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"Could not configure boss via reflection: {e.Message}");
+        }
+    }
+
+    private void InitializeEnemyController()
+    {
+        if (enemyController == null)
+        {
+            Debug.LogError("EnemyController is null!");
+            return;
         }
 
         if (playerHealth == null)
         {
-            playerHealth = player?.GetComponent<PlayerHealthController>();
+            Debug.LogError("PlayerHealthController is null! Cannot initialize EnemyController");
+            return;
         }
-        ChangeState(new BossIdleState());
+
+        if (killTracker == null)
+        {
+            Debug.LogError("KillTracker is null!");
+            killTracker = FindObjectOfType<EnemyKillTracker>();
+        }
+
+        enemyController.Initialize(playerHealth, killTracker);
+        Debug.Log("✅ EnemyController initialized for boss!");
+
+        enemyController.enabled = true;
+    }
+
+    private void ForceInitializeWeapon()
+    {
+        Debug.Log("=== FORCE INITIALIZING BOSS WEAPON ===");
+
+        var weapon = GetComponentInChildren<MeleeEnemyWeapon>();
+        if (weapon == null)
+        {
+            Debug.LogError("MeleeEnemyWeapon not found on boss!");
+            return;
+        }
+
+        if (playerHealth == null)
+        {
+            Debug.LogError("PlayerHealthController still null! Cannot initialize weapon");
+            return;
+        }
+
+        var bossData = new EnemyData
+        {
+            DetectionRange = detectionRange,
+            AttackRange = isRangedBoss ? 10f : 4f, 
+            MoveSpeed = moveSpeed,
+            AttackCooldown = 1.5f,
+            Damage = 30 
+        };
+
+        weapon.Initialize(playerHealth, bossData);
+        Debug.Log($" Boss weapon initialized! AttackRange: {bossData.AttackRange}, Damage: {bossData.Damage}");
+
+        if (enemyController != null)
+        {
+            var weaponObjectField = typeof(EnemyController).GetField("weaponObject",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+            if (weaponObjectField != null)
+            {
+                weaponObjectField.SetValue(enemyController, weapon as MonoBehaviour);
+                Debug.Log("Weapon linked to EnemyController");
+            }
+        }
+    }
+
+    private void FixWeaponParenting()
+    {
+        var weapons = GetComponentsInChildren<IEnemyWeapon>(true);
+        Debug.Log($"Found {weapons.Length} weapons on boss");
+
+        foreach (var weapon in weapons)
+        {
+            var weaponTransform = (weapon as MonoBehaviour)?.transform;
+            if (weaponTransform != null)
+            {
+                Debug.Log($"Weapon: {weaponTransform.name}, Parent: {weaponTransform.parent?.name}");
+
+                if (weaponTransform.parent != transform)
+                {
+                    weaponTransform.SetParent(transform);
+                    weaponTransform.localPosition = new Vector3(0, 0, 1f); 
+                    Debug.Log($"Moved weapon {weaponTransform.name} to boss");
+                }
+            }
+        }
     }
 
     private void Update()
     {
-        currentState?.Execute(this);
-        if (isCharging)
-            UpdateCharge();
+        if (player == null || healthPresenter == null || healthPresenter.IsDead) return;
     }
 
-    public void Initialize(Transform player)
+    private void HandleDeath()
     {
-        this.player = player;
-        ChangeState(new BossIdleState());
-    }
+        Debug.Log("=== BOSS DEFEATED! ===");
 
-    public void ChangeState(IBossState newState)
-    {
-        currentState?.Exit(this);
-        currentState = newState;
-        currentState?.Enter(this);
-    }
+        OnBossDied?.Invoke();
 
-    
-    private bool IsPeacefulMode()
-    {
-        return GameModeManager.Instance.CurrentMode == GameMode.Peaceful;
-    }
-
-    
-    public void PerformAttack()
-    {
-        if (IsPeacefulMode() || !CanAttack()) return;
-        if (playerHealth != null)
+        if (ScoreManager.Instance != null)
         {
-            _currentWeapon.Attack(player, data.Damage);
-            playerHealth.ReceiveDamage(data.Damage);
-            ResetAttackCooldown();
+            ScoreManager.Instance.AddScore(50);
+            Debug.Log("Added 50 score for boss kill");
+        }
+
+        Destroy(gameObject, 3f);
+    }
+
+    public void Initialize(Transform playerTransform)
+    {
+        player = playerTransform;
+        if (player != null)
+        {
+            playerHealth = player.GetComponent<PlayerHealthController>();
+            if (playerHealth == null)
+                playerHealth = player.GetComponentInChildren<PlayerHealthController>();
+
+            Debug.Log($"Boss initialized with player: {player.name}, HealthController: {playerHealth != null}");
         }
     }
 
-    public void PerformHeavyAttack()
+    private void OnDrawGizmosSelected()
     {
-        if (IsPeacefulMode() || !CanAttack()) return;
-        if (playerHealth != null)
+        if (!Application.isPlaying) return;
+
+        Gizmos.color = Color.red;
+        float attackRadius = isRangedBoss ? 10f : 4f;
+        Gizmos.DrawWireSphere(transform.position, attackRadius);
+
+        if (player != null)
         {
-            _currentWeapon.Attack(player, data.Damage);
-            playerHealth.ReceiveDamage(data.Damage);
-            ResetAttackCooldown();
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawLine(transform.position, player.position);
         }
     }
-
-    public void PerformCharge()
-    {
-        if (IsPeacefulMode()) return;
-        Debug.Log("Boss: Charging!");
-    }
-
-    public void PerformRetreat()
-    {
-        if (IsPeacefulMode()) return;
-        Debug.Log("Boss: Retreating!");
-    }
-
-    public void PerformEnrage()
-    {
-        if (IsPeacefulMode()) return;
-        Debug.Log("Boss: Enraged!");
-    }
-
-    public void PerformStun()
-    {
-        if (IsPeacefulMode()) return;
-        Debug.Log("Boss: Stunned!");
-    }
-
-    
-    public void MoveTowards(Vector3 target, float speed)
-    {
-        if (IsPeacefulMode()) return;  
-        if (!canMove) return;
-
-        Vector3 direction = (target - transform.position).normalized;
-        transform.position += direction * speed * Time.deltaTime;
-
-        RotateTowards(direction);
-    }
-
-    public void RotateTowards(Vector3 direction)
-    {
-        if (direction == Vector3.zero) return;
-
-        Quaternion lookRotation = Quaternion.LookRotation(direction);
-        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, 10f * Time.deltaTime);
-    }
-
-    public void EnableMovement() => canMove = true;
-    public void DisableMovement() => canMove = false;
-    public bool CanMove() => canMove;
-
-    
-    private float chargeTimer = 0f;
-    private bool isCharging = false;
-
-    public void StartCharge()
-    {
-        if (IsPeacefulMode()) return;
-        Debug.Log("Boss: Started Charge");
-        isCharging = true;
-        chargeTimer = data.ChargeDuration;
-        SetChargeTarget(PlayerPosition);
-        DisableMovement();
-    }
-
-    public void UpdateCharge()
-    {
-        if (IsPeacefulMode() || !isCharging) return;
-
-        chargeTimer -= Time.deltaTime;
-        MoveTowards(chargeTarget, data.ChargeSpeed);
-    }
-
-    public void StopCharge()
-    {
-        if (IsPeacefulMode()) return;
-        Debug.Log("Boss: Stopped Charge");
-        isCharging = false;
-        EnableMovement();
-    }
-
-    
-    public bool IsPlayerInRange(float range)
-    {
-        if (player == null) return false;
-        return Vector3.Distance(transform.position, player.position) <= range;
-    }
-
-    public float DistanceToPlayer()
-    {
-        if (player == null) return Mathf.Infinity;
-        return Vector3.Distance(transform.position, player.position);
-    }
-
-    
-    private Vector3 chargeTarget;
-    public void SetChargeTarget(Vector3 target)
-    {
-        chargeTarget = target;
-    }
-
-    public bool HasReachedChargeTarget()
-    {
-        return Vector3.Distance(transform.position, chargeTarget) <= 1f;
-    }
-
-    
-    public void MoveAwayFromPlayer(float speed)
-    {
-        if (IsPeacefulMode()) return;
-        Vector3 dir = (transform.position - PlayerPosition).normalized;
-        MoveTowards(transform.position + dir, speed);
-    }
-
-   
-    private bool enraged = false;
-    public void IncreaseDamageAndSpeed()
-    {
-        if (IsPeacefulMode()) return;
-        if (enraged) return;
-
-        Debug.Log("Boss: Enraged! Increasing stats.");
-        data.Damage *= 2;
-        data.MoveSpeed *= 1.5f;
-        enraged = true;
-    }
-
-    
-    public bool ShouldUseHeavyAttack()
-    {
-        if (IsPeacefulMode()) return false;
-        return IsPlayerInRange(data.HeavyAttackRange) && Random.value > 0.5f;
-    }
-
-    public void MoveTowardsPlayer(float speed)
-    {
-        if (IsPeacefulMode()) return;
-        MoveTowards(PlayerPosition, speed);
-    }
-
-    public Vector3 PlayerPosition => player?.position ?? transform.position;
-
-    
 }

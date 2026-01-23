@@ -2,36 +2,38 @@
 
 public class SceneBootstrapper : MonoBehaviour
 {
+    [Header("Player Settings")]
     [SerializeField] private DynamicJoystick mobileJoystick;
     [SerializeField] private MobileButton jumpButton;
     [SerializeField] private MobileButton attackButton;
     [SerializeField] private MobileButton magicButton;
     [SerializeField] private MobileButton pickupButton;
     [SerializeField] private MobileButton sprintButton;
-
     [SerializeField] private Transform playerSpawnPoint;
     [SerializeField] private PlayerControllerr playerPrefab;
 
-    [SerializeField] private EnemyController[] enemyPrefabs;
+    [Header("Enemy Settings")]
+    [SerializeField] private GameObject[] enemyPrefabs;
     [SerializeField] private Transform[] enemySpawnPoints;
-    [SerializeField] private BossController bossPrefab;
-    [SerializeField] private Transform bossSpawnPoint;
 
+    [Header("Boss Settings")]
+    [SerializeField] private GameObject bossPrefab;
+    [SerializeField] private Transform bossSpawnPoint;
+    [SerializeField] private GameObject bossContainer;
+
+    [Header("UI References")]
     [SerializeField] private CameraController cameraController;
     [SerializeField] private Transform cameraTransform;
-
     [SerializeField] private VictoryMusicPlayer victoryMusicPlayer;
-    [SerializeField] private GameObject bossContainer;
     [SerializeField] private EnemyKillTracker killTracker;
-
     [SerializeField] private PlayerHealthView playerHealthView;
     [SerializeField] private AttackCooldownPresenter cooldownPresenter;
 
-    [SerializeField] private GameStatsView statsViewPrefab;
-
+    // Services
     private GameStatsService _statsService;
     private EndGameUseCase _endGameUseCase;
-    private FollowCameraUseCase _followCameraUseCase;
+    private bool _bossSpawned = false;
+    private bool _gameEnded = false;
 
     private void Start()
     {
@@ -57,8 +59,12 @@ public class SceneBootstrapper : MonoBehaviour
         InitializeCamera(playerInstance.transform);
 
         InitializePlayerSystems(playerInstance, inputService, rb, groundChecker, animationPresenter);
-        InitializeEnemies(playerInstance);
+
+        SpawnEnemies(playerInstance);
+
         InitializeGameEvents();
+
+        Debug.Log("Game initialized successfully!");
     }
 
     private IInputService CreateInputService()
@@ -88,14 +94,9 @@ public class SceneBootstrapper : MonoBehaviour
 
     private void InitializeCamera(Transform playerTransform)
     {
-        if (cameraController == null || cameraTransform == null)
-        {
-            Debug.LogWarning("Camera references not set in SceneBootstrapper");
-            return;
-        }
+        if (cameraController == null || cameraTransform == null) return;
 
         ICameraInputService cameraInput;
-
 #if UNITY_ANDROID || UNITY_IOS
         cameraInput = new MobileCameraInputService();
 #else
@@ -113,14 +114,14 @@ public class SceneBootstrapper : MonoBehaviour
             CollisionMask = LayerMask.GetMask("Environment", "Obstacles")
         };
 
-        _followCameraUseCase = new FollowCameraUseCase(
+        var followCameraUseCase = new FollowCameraUseCase(
             cameraInput,
             cameraPresenter,
             playerTransform,
             cameraSettings
         );
 
-        cameraController.Initialize(_followCameraUseCase);
+        cameraController.Initialize(followCameraUseCase);
     }
 
     private void InitializePlayerSystems(PlayerControllerr playerInstance, IInputService inputService,
@@ -134,7 +135,6 @@ public class SceneBootstrapper : MonoBehaviour
         var stunPlayerUseCase = new StunPlayerUseCase(playerStunState, animationPresenter);
 
         var cameraPresenter = new CameraPresenter(cameraTransform);
-
         var moveUseCase = new MovePlayerUseCase(repository, presenter, cameraPresenter, animationPresenter);
         var rotationPresenter = new PlayerRotationPresenter(playerInstance.transform);
 
@@ -153,14 +153,7 @@ public class SceneBootstrapper : MonoBehaviour
         var pickupUseCase = new PickupWeaponUseCase(pickupProvider, inventory);
 
         var jumpPresenter = new PlayerJumpPresenter(rb);
-
-        var jumpUseCase = new JumpUseCase(
-            jumpPresenter,
-            groundChecker,
-            jumpForce: 6f,
-            animationPresenter,
-            _followCameraUseCase
-        );
+        var jumpUseCase = new JumpUseCase(jumpPresenter, groundChecker, 6f, animationPresenter);
 
         var health = new Health(1000);
         var healthPresenter = new PlayerHealthPresenter(
@@ -190,7 +183,7 @@ public class SceneBootstrapper : MonoBehaviour
         );
     }
 
-    private void InitializeEnemies(PlayerControllerr playerInstance)
+    private void SpawnEnemies(PlayerControllerr playerInstance)
     {
         if (enemyPrefabs == null || enemySpawnPoints == null)
         {
@@ -229,20 +222,75 @@ public class SceneBootstrapper : MonoBehaviour
 
         killTracker.OnThreeEnemiesKilled += () =>
         {
-            if (bossPrefab != null && bossSpawnPoint != null && bossContainer != null)
-            {
-                var bossInstance = Instantiate(bossPrefab, bossSpawnPoint.position, Quaternion.identity, bossContainer.transform);
-                bossInstance.Initialize(playerPrefab.transform);
-            }
+            if (_bossSpawned || _gameEnded) return;
+
+            Debug.Log("3 enemies killed! Spawning boss...");
+            SpawnBoss();
+            _bossSpawned = true;
         };
 
         killTracker.OnFiveEnemiesKilled += () =>
         {
-            if (victoryMusicPlayer != null)
-            {
-                victoryMusicPlayer.PlayVictory();
-            }
-            _endGameUseCase.Execute(true);
+            if (_gameEnded) return;
+
+            Debug.Log("5 enemies killed! Victory!");
+            EndGame(true);
         };
+    }
+
+    private void SpawnBoss()
+    {
+        if (bossPrefab == null || bossSpawnPoint == null)
+        {
+            Debug.LogWarning("Boss references not assigned!");
+            return;
+        }
+
+        var bossInstance = Instantiate(bossPrefab, bossSpawnPoint.position,
+            Quaternion.identity);
+
+        if (bossContainer != null)
+        {
+            bossInstance.transform.SetParent(bossContainer.transform);
+        }
+
+        Debug.Log($"Boss spawned at {bossSpawnPoint.position}");
+
+        var bossController = bossInstance.GetComponent<BossController>();
+        if (bossController != null)
+        {
+            var player = GameObject.FindGameObjectWithTag("Player");
+            if (player != null)
+            {
+                bossController.Initialize(player.transform);
+
+                bossController.OnBossDied += () =>
+                {
+                    Debug.Log("Boss killed! Victory!");
+                    EndGame(true);
+                };
+            }
+        }
+
+        Debug.Log("Boss spawned successfully!");
+    }
+
+    private void EndGame(bool isVictory)
+    {
+        if (_gameEnded) return;
+
+        _gameEnded = true;
+
+        if (isVictory && victoryMusicPlayer != null)
+        {
+            victoryMusicPlayer.PlayVictory();
+        }
+
+        Invoke(nameof(CompleteGame), 2f);
+    }
+
+    private void CompleteGame()
+    {
+        _endGameUseCase.Execute(true);
     }
 }

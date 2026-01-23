@@ -17,16 +17,10 @@ public class MeleeEnemyWeapon : MonoBehaviour, IEnemyWeapon
         if (_playerTarget == null || _enemyData == null)
             return;
 
-        float distance = Vector3.Distance(transform.parent.position, _playerTarget.Transform.position);  
-
-        if (distance <= _enemyData.AttackRange)
-        {
+        
             _playerTarget.ReceiveDamage(damage);
-            Debug.Log($"[MeleeEnemyWeapon] ���� ������! ����: {damage}, ����������: {distance:F2}");
-        }
-        else
-        {
-            Debug.Log($"[MeleeEnemyWeapon] ����� ������� ������: {distance:F2} > {_enemyData.AttackRange}");
-        }
+            
+        
+        
     }
 }
